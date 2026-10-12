@@ -32,6 +32,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.jsx'])
 </head>
 <body class="bg-[var(--background)] text-[var(--text-primary)] antialiased min-h-screen">
-    <div id="root"></div>
+    <div id="root" data-initial-view="{{ $initialView ?? 'beranda' }}"></div>
 </body>
 </html>

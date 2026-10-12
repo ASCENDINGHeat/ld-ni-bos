@@ -21,7 +21,7 @@ export default function Navbar({
     onOpenWishlist,
     onSearchSubmit,
     categories = [
-        { id: 'builder', name: 'Rakit PC', href: '#pc-builder', isHighlight: true },
+        { id: 'builder', name: 'Rakit PC', href: '/pc-builder', isHighlight: true },
         { id: 'processor', name: 'Processor', href: '#processor' },
         { id: 'vga', name: 'VGA Card', href: '#vga' },
         { id: 'motherboard', name: 'Motherboard', href: '#motherboard' },
@@ -59,7 +59,7 @@ export default function Navbar({
                             100% Produk Bergaransi Resmi
                         </span>
                         <a
-                            href="#pc-builder"
+                            href="/pc-builder"
                             className="text-amber-300 hover:text-white font-medium transition-colors"
                         >
                             Simulasi PC Builder →
@@ -282,7 +282,7 @@ export default function Navbar({
                         {/* Right Highlight: PC Builder CTA */}
                         <div className="flex items-center gap-3">
                             <a
-                                href="#pc-builder"
+                                href="/pc-builder"
                                 className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[var(--radius-pill)] bg-[var(--brand-600)] text-white font-medium text-xs hover:bg-[var(--brand-700)] shadow-xs transition-colors"
                             >
                                 <WrenchIcon className="w-3.5 h-3.5" />

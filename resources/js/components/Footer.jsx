@@ -158,7 +158,7 @@ export default function Footer() {
                         </h4>
                         <ul className="space-y-2.5 text-xs sm:text-sm">
                             <li>
-                                <a href="#pc-builder" className="hover:text-[var(--brand-600)] font-medium text-[var(--brand-600)] transition-colors flex items-center gap-1">
+                                <a href="/pc-builder" className="hover:text-[var(--brand-600)] font-medium text-[var(--brand-600)] transition-colors flex items-center gap-1">
                                     <span>Simulasi PC Builder</span>
                                     <ArrowRightIcon className="w-3 h-3" />
                                 </a>
