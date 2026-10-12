@@ -257,6 +257,8 @@ Uji token pada komponen nyata, termasuk kontras serta state hover dan focus.
 
 - **Desktop:** wordmark, search yang menonjol, kategori, wishlist, cart, akun, dan theme toggle. Hindari header yang terlalu padat.
 - **Mobile:** tampilkan wordmark dan aksi utama pada baris atas. Search dapat memenuhi baris berikutnya; kategori dapat memakai horizontal scroll atau menu.
+- Semua tautan kategori pada dropdown, menu mobile, dan navigasi cepat menuju `/katalog?category=<id>`; tautan Rakit PC tetap menuju `/pc-builder`.
+- Ikon wishlist membuka daftar produk favorit dengan jumlah yang sama seperti counter header. Aksi simpan/hapus pada kartu produk, detail, dan Quick View harus mencerminkan state yang sama.
 
 ### Footer
 
@@ -355,6 +357,8 @@ Kelompok komponen dapat mencakup CPU, motherboard, RAM, GPU, storage, PSU, casin
 Keranjang menampilkan gambar, nama, spesifikasi relevan, harga satuan, kuantitas, subtotal, dan aksi hapus. Total dan CTA checkout harus jelas.
 
 Validasi kuantitas dan stok berdasarkan data yang tersedia. Wishlist menampilkan produk favorit, aksi ke keranjang bila didukung, serta empty state yang mengarahkan pengguna ke katalog. Ringkasan yang sticky di mobile tidak boleh menutupi konten.
+
+Wishlist harus mendukung tambah/hapus dari kartu produk, halaman detail, dan Quick View. Counter header menunjukkan jumlah produk unik; daftar wishlist menyediakan aksi hapus dan tautan kembali ke detail produk.
 
 ### 11.5 Pesanan
 

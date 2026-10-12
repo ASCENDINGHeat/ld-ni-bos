@@ -16,11 +16,12 @@ export default function ProductCatalog({
     wishlistItems = [],
     onQuickView,
     onSelectProduct,
+    initialCategory = 'all',
 }) {
 
     // Filter & Sort States
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [selectedCategory, setSelectedCategory] = useState(initialCategory);
     const [selectedBrands, setSelectedBrands] = useState([]);
     const [selectedSockets, setSelectedSockets] = useState([]);
     const [selectedRamFactors, setSelectedRamFactors] = useState([]);
@@ -39,6 +40,7 @@ export default function ProductCatalog({
             { id: 'ram', name: 'RAM' },
             { id: 'storage', name: 'Storage SSD' },
             { id: 'psu', name: 'Power Supply' },
+            { id: 'casing', name: 'Casing & Cooler' },
         ];
 
         return cats.map((c) => ({

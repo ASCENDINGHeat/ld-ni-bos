@@ -33,25 +33,43 @@ function App() {
     );
     const [builderProduct, setBuilderProduct] = useState(null);
     const [quickViewProduct, setQuickViewProduct] = useState(null);
+    const [catalogNavigationKey, setCatalogNavigationKey] = useState(0);
+    const [catalogCategory, setCatalogCategory] = useState(() => {
+        const category = new URLSearchParams(window.location.search).get('category');
+        return productsData.some((product) => product.category === category) ? category : 'all';
+    });
 
-    const navigateToView = (view, product = null) => {
+    const navigateToView = (view, product = null, category = null) => {
         const paths = {
             beranda: '/',
             katalog: '/katalog',
             'pc-builder': '/pc-builder',
         };
-        const path =
+        const basePath =
             view === 'detail' && product?.slug
                 ? `/produk/${encodeURIComponent(product.slug)}`
                 : paths[view];
 
-        if (!path) return;
+        if (!basePath) return;
+
+        const path =
+            view === 'katalog' && category && category !== 'all'
+                ? `${basePath}?category=${encodeURIComponent(category)}`
+                : basePath;
 
         if (view === 'detail') setSelectedProduct(product);
         if (view === 'pc-builder') setBuilderProduct(product);
+        if (view === 'katalog') {
+            setCatalogCategory(category || 'all');
+            setCatalogNavigationKey((previous) => previous + 1);
+        }
 
         setActiveView(view);
-        window.history.pushState({ view, productSlug: product?.slug ?? null }, '', path);
+        window.history.pushState(
+            { view, productSlug: product?.slug ?? null, category: category || 'all' },
+            '',
+            path
+        );
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -73,7 +91,16 @@ function App() {
                 '/pc-builder': 'pc-builder',
             };
 
-            setActiveView(viewsByPath[window.location.pathname] || 'beranda');
+            const view = viewsByPath[window.location.pathname] || 'beranda';
+            setActiveView(view);
+            if (view === 'katalog') {
+                const category = new URLSearchParams(window.location.search).get('category');
+                setCatalogCategory(
+                    productsData.some((product) => product.category === category)
+                        ? category
+                        : 'all'
+                );
+            }
         };
 
         const handleLinkClick = (e) => {
@@ -83,14 +110,26 @@ function App() {
             if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('mailto:')) {
                 return;
             }
-            if (href === '/' || href === '/katalog' || href === '/pc-builder') {
+
+            const targetUrl = new URL(href, window.location.origin);
+            if (targetUrl.origin !== window.location.origin) return;
+
+            if (targetUrl.pathname === '/katalog') {
                 e.preventDefault();
-                const viewMap = {
-                    '/': 'beranda',
-                    '/katalog': 'katalog',
-                    '/pc-builder': 'pc-builder',
-                };
-                navigateToView(viewMap[href]);
+                navigateToView(
+                    'katalog',
+                    null,
+                    targetUrl.searchParams.get('category') || 'all'
+                );
+                return;
+            }
+
+            if (
+                targetUrl.pathname === '/' ||
+                targetUrl.pathname === '/pc-builder'
+            ) {
+                e.preventDefault();
+                navigateToView(targetUrl.pathname === '/' ? 'beranda' : 'pc-builder');
             }
         };
 
@@ -124,8 +163,19 @@ function App() {
     };
 
     return (
-        <Layout>
-            {({ onAddToCart, onAddMultipleToCart, onOpenCart, onToggleWishlist, onShowToast }) => (
+        <Layout
+            onSelectProduct={handleSelectProduct}
+            onOpenCatalog={() => navigateToView('katalog')}
+            onNavigateCategory={(category) => navigateToView('katalog', null, category)}
+        >
+            {({
+                onAddToCart,
+                onAddMultipleToCart,
+                onOpenCart,
+                onToggleWishlist,
+                wishlistItems,
+                onShowToast,
+            }) => (
                 <div className="w-full flex flex-col">
                     {/* Active View Display */}
                     {activeView === 'detail' && selectedProduct ? (
@@ -134,6 +184,9 @@ function App() {
                             onBackToCatalog={handleBackToCatalog}
                             onAddToCart={onAddToCart}
                             onToggleWishlist={onToggleWishlist}
+                            isWishlisted={wishlistItems.some(
+                                (item) => item.id === selectedProduct.id
+                            )}
                             onOpenPCBuilder={handleOpenPCBuilder}
                             onSelectProduct={handleSelectProduct}
                             relatedProducts={productsData.filter(
@@ -163,8 +216,11 @@ function App() {
                         </section>
                     ) : activeView === 'katalog' ? (
                         <ProductCatalog
+                            key={`${catalogCategory}-${catalogNavigationKey}`}
+                            initialCategory={catalogCategory}
                             onAddToCart={onAddToCart}
                             onToggleWishlist={onToggleWishlist}
+                            wishlistItems={wishlistItems}
                             onQuickView={handleOpenQuickView}
                             onSelectProduct={handleSelectProduct}
                         />
@@ -306,6 +362,9 @@ function App() {
                         onClose={handleCloseQuickView}
                         onAddToCart={onAddToCart}
                         onToggleWishlist={onToggleWishlist}
+                        isWishlisted={wishlistItems.some(
+                            (item) => item.id === quickViewProduct?.id
+                        )}
                         onOpenPCBuilder={handleOpenPCBuilder}
                         onViewFullDetail={handleSelectProduct}
                     />

@@ -370,6 +370,12 @@ export default function ProductQuickViewModal({
                                 <button
                                     type="button"
                                     onClick={() => onToggleWishlist && onToggleWishlist(product)}
+                                    aria-pressed={isWishlisted}
+                                    aria-label={
+                                        isWishlisted
+                                            ? `Hapus ${name} dari wishlist`
+                                            : `Simpan ${name} ke wishlist`
+                                    }
                                     className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] border text-xs font-medium transition-colors ${
                                         isWishlisted
                                             ? 'border-[var(--danger)] text-[var(--danger)] bg-[var(--danger-bg)]'
