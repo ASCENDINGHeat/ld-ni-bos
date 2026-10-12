@@ -158,6 +158,24 @@ export function ChevronDownIcon({ className = 'w-4 h-4', ...props }) {
     );
 }
 
+export function ChevronUpIcon({ className = 'w-4 h-4', ...props }) {
+    return (
+        <svg
+            className={className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <path d="m18 15-6-6-6 6" />
+        </svg>
+    );
+}
+
 export function ChevronRightIcon({ className = 'w-4 h-4', ...props }) {
     return (
         <svg
@@ -449,6 +467,87 @@ export function CheckCircleIcon({ className = 'w-5 h-5', ...props }) {
         >
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <path d="m9 11 3 3L22 4" />
+        </svg>
+    );
+}
+
+export function FilterIcon({ className = 'w-5 h-5', ...props }) {
+    return (
+        <svg
+            className={className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+        </svg>
+    );
+}
+
+export function CheckIcon({ className = 'w-4 h-4', ...props }) {
+    return (
+        <svg
+            className={className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <polyline points="20 6 9 17 4 12" />
+        </svg>
+    );
+}
+
+export function RotateCcwIcon({ className = 'w-4 h-4', ...props }) {
+    return (
+        <svg
+            className={className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+        </svg>
+    );
+}
+
+export function SlidersHorizontalIcon({ className = 'w-5 h-5', ...props }) {
+    return (
+        <svg
+            className={className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <line x1="21" x2="14" y1="4" y2="4" />
+            <line x1="10" x2="3" y1="4" y2="4" />
+            <line x1="21" x2="12" y1="12" y2="12" />
+            <line x1="8" x2="3" y1="12" y2="12" />
+            <line x1="21" x2="16" y1="20" y2="20" />
+            <line x1="12" x2="3" y1="20" y2="20" />
+            <line x1="14" x2="14" y1="2" y2="6" />
+            <line x1="8" x2="8" y1="10" y2="14" />
+            <line x1="16" x2="16" y1="18" y2="22" />
         </svg>
     );
 }
