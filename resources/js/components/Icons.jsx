@@ -551,3 +551,42 @@ export function SlidersHorizontalIcon({ className = 'w-5 h-5', ...props }) {
         </svg>
     );
 }
+
+export function EyeIcon({ className = 'w-5 h-5', ...props }) {
+    return (
+        <svg
+            className={className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+            <circle cx="12" cy="12" r="3" />
+        </svg>
+    );
+}
+
+export function ArrowLeftIcon({ className = 'w-4 h-4', ...props }) {
+    return (
+        <svg
+            className={className}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <path d="m12 19-7-7 7-7" />
+            <path d="M19 12H5" />
+        </svg>
+    );
+}
+

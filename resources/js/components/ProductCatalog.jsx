@@ -14,7 +14,10 @@ export default function ProductCatalog({
     onAddToCart,
     onToggleWishlist,
     wishlistItems = [],
+    onQuickView,
+    onSelectProduct,
 }) {
+
     // Filter & Sort States
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -448,9 +451,12 @@ export default function ProductCatalog({
                                     onAddToCart={onAddToCart}
                                     onToggleWishlist={onToggleWishlist}
                                     isWishlisted={wishlistItems.some((w) => w.id === product.id)}
+                                    onQuickView={onQuickView}
+                                    onSelectProduct={onSelectProduct}
                                 />
                             ))}
                         </div>
+
                     )}
                 </div>
             </div>
