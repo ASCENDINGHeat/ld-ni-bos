@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'category_id',
+    'vendor_id',
     'name',
     'slug',
     'type',
@@ -53,6 +54,14 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Vendor relation.
+     */
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(Vendor::class);
     }
 
     /**
@@ -167,5 +176,13 @@ class Product extends Model
         return $query->whereHas('category', function (Builder $q) use ($category): void {
             $q->where('slug', $category);
         });
+    }
+
+    /**
+     * Scope filter by vendor ID.
+     */
+    public function scopeByVendor(Builder $query, int $vendorId): Builder
+    {
+        return $query->where('vendor_id', $vendorId);
     }
 }
