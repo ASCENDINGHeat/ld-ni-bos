@@ -2,8 +2,186 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../js/**/*.{js,jsx,ts,tsx}';
+
+/* ==========================================================================
+   PC Store — Design Tokens (Light & Dark Mode)
+   Based on design-guideline-pc-store.md
+   ========================================================================== */
+
+:root {
+    color-scheme: light;
+
+    /* Brand Blue */
+    --brand-950: #102B50;
+    --brand-900: #123A68;
+    --brand-800: #174F8A;
+    --brand-700: #1D64A8;
+    --brand-600: #2478C5;
+    --brand-500: #3189D6;
+    --brand-100: #DCEEFF;
+    --brand-50: #F0F7FF;
+
+    /* Semantic Colors */
+    --success: #16804A;
+    --success-bg: #E5F6EC;
+    --warning: #A76600;
+    --warning-bg: #FFF3D6;
+    --danger: #C73535;
+    --danger-bg: #FDE8E8;
+    --info: #2166A5;
+    --info-bg: #E7F2FF;
+
+    /* Neutral Colors (Light Mode) */
+    --background: #F7F9FC;
+    --surface: #FFFFFF;
+    --surface-muted: #F0F3F7;
+    --text-primary: #17212F;
+    --text-secondary: #596579;
+    --text-muted: #748094;
+    --border: #DCE2EA;
+    --border-strong: #B9C4D2;
+
+    /* Radius scale */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-pill: 999px;
+    --container-width: 1280px;
+
+    /* Shadows */
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --shadow-elevated: 0 8px 28px rgba(15, 23, 42, 0.12);
+}
+
+[data-theme="dark"],
+.dark {
+    color-scheme: dark;
+
+    /* Neutral Colors (Dark Mode) */
+    --background: #0D1117;
+    --surface: #151B23;
+    --surface-muted: #1D2632;
+    --text-primary: #F2F5F9;
+    --text-secondary: #B7C1CF;
+    --text-muted: #8E9BAD;
+    --border: #2B3543;
+    --border-strong: #465367;
+
+    /* Brand Blue in Dark Mode */
+    --brand-950: #DCEEFF;
+    --brand-900: #B8DCFF;
+    --brand-800: #8FC6FA;
+    --brand-700: #67AEF0;
+    --brand-600: #4A9BE6;
+    --brand-500: #3C8DDA;
+    --brand-100: #173653;
+    --brand-50: #12283D;
+
+    /* Semantic Colors in Dark Mode */
+    --success: #5BD18B;
+    --success-bg: #0e291b;
+    --warning: #F4C15D;
+    --warning-bg: #2b1f05;
+    --danger: #FF7777;
+    --danger-bg: #301111;
+    --info: #7CBFFF;
+    --info-bg: #0f243c;
+
+    /* Shadows in Dark Mode */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-elevated: 0 8px 28px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]):not(.light) {
+        color-scheme: dark;
+        --background: #0D1117;
+        --surface: #151B23;
+        --surface-muted: #1D2632;
+        --text-primary: #F2F5F9;
+        --text-secondary: #B7C1CF;
+        --text-muted: #8E9BAD;
+        --border: #2B3543;
+        --border-strong: #465367;
+        --brand-950: #DCEEFF;
+        --brand-900: #B8DCFF;
+        --brand-800: #8FC6FA;
+        --brand-700: #67AEF0;
+        --brand-600: #4A9BE6;
+        --brand-500: #3C8DDA;
+        --brand-100: #173653;
+        --brand-50: #12283D;
+        --success: #5BD18B;
+        --success-bg: #0e291b;
+        --warning: #F4C15D;
+        --warning-bg: #2b1f05;
+        --danger: #FF7777;
+        --danger-bg: #301111;
+        --info: #7CBFFF;
+        --info-bg: #0f243c;
+        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
+        --shadow-elevated: 0 8px 28px rgba(0, 0, 0, 0.6);
+    }
+}
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    /* Brand */
+    --color-brand-50: var(--brand-50);
+    --color-brand-100: var(--brand-100);
+    --color-brand-500: var(--brand-500);
+    --color-brand-600: var(--brand-600);
+    --color-brand-700: var(--brand-700);
+    --color-brand-800: var(--brand-800);
+    --color-brand-900: var(--brand-900);
+    --color-brand-950: var(--brand-950);
+
+    /* Neutrals & Surfaces */
+    --color-background: var(--background);
+    --color-surface: var(--surface);
+    --color-surface-muted: var(--surface-muted);
+
+    /* Typography */
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-muted: var(--text-muted);
+
+    /* Borders */
+    --color-border: var(--border);
+    --color-border-strong: var(--border-strong);
+
+    /* Semantic */
+    --color-success: var(--success);
+    --color-success-bg: var(--success-bg);
+    --color-warning: var(--warning);
+    --color-warning-bg: var(--warning-bg);
+    --color-danger: var(--danger);
+    --color-danger-bg: var(--danger-bg);
+    --color-info: var(--info);
+    --color-info-bg: var(--info-bg);
+
+    /* Radius */
+    --radius-sm: var(--radius-sm);
+    --radius-md: var(--radius-md);
+    --radius-lg: var(--radius-lg);
+    --radius-xl: var(--radius-xl);
+
+    /* Shadows */
+    --shadow-card: var(--shadow-card);
+    --shadow-elevated: var(--shadow-elevated);
+}
+
+@layer base {
+    body {
+        background-color: var(--background);
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 }
