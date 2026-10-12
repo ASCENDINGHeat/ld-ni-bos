@@ -28,6 +28,8 @@ export default function Layout({
     onSelectProduct,
     onOpenCatalog,
     onNavigateCategory,
+    onViewCart,
+    onNavigateToCheckout,
 }) {
     const [cartItems, setCartItems] = useState(initialCartItems);
     const [wishlistItems, setWishlistItems] = useState([]);
@@ -49,19 +51,25 @@ export default function Layout({
     };
 
     const handleRemoveItem = (itemId) => {
+        const item = cartItems.find((cartItem) => cartItem.id === itemId);
+        if (!item || !window.confirm(`Hapus "${item.name}" dari keranjang?`)) return;
+
         setCartItems((prev) => prev.filter((item) => item.id !== itemId));
         showToast('Barang berhasil dihapus dari keranjang.');
     };
 
     const handleAddToCart = (product) => {
+        const quantity = Math.max(1, Number(product.quantity) || 1);
         setCartItems((prev) => {
             const existing = prev.find((item) => item.id === product.id);
             if (existing) {
                 return prev.map((item) =>
-                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+                    item.id === product.id
+                        ? { ...item, quantity: item.quantity + quantity }
+                        : item
                 );
             }
-            return [...prev, { ...product, quantity: 1 }];
+            return [...prev, { ...product, quantity }];
         });
         showToast(`"${product.name}" ditambahkan ke keranjang.`);
     };
@@ -106,8 +114,13 @@ export default function Layout({
     };
 
     const handleCheckout = () => {
-        alert('Melanjutkan ke halaman checkout ringkasan pesanan...');
         setIsCartOpen(false);
+        onNavigateToCheckout?.();
+    };
+
+    const handleCompleteOrder = (order) => {
+        setCartItems([]);
+        showToast(`Pesanan simulasi ${order.orderNumber} berhasil dibuat.`);
     };
 
     const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -127,6 +140,7 @@ export default function Layout({
                 cartCount={totalCartCount}
                 wishlistCount={wishlistItems.length}
                 onOpenCart={() => setIsCartOpen(true)}
+                onViewCart={onViewCart}
                 onOpenWishlist={() => setIsWishlistOpen(true)}
                 onNavigateCategory={onNavigateCategory}
                 onSearchSubmit={handleSearchSubmit}
@@ -164,6 +178,11 @@ export default function Layout({
                           onAddToCart: handleAddToCart,
                           onAddMultipleToCart: handleAddMultipleToCart,
                           onOpenCart: () => setIsCartOpen(true),
+                          onCompleteOrder: handleCompleteOrder,
+                          onNavigateToCheckout,
+                          cartItems,
+                          onUpdateQuantity: handleUpdateQuantity,
+                          onRemoveCartItem: handleRemoveItem,
                           onToggleWishlist: handleToggleWishlist,
                           wishlistItems,
                           onShowToast: showToast,

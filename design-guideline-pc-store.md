@@ -397,7 +397,11 @@ Tampilkan galeri, nama, harga, stok, spesifikasi, deskripsi, kuantitas, wishlist
 
 ### Cart dan checkout
 
-Tampilkan ringkasan barang dan biaya dengan jelas. Sediakan form seperlunya, validasi, dan konfirmasi sebelum tindakan penting.
+Sediakan halaman keranjang dan checkout yang dapat dibuka langsung melalui URL. Keranjang menampilkan gambar, nama, harga satuan, kuantitas yang dapat diubah, subtotal per produk, total, aksi hapus, empty state, dan CTA menuju checkout.
+
+Checkout menampilkan ringkasan pesanan dan estimasi biaya, serta form data penerima dan alamat pengiriman dengan validasi. Sediakan pilihan metode pengiriman dan pembayaran yang tersedia. Minta konfirmasi pengiriman pesanan dan tampilkan nomor pesanan serta total pada konfirmasi berhasil.
+
+Jika biaya pengiriman atau pembayaran belum terhubung ke backend, tandai dengan jelas sebagai simulasi/estimasi. Jangan mengklaim transaksi, pembayaran, atau pengiriman nyata telah diproses.
 
 ### Dashboard vendor
 

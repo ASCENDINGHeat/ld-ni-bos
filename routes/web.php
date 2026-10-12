@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'app', ['initialView' => 'beranda'])->name('home');
 Route::view('/katalog', 'app', ['initialView' => 'katalog'])->name('catalog');
 Route::view('/pc-builder', 'app', ['initialView' => 'pc-builder'])->name('pc-builder');
+Route::view('/keranjang', 'app', ['initialView' => 'cart'])->name('cart.index');
+Route::view('/checkout', 'app', ['initialView' => 'checkout'])->name('checkout.index');
 Route::get('/produk/{slug}', fn (string $slug) => view('app', [
     'initialView' => 'detail',
     'productSlug' => $slug,
