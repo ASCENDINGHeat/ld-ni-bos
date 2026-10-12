@@ -25,7 +25,7 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
-            'role' => 'customer',
+            'role' => $validated['role'] ?? 'customer',
             'phone' => $validated['phone'] ?? null,
             'address' => $validated['address'] ?? null,
         ]);

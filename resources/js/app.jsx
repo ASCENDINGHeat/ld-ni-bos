@@ -8,6 +8,9 @@ import ProductQuickViewModal from './components/ProductQuickViewModal';
 import PCBuilderSimulation from './components/PCBuilderSimulation';
 import CartPage from './components/CartPage';
 import CheckoutPage from './components/CheckoutPage';
+import AuthModal from './components/AuthModal';
+import AccountSettingsPage from './components/AccountSettingsPage';
+import VendorDashboard from './components/VendorDashboard';
 import productsData from './mocks/products.json';
 import {
     CpuIcon,
@@ -30,6 +33,11 @@ function App() {
     const [activeView, setActiveView] = useState(
         () => rootElement?.dataset.initialView || 'beranda'
     );
+    const [vendorSection, setVendorSection] = useState(
+        () => rootElement?.dataset.vendorSection || 'overview'
+    );
+    const [currentUser, setCurrentUser] = useState(null);
+    const [accessToken, setAccessToken] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(() =>
         productsData.find((product) => product.slug === rootElement?.dataset.productSlug) || null
     );
@@ -41,18 +49,28 @@ function App() {
         return productsData.some((product) => product.category === category) ? category : 'all';
     });
 
-    const navigateToView = (view, product = null, category = null) => {
+    const navigateToView = (view, product = null, category = null, section = 'overview') => {
         const paths = {
             beranda: '/',
             katalog: '/katalog',
             'pc-builder': '/pc-builder',
             cart: '/keranjang',
             checkout: '/checkout',
+            account: '/akun',
+        };
+        const vendorPaths = {
+            overview: '/vendor/dashboard',
+            products: '/vendor/products',
+            orders: '/vendor/orders',
+            reports: '/vendor/reports',
+            settings: '/vendor/settings',
         };
         const basePath =
             view === 'detail' && product?.slug
                 ? `/produk/${encodeURIComponent(product.slug)}`
-                : paths[view];
+                : view === 'vendor-dashboard'
+                  ? vendorPaths[section] || vendorPaths.overview
+                  : paths[view];
 
         if (!basePath) return;
 
@@ -63,6 +81,7 @@ function App() {
 
         if (view === 'detail') setSelectedProduct(product);
         if (view === 'pc-builder') setBuilderProduct(product);
+        if (view === 'vendor-dashboard') setVendorSection(section);
         if (view === 'katalog') {
             setCatalogCategory(category || 'all');
             setCatalogNavigationKey((previous) => previous + 1);
@@ -70,7 +89,7 @@ function App() {
 
         setActiveView(view);
         window.history.pushState(
-            { view, productSlug: product?.slug ?? null, category: category || 'all' },
+            { view, productSlug: product?.slug ?? null, category: category || 'all', section },
             '',
             path
         );
@@ -95,10 +114,20 @@ function App() {
                 '/pc-builder': 'pc-builder',
                 '/keranjang': 'cart',
                 '/checkout': 'checkout',
+                '/akun': 'account',
             };
 
+            const vendorSectionByPath = {
+                '/vendor/dashboard': 'overview',
+                '/vendor/products': 'products',
+                '/vendor/orders': 'orders',
+                '/vendor/reports': 'reports',
+                '/vendor/settings': 'settings',
+            };
+            const currentVendorSection = vendorSectionByPath[window.location.pathname];
             const view = viewsByPath[window.location.pathname] || 'beranda';
-            setActiveView(view);
+            setActiveView(currentVendorSection ? 'vendor-dashboard' : view);
+            if (currentVendorSection) setVendorSection(currentVendorSection);
             if (view === 'katalog') {
                 const category = new URLSearchParams(window.location.search).get('category');
                 setCatalogCategory(
@@ -110,6 +139,7 @@ function App() {
         };
 
         const handleLinkClick = (e) => {
+            if (e.defaultPrevented) return;
             const anchor = e.target.closest('a');
             if (!anchor) return;
             const href = anchor.getAttribute('href');
@@ -130,11 +160,30 @@ function App() {
                 return;
             }
 
+            const vendorSectionsByPath = {
+                '/vendor/dashboard': 'overview',
+                '/vendor/products': 'products',
+                '/vendor/orders': 'orders',
+                '/vendor/reports': 'reports',
+                '/vendor/settings': 'settings',
+            };
+            if (vendorSectionsByPath[targetUrl.pathname]) {
+                e.preventDefault();
+                navigateToView(
+                    'vendor-dashboard',
+                    null,
+                    null,
+                    vendorSectionsByPath[targetUrl.pathname]
+                );
+                return;
+            }
+
             if (
                 targetUrl.pathname === '/' ||
                 targetUrl.pathname === '/pc-builder' ||
                 targetUrl.pathname === '/keranjang' ||
-                targetUrl.pathname === '/checkout'
+                targetUrl.pathname === '/checkout' ||
+                targetUrl.pathname === '/akun'
             ) {
                 e.preventDefault();
                 const viewsByPath = {
@@ -142,6 +191,7 @@ function App() {
                     '/pc-builder': 'pc-builder',
                     '/keranjang': 'cart',
                     '/checkout': 'checkout',
+                    '/akun': 'account',
                 };
                 navigateToView(viewsByPath[targetUrl.pathname]);
             }
@@ -176,13 +226,61 @@ function App() {
         navigateToView('pc-builder', product);
     };
 
+    const handleAuthenticated = ({ user, token }) => {
+        setCurrentUser(user);
+        setAccessToken(token);
+        if (user.role === 'vendor') {
+            navigateToView('vendor-dashboard');
+        } else if (activeView === 'vendor-dashboard') {
+            navigateToView('account');
+        }
+    };
+
+    const handleLogout = async () => {
+        if (!accessToken) {
+            throw new Error('Sesi login tidak tersedia. Silakan masuk kembali.');
+        }
+
+        const response = await fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        let result;
+
+        try {
+            result = await response.json();
+        } catch {
+            throw new Error('Server memberikan respons logout yang tidak dapat dibaca.');
+        }
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Tidak dapat keluar dari akun saat ini.');
+        }
+
+        setCurrentUser(null);
+        setAccessToken(null);
+        if (window.location.pathname.startsWith('/vendor/')) {
+            navigateToView('beranda');
+        }
+    };
+
     return (
         <Layout
+            currentUser={currentUser}
+            activeView={activeView}
+            onAuthenticated={handleAuthenticated}
+            onLogout={handleLogout}
             onSelectProduct={handleSelectProduct}
             onOpenCatalog={() => navigateToView('katalog')}
             onNavigateCategory={(category) => navigateToView('katalog', null, category)}
             onViewCart={() => navigateToView('cart')}
             onNavigateToCheckout={() => navigateToView('checkout')}
+            onNavigateToAccount={() => navigateToView('account')}
+            onNavigateVendorDashboard={() => navigateToView('vendor-dashboard')}
+            onNavigateToStorefront={() => navigateToView('beranda')}
         >
             {({
                 onAddToCart,
@@ -195,6 +293,7 @@ function App() {
                 onToggleWishlist,
                 wishlistItems,
                 onShowToast,
+                onOpenAuth,
             }) => (
                 <div className="w-full flex flex-col">
                     {/* Active View Display */}
@@ -267,6 +366,20 @@ function App() {
                             onBackToCart={() => navigateToView('cart')}
                             onCompleteOrder={onCompleteOrder}
                             onReturnHome={() => navigateToView('beranda')}
+                        />
+                    ) : activeView === 'account' ? (
+                        <AccountSettingsPage
+                            user={currentUser}
+                            onOpenAuth={onOpenAuth}
+                        />
+                    ) : activeView === 'vendor-dashboard' ? (
+                        <VendorDashboard
+                            user={currentUser}
+                            section={vendorSection}
+                            onNavigateSection={(section) => navigateToView('vendor-dashboard', null, null, section)}
+                            onNavigateAccount={() => navigateToView('account')}
+                            onNavigateToStorefront={() => navigateToView('beranda')}
+                            onOpenAuth={onOpenAuth}
                         />
                     ) : (
                         <div className="space-y-12 pb-16">

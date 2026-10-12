@@ -47,6 +47,39 @@ class StorefrontRoutesTest extends TestCase
         $response->assertSee('data-initial-view="checkout"', false);
     }
 
+    public function test_account_settings_route_renders_the_account_view(): void
+    {
+        $response = $this->get('/akun');
+
+        $response->assertOk();
+        $response->assertSee('data-initial-view="account"', false);
+    }
+
+    public function test_vendor_dashboard_route_renders_the_overview(): void
+    {
+        $response = $this->get('/vendor/dashboard');
+
+        $response->assertOk();
+        $response->assertSee('data-initial-view="vendor-dashboard"', false);
+        $response->assertSee('data-vendor-section="overview"', false);
+    }
+
+    public function test_vendor_navigation_routes_render_their_sections(): void
+    {
+        foreach ([
+            '/vendor/products' => 'products',
+            '/vendor/orders' => 'orders',
+            '/vendor/reports' => 'reports',
+            '/vendor/settings' => 'settings',
+        ] as $path => $section) {
+            $response = $this->get($path);
+
+            $response->assertOk();
+            $response->assertSee('data-initial-view="vendor-dashboard"', false);
+            $response->assertSee('data-vendor-section="'.$section.'"', false);
+        }
+    }
+
     public function test_product_route_renders_the_requested_product_detail(): void
     {
         $response = $this->get('/produk/intel-core-i9-14900k');

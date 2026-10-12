@@ -3,6 +3,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import CartDrawer from './CartDrawer';
 import WishlistModal from './WishlistModal';
+import AuthModal from './AuthModal';
 import { CheckCircleIcon } from './Icons';
 
 export default function Layout({
@@ -30,11 +31,21 @@ export default function Layout({
     onNavigateCategory,
     onViewCart,
     onNavigateToCheckout,
+    currentUser,
+    activeView,
+    onAuthenticated,
+    onLogout,
+    onNavigateToAccount,
+    onNavigateVendorDashboard,
+    onNavigateToStorefront,
 }) {
     const [cartItems, setCartItems] = useState(initialCartItems);
     const [wishlistItems, setWishlistItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+    const [isAuthOpen, setIsAuthOpen] = useState(false);
+    const [authMode, setAuthMode] = useState('login');
+    const [authRole, setAuthRole] = useState('customer');
     const [toastMessage, setToastMessage] = useState('');
 
     const showToast = (message) => {
@@ -118,6 +129,21 @@ export default function Layout({
         onNavigateToCheckout?.();
     };
 
+    const openAuth = (mode = 'login', role = 'customer') => {
+        setAuthMode(mode);
+        setAuthRole(role);
+        setIsAuthOpen(true);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await onLogout?.();
+            showToast('Anda berhasil keluar dari akun.');
+        } catch (error) {
+            showToast(error.message || 'Gagal keluar dari akun. Silakan coba lagi.');
+        }
+    };
+
     const handleCompleteOrder = (order) => {
         setCartItems([]);
         showToast(`Pesanan simulasi ${order.orderNumber} berhasil dibuat.`);
@@ -126,7 +152,7 @@ export default function Layout({
     const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
-        <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text-primary)] antialiased transition-colors selection:bg-[var(--brand-500)] selection:text-white">
+        <div className="min-h-screen flex flex-col overflow-x-clip bg-[var(--background)] text-[var(--text-primary)] antialiased transition-colors selection:bg-[var(--brand-500)] selection:text-white">
             {/* Toast Feedback */}
             {toastMessage && (
                 <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-[var(--radius-md)] bg-slate-900 text-white text-sm shadow-xl border border-slate-800 animate-in fade-in slide-in-from-bottom-2 duration-200">
@@ -135,15 +161,31 @@ export default function Layout({
                 </div>
             )}
 
-            {/* Responsive Navbar */}
-            <Navbar
-                cartCount={totalCartCount}
-                wishlistCount={wishlistItems.length}
-                onOpenCart={() => setIsCartOpen(true)}
-                onViewCart={onViewCart}
-                onOpenWishlist={() => setIsWishlistOpen(true)}
-                onNavigateCategory={onNavigateCategory}
-                onSearchSubmit={handleSearchSubmit}
+            {activeView !== 'vendor-dashboard' && (
+                <Navbar
+                    cartCount={totalCartCount}
+                    wishlistCount={wishlistItems.length}
+                    currentUser={currentUser}
+                    isVendorMode={false}
+                    onOpenCart={() => setIsCartOpen(true)}
+                    onViewCart={onViewCart}
+                    onOpenWishlist={() => setIsWishlistOpen(true)}
+                    onNavigateCategory={onNavigateCategory}
+                    onSearchSubmit={handleSearchSubmit}
+                    onOpenAuth={openAuth}
+                    onLogout={handleLogout}
+                    onNavigateToAccount={onNavigateToAccount}
+                    onNavigateVendorDashboard={onNavigateVendorDashboard}
+                    onNavigateToStorefront={onNavigateToStorefront}
+                />
+            )}
+
+            <AuthModal
+                isOpen={isAuthOpen}
+                initialMode={authMode}
+                initialRole={authRole}
+                onClose={() => setIsAuthOpen(false)}
+                onAuthenticated={onAuthenticated}
             />
 
             {/* Slide-out Cart Drawer */}
@@ -186,13 +228,13 @@ export default function Layout({
                           onToggleWishlist: handleToggleWishlist,
                           wishlistItems,
                           onShowToast: showToast,
+                          onOpenAuth: openAuth,
                       })
                     : children}
             </main>
 
 
-            {/* Storefront Footer */}
-            <Footer />
+            {activeView !== 'vendor-dashboard' && <Footer />}
         </div>
     );
 }
