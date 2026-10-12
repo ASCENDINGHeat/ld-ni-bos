@@ -8,24 +8,7 @@ import { CheckCircleIcon } from './Icons';
 
 export default function Layout({
     children,
-    initialCartItems = [
-        {
-            id: 'item-1',
-            name: 'Intel Core i5-14600K 14-Core Up to 5.3GHz LGA1700',
-            category: 'Processor',
-            price: 5250000,
-            quantity: 1,
-            image: null,
-        },
-        {
-            id: 'item-2',
-            name: 'ASUS Dual GeForce RTX 4070 SUPER OC Edition 12GB GDDR6X',
-            category: 'VGA Card',
-            price: 11200000,
-            quantity: 1,
-            image: null,
-        },
-    ],
+    initialCartItems = [],
     onSelectProduct,
     onOpenCatalog,
     onNavigateCategory,
@@ -146,7 +129,7 @@ export default function Layout({
 
     const handleCompleteOrder = (order) => {
         setCartItems([]);
-        showToast(`Pesanan simulasi ${order.orderNumber} berhasil dibuat.`);
+        showToast(`Pesanan ${order.orderNumber} berhasil dibuat.`);
     };
 
     const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import productsData from '../mocks/products.json';
+import mockProductsData from '../mocks/products.json';
 import ProductCard from './ProductCard';
 import ProductFilterSidebar from './ProductFilterSidebar';
 import {
@@ -17,6 +17,7 @@ export default function ProductCatalog({
     onQuickView,
     onSelectProduct,
     initialCategory = 'all',
+    products = mockProductsData,
 }) {
 
     // Filter & Sort States
@@ -47,41 +48,41 @@ export default function ProductCatalog({
             ...c,
             count:
                 c.id === 'all'
-                    ? productsData.length
-                    : productsData.filter((p) => p.category === c.id).length,
+                    ? products.length
+                    : products.filter((p) => p.category === c.id).length,
         }));
-    }, []);
+    }, [products]);
 
     // Brand options with counts
     const brandOptions = useMemo(() => {
-        const brandSet = new Set(productsData.map((p) => p.brand));
+        const brandSet = new Set(products.map((p) => p.brand).filter(Boolean));
         return Array.from(brandSet).sort().map((b) => ({
             name: b,
-            count: productsData.filter((p) => p.brand === b).length,
+            count: products.filter((p) => p.brand === b).length,
         }));
-    }, []);
+    }, [products]);
 
     // Socket CPU options with counts
     const socketOptions = useMemo(() => {
         const sockets = ['LGA1700', 'AM5', 'AM4'];
         return sockets.map((s) => ({
             name: s,
-            count: productsData.filter((p) => p.cpuSocket === s).length,
+            count: products.filter((p) => p.cpuSocket === s).length,
         }));
-    }, []);
+    }, [products]);
 
     // RAM Form Factor options with counts
     const ramOptions = useMemo(() => {
         const factors = ['DDR5 DIMM', 'DDR4 DIMM', 'DDR5 SO-DIMM'];
         return factors.map((f) => ({
             name: f,
-            count: productsData.filter((p) => p.ramFormFactor === f).length,
+            count: products.filter((p) => p.ramFormFactor === f).length,
         }));
-    }, []);
+    }, [products]);
 
     // Filter Logic
     const filteredProducts = useMemo(() => {
-        return productsData.filter((product) => {
+        return products.filter((product) => {
             // Category
             if (selectedCategory !== 'all' && product.category !== selectedCategory) {
                 return false;
@@ -117,7 +118,7 @@ export default function ProductCatalog({
             if (searchQuery.trim()) {
                 const q = searchQuery.toLowerCase();
                 const matchName = product.name.toLowerCase().includes(q);
-                const matchBrand = product.brand.toLowerCase().includes(q);
+                const matchBrand = (product.brand || '').toLowerCase().includes(q);
                 const matchCat = (product.categoryName || product.category).toLowerCase().includes(q);
                 const matchSpecs = product.specs?.some((s) => s.toLowerCase().includes(q));
                 if (!matchName && !matchBrand && !matchCat && !matchSpecs) return false;
@@ -133,6 +134,7 @@ export default function ProductCatalog({
         onlyInStock,
         priceRange,
         searchQuery,
+        products,
     ]);
 
     // Sorting Logic
@@ -252,7 +254,7 @@ export default function ProductCatalog({
                     onlyInStock={onlyInStock}
                     onToggleOnlyInStock={() => setOnlyInStock(!onlyInStock)}
                     onResetFilters={handleResetAllFilters}
-                    totalProductsCount={productsData.length}
+                    totalProductsCount={products.length}
                     filteredCount={filteredProducts.length}
                     isMobileOpen={isMobileFilterOpen}
                     onCloseMobile={() => setIsMobileFilterOpen(false)}
@@ -418,7 +420,7 @@ export default function ProductCatalog({
                     <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-4 px-1">
                         <span>
                             Menampilkan <strong className="text-[var(--text-primary)]">{sortedProducts.length}</strong> dari{' '}
-                            <strong>{productsData.length}</strong> total komponen
+                            <strong>{products.length}</strong> total komponen
                         </span>
                     </div>
 

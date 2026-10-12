@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'category_id',
     'vendor_id',
+    'sku',
     'name',
     'slug',
     'type',

@@ -12,7 +12,7 @@ class StoreVendorRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->isVendor() ?? false;
     }
 
     /**
@@ -23,7 +23,14 @@ class StoreVendorRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'store_name' => ['required', 'string', 'max:120'],
+            'store_description' => ['nullable', 'string', 'max:2000'],
+            'store_logo' => ['nullable', 'url', 'max:2048'],
+            'store_phone' => ['nullable', 'string', 'max:30'],
+            'store_address' => ['nullable', 'string', 'max:1000'],
+            'bank_name' => ['nullable', 'string', 'max:100'],
+            'bank_account_number' => ['nullable', 'string', 'max:50'],
+            'bank_account_holder' => ['nullable', 'string', 'max:120'],
         ];
     }
 }

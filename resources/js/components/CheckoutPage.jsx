@@ -62,11 +62,14 @@ export default function CheckoutPage({
     onBackToCart,
     onCompleteOrder,
     onReturnHome,
+    accessToken,
 }) {
     const [shippingDetails, setShippingDetails] = useState(initialShippingDetails);
     const [shippingMethod, setShippingMethod] = useState('regular');
     const [paymentMethod, setPaymentMethod] = useState('bank-transfer');
     const [completedOrder, setCompletedOrder] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -81,22 +84,56 @@ export default function CheckoutPage({
         setShippingDetails((previous) => ({ ...previous, [name]: value }));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         if (items.length === 0) return;
 
-        const order = {
-            orderNumber: `PCS-${Date.now().toString().slice(-8)}`,
+        if (!accessToken) {
+            setErrorMessage('Silakan masuk sebagai Customer sebelum membuat pesanan.');
+            return;
+        }
+
+        setIsSubmitting(true);
+        setErrorMessage('');
+
+        try {
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({
+                    items: items.map((item) => ({ product_id: Number(item.id), quantity: item.quantity })),
+                    payment_method: paymentMethod,
+                    shipping_method: shippingMethod,
+                    recipient_name: shippingDetails.fullName,
+                    recipient_phone: shippingDetails.phone,
+                    shipping_address: [shippingDetails.address, shippingDetails.city, shippingDetails.province, shippingDetails.postalCode].filter(Boolean).join(', '),
+                    customer_note: shippingDetails.notes || null,
+                }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Pesanan gagal dibuat.');
+
+            const order = {
+            orderNumber: result.order.order_number,
             items: items.map((item) => ({ ...item })),
             shippingDetails: { ...shippingDetails },
             shippingLabel: selectedShipping.label,
             shippingCost,
             paymentLabel: selectedPayment.label,
             subtotal,
-            total,
+            total: result.order.total,
         };
         onCompleteOrder(order);
         setCompletedOrder(order);
+        } catch (error) {
+            setErrorMessage(error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -363,17 +400,15 @@ export default function CheckoutPage({
                                 <span>Total Pembayaran</span>
                                 <span className="text-[var(--brand-600)]">{formatRupiah(total)}</span>
                             </div>
-                            <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
-                                Biaya pengiriman dan total ini merupakan simulasi, bukan tarif atau tagihan aktual.
-                            </p>
+                            {errorMessage && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{errorMessage}</p>}
 
                             <button
                                 type="submit"
-                                disabled={items.length === 0}
+                                disabled={items.length === 0 || isSubmitting}
                                 className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--brand-600)] px-4 py-3 text-sm font-bold text-white hover:bg-[var(--brand-700)] disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
                             >
                                 <CheckCircleIcon className="h-4 w-4" />
-                                Buat Pesanan Simulasi
+                                {isSubmitting ? 'Membuat pesanan…' : 'Buat Pesanan'}
                             </button>
                             <button
                                 type="button"
@@ -385,7 +420,7 @@ export default function CheckoutPage({
                             </button>
                             <div className="flex items-center justify-center gap-2 text-[11px] text-[var(--text-muted)]">
                                 <ShieldCheckIcon className="h-4 w-4 text-[var(--success)]" />
-                                Transaksi ini belum memproses pembayaran sungguhan
+                                Stok dikunci dan pesanan diteruskan ke vendor
                             </div>
                         </aside>
                     </form>

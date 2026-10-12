@@ -1,623 +1,224 @@
-import React, { useState } from 'react';
-import {
-    BoxIcon,
-    CheckCircleIcon,
-    CpuIcon,
-    HardDriveIcon,
-    MapPinIcon,
-    ShieldCheckIcon,
-    UserIcon,
-} from './Icons';
-import productsData from '../mocks/products.json';
+import React, { useCallback, useEffect, useState } from 'react';
+import { BoxIcon, CheckCircleIcon, CpuIcon, HardDriveIcon, ShieldCheckIcon } from './Icons';
 
-const vendorSections = [
-    { id: 'overview', label: 'Overview', icon: CpuIcon },
-    { id: 'products', label: 'Kelola Produk', icon: BoxIcon },
-    { id: 'orders', label: 'Pesanan Masuk', icon: CheckCircleIcon },
-    { id: 'reports', label: 'Laporan Penjualan', icon: HardDriveIcon },
-    { id: 'settings', label: 'Pengaturan Toko', icon: ShieldCheckIcon },
+const sections = [
+    ['overview', 'Overview', CpuIcon],
+    ['products', 'Kelola Produk', BoxIcon],
+    ['orders', 'Pesanan Masuk', CheckCircleIcon],
+    ['reports', 'Laporan Penjualan', HardDriveIcon],
+    ['settings', 'Pengaturan Toko', ShieldCheckIcon],
 ];
 
-function MetricCard({ label, help }) {
+const formatRupiah = (value) => `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
+const inputClass = 'mt-2 min-h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--brand-500)] focus:ring-2 focus:ring-[var(--brand-500)]/20';
+
+function Metric({ label, value, help }) {
     return (
         <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
             <p className="text-sm font-semibold text-[var(--text-secondary)]">{label}</p>
-            <p className="mt-3 text-3xl font-extrabold text-[var(--text-primary)]">—</p>
-            <p className="mt-2 text-xs leading-5 text-[var(--text-muted)]">{help}</p>
+            <p className="mt-3 text-2xl font-extrabold text-[var(--text-primary)]">{value}</p>
+            {help && <p className="mt-2 text-xs text-[var(--text-muted)]">{help}</p>}
         </article>
     );
 }
 
-function EmptyPanel({ title, description }) {
-    return (
-        <div className="rounded-2xl border border-dashed border-[var(--border)] px-5 py-10 text-center">
-            <p className="font-semibold text-[var(--text-primary)]">{title}</p>
-            <p className="mx-auto mt-1 max-w-lg text-sm leading-6 text-[var(--text-secondary)]">{description}</p>
-        </div>
-    );
-}
-
-const productCategories = [
-    { id: 'processor', label: 'Processor' },
-    { id: 'vga', label: 'VGA Card' },
-    { id: 'motherboard', label: 'Motherboard' },
-    { id: 'ram', label: 'RAM' },
-    { id: 'storage', label: 'Storage' },
-    { id: 'power-supply', label: 'Power Supply' },
-    { id: 'casing', label: 'Casing' },
-    { id: 'cooling', label: 'Cooling' },
-    { id: 'monitor', label: 'Monitor' },
-];
-
-function VendorProductForm({ onSubmit, onCancel }) {
-    const [form, setForm] = useState({
-        name: '',
-        category: 'processor',
-        price: '',
-        stock: '',
-        sku: '',
-        description: '',
-    });
-    const [imageName, setImageName] = useState('');
-    const [imageFile, setImageFile] = useState(null);
-
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-        setForm((current) => ({ ...current, [name]: value }));
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const category = productCategories.find((item) => item.id === form.category);
-
-        onSubmit({
-            ...form,
-            id: `vendor-${Date.now()}`,
-            price: Number(form.price),
-            stock: Number(form.stock),
-            categoryName: category.label,
-            inStock: Number(form.stock) > 0,
-            imageName,
-            imageFile,
-        });
-    };
-
-    const fieldClassName = 'mt-2 min-h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-3 text-base text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--brand-500)] focus:ring-2 focus:ring-[var(--brand-500)]/20 sm:text-sm';
-    const labelClassName = 'block text-sm font-semibold text-[var(--text-primary)]';
-
-    return (
-        <form
-            onSubmit={handleSubmit}
-            className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm sm:p-6"
-        >
-            <div className="mb-6">
-                <h3 className="text-lg font-bold text-[var(--text-primary)]">Informasi produk</h3>
-                <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
-                    Isi detail barang agar pelanggan mudah menemukan produk Anda.
-                </p>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-                <label className={`${labelClassName} sm:col-span-2`}>
-                    Nama produk <span className="text-rose-600">*</span>
-                    <input
-                        required
-                        maxLength={120}
-                        name="name"
-                        value={form.name}
-                        onChange={handleChange}
-                        placeholder="Contoh: Processor Intel Core i5"
-                        className={fieldClassName}
-                    />
-                </label>
-
-                <label className={labelClassName}>
-                    Kategori <span className="text-rose-600">*</span>
-                    <select
-                        name="category"
-                        value={form.category}
-                        onChange={handleChange}
-                        className={fieldClassName}
-                    >
-                        {productCategories.map((category) => (
-                            <option key={category.id} value={category.id}>{category.label}</option>
-                        ))}
-                    </select>
-                </label>
-
-                <label className={labelClassName}>
-                    SKU / Kode barang
-                    <input
-                        maxLength={40}
-                        name="sku"
-                        value={form.sku}
-                        onChange={handleChange}
-                        placeholder="Contoh: CPU-I5-001"
-                        className={fieldClassName}
-                    />
-                </label>
-
-                <label className={labelClassName}>
-                    Harga jual (Rp) <span className="text-rose-600">*</span>
-                    <input
-                        required
-                        min="1"
-                        step="1"
-                        type="number"
-                        inputMode="numeric"
-                        name="price"
-                        value={form.price}
-                        onChange={handleChange}
-                        placeholder="0"
-                        className={fieldClassName}
-                    />
-                </label>
-
-                <label className={labelClassName}>
-                    Jumlah stok <span className="text-rose-600">*</span>
-                    <input
-                        required
-                        min="0"
-                        step="1"
-                        type="number"
-                        inputMode="numeric"
-                        name="stock"
-                        value={form.stock}
-                        onChange={handleChange}
-                        placeholder="0"
-                        className={fieldClassName}
-                    />
-                </label>
-
-                <label className={`${labelClassName} sm:col-span-2`}>
-                    Deskripsi produk
-                    <textarea
-                        maxLength={1000}
-                        rows="4"
-                        name="description"
-                        value={form.description}
-                        onChange={handleChange}
-                        placeholder="Jelaskan kondisi, spesifikasi, dan garansi produk."
-                        className={`${fieldClassName} min-h-28 resize-y`}
-                    />
-                </label>
-
-                <label className={`${labelClassName} sm:col-span-2`}>
-                    Foto produk
-                    <span className="mt-2 flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border)] bg-[var(--surface-muted)] px-4 py-5 text-center transition hover:border-[var(--brand-500)]">
-                        <span className="text-sm font-semibold text-[var(--text-primary)]">
-                            {imageName || 'Pilih foto dari perangkat'}
-                        </span>
-                        <span className="mt-1 text-xs text-[var(--text-secondary)]">PNG, JPG atau WEBP</span>
-                        <input
-                            type="file"
-                            accept="image/png,image/jpeg,image/webp"
-                            className="sr-only"
-                            onChange={(event) => {
-                                const file = event.target.files?.[0] || null;
-                                setImageFile(file);
-                                setImageName(file?.name || '');
-                            }}
-                        />
-                    </span>
-                </label>
-            </div>
-
-            <div className="mt-6 flex flex-col-reverse gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:justify-end">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="min-h-12 rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-bold text-[var(--text-primary)] transition hover:bg-[var(--surface-muted)]"
-                >
-                    Batal
-                </button>
-                <button
-                    type="submit"
-                    className="min-h-12 rounded-xl bg-[var(--brand-600)] px-5 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-700)]"
-                >
-                    Tambahkan produk
-                </button>
-            </div>
-        </form>
-    );
-}
-
-function PerformancePanel() {
-    return (
-        <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:p-6">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                    <h2 className="text-lg font-bold text-[var(--text-primary)]">Performa toko</h2>
-                    <p className="mt-1 text-sm text-[var(--text-secondary)]">Ringkasan penjualan belum tersedia</p>
-                </div>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Belum ada data</span>
-            </div>
-            <div className="mt-5 overflow-hidden rounded-xl bg-[var(--surface-muted)] p-3">
-                <svg viewBox="0 0 640 190" role="img" aria-label="Grafik performa belum tersedia karena belum ada data penjualan" className="h-44 w-full">
-                    {[35, 75, 115, 155].map((y) => (
-                        <line key={y} x1="42" y1={y} x2="625" y2={y} stroke="currentColor" className="text-[var(--border)]" strokeDasharray="4 6" />
-                    ))}
-                    <line x1="42" y1="16" x2="42" y2="155" stroke="currentColor" className="text-[var(--border)]" />
-                    <line x1="42" y1="155" x2="625" y2="155" stroke="currentColor" className="text-[var(--border)]" />
-                    <text x="320" y="93" textAnchor="middle" fill="currentColor" className="text-sm font-medium text-[var(--text-muted)]">
-                        Grafik akan muncul setelah data penjualan terhubung
-                    </text>
-                    <text x="42" y="178" fill="currentColor" className="text-[var(--text-muted)]" fontSize="11">Waktu</text>
-                    <text x="8" y="25" fill="currentColor" className="text-[var(--text-muted)]" fontSize="11">Rp</text>
-                </svg>
-            </div>
-        </article>
-    );
-}
-
-function QuickStockPanel({ inventory, onToggleStock, onNavigateProducts }) {
-    return (
-        <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:p-6">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h2 className="text-lg font-bold text-[var(--text-primary)]">Kelola stok cepat</h2>
-                    <p className="mt-1 text-sm text-[var(--text-secondary)]">Contoh katalog lokal; perubahan hanya pratinjau.</p>
-                </div>
-                {onNavigateProducts && (
-                    <button type="button" onClick={onNavigateProducts} className="text-sm font-bold text-[var(--brand-700)] hover:underline">
-                        Semua produk
-                    </button>
-                )}
-            </div>
-            <div className="divide-y divide-[var(--border)]">
-                {inventory.map((product) => (
-                    <div key={product.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                        <div className="min-w-0 flex-1">
-                            <p className="line-clamp-1 text-sm font-semibold text-[var(--text-primary)]">{product.name}</p>
-                            <p className="mt-1 text-xs text-[var(--text-muted)]">{product.categoryName}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                                product.inStock ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
-                            }`}>
-                                {product.inStock ? 'Tersedia' : 'Stok habis'}
-                            </span>
-                            <button
-                                type="button"
-                                onClick={() => onToggleStock(product.id)}
-                                className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--surface-muted)]"
-                                aria-label={`${product.inStock ? 'Tandai stok habis' : 'Tandai tersedia'}: ${product.name}`}
-                            >
-                                Ubah
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </article>
-    );
-}
-
-export default function VendorDashboard({
-    user,
-    section = 'overview',
-    onNavigateSection,
-    onNavigateAccount,
-    onNavigateToStorefront,
-    onOpenAuth,
-}) {
-    const activeSection = vendorSections.some((item) => item.id === section) ? section : 'overview';
+export default function VendorDashboard({ user, accessToken, section = 'overview', onNavigateSection, onNavigateToStorefront, onOpenAuth }) {
+    const [store, setStore] = useState(null);
+    const [metrics, setMetrics] = useState({});
+    const [products, setProducts] = useState([]);
+    const [orders, setOrders] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [notice, setNotice] = useState('');
+    const [error, setError] = useState('');
     const [showProductForm, setShowProductForm] = useState(false);
-    const [productNotice, setProductNotice] = useState('');
-    const [inventory, setInventory] = useState(() =>
-        productsData
-            .filter(
-                (product, index, products) =>
-                    products.findIndex((candidate) => candidate.category === product.category) === index
-            )
-            .slice(0, 5)
-            .map((product) => ({ ...product }))
-    );
+    const [editingProduct, setEditingProduct] = useState(null);
 
-    const handleToggleStock = (productId) => {
-        setInventory((current) =>
-            current.map((product) =>
-                product.id === productId
-                    ? {
-                          ...product,
-                          inStock: !product.inStock,
-                          stock: product.inStock ? 0 : Math.max(Number(product.stock) || 1, 1),
-                      }
-                    : product
-            )
-        );
+    const request = useCallback(async (url, options = {}) => {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`,
+                ...options.headers,
+            },
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || 'Permintaan tidak dapat diproses.');
+        }
+        return result;
+    }, [accessToken]);
+
+    const loadDashboard = useCallback(async () => {
+        if (!accessToken || user?.role !== 'vendor') return;
+        setIsLoading(true);
+        setError('');
+        try {
+            const [dashboard, productResult, orderResult, categoryResult] = await Promise.all([
+                request('/api/vendor/dashboard'),
+                request('/api/vendor/products'),
+                request('/api/vendor/orders'),
+                fetch('/api/categories').then((response) => response.json()),
+            ]);
+            setStore(dashboard.store);
+            setMetrics(dashboard.metrics);
+            setProducts(productResult.data || []);
+            setOrders(orderResult.data || []);
+            setCategories(categoryResult.data || []);
+        } catch (loadError) {
+            setError(loadError.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [accessToken, request, user?.role]);
+
+    useEffect(() => {
+        loadDashboard();
+    }, [loadDashboard]);
+
+    const saveProduct = async (event) => {
+        event.preventDefault();
+        setError('');
+        const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+        try {
+            const result = await request(editingProduct ? `/api/vendor/products/${editingProduct.id}` : '/api/vendor/products', {
+                method: editingProduct ? 'PATCH' : 'POST',
+                body: JSON.stringify({
+                    ...data,
+                    category_id: Number(data.category_id),
+                    price: Number(data.price),
+                    stock: Number(data.stock),
+                    weight_grams: Number(data.weight_grams || 0),
+                }),
+            });
+            const savedProduct = result.product || result.data;
+            setProducts((current) => editingProduct
+                ? current.map((item) => item.id === editingProduct.id ? savedProduct : item)
+                : [savedProduct, ...current]);
+            if (!editingProduct) setMetrics((current) => ({ ...current, active_products: Number(current.active_products || 0) + 1 }));
+            setShowProductForm(false);
+            setEditingProduct(null);
+            setNotice(`${savedProduct.name} berhasil disimpan ke katalog.`);
+            window.dispatchEvent(new Event('catalog-updated'));
+        } catch (saveError) {
+            setError(saveError.message);
+        }
     };
 
-    const handleAddProduct = (product) => {
-        setInventory((current) => [product, ...current]);
-        setShowProductForm(false);
-        setProductNotice(`${product.name} berhasil ditambahkan ke pratinjau produk.`);
+    const toggleStock = async (product) => {
+        const stock = product.stock > 0 ? 0 : 1;
+        try {
+            const result = await request(`/api/vendor/products/${product.id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ stock }),
+            });
+            setProducts((current) => current.map((item) => item.id === product.id ? result.data : item));
+            setNotice(`Stok ${product.name} berhasil diperbarui.`);
+        } catch (saveError) {
+            setError(saveError.message);
+        }
+    };
+
+    const deleteProduct = async (product) => {
+        if (!window.confirm(`Hapus "${product.name}" dari katalog?`)) return;
+        try {
+            await request(`/api/vendor/products/${product.id}`, { method: 'DELETE' });
+            setProducts((current) => current.filter((item) => item.id !== product.id));
+            setNotice(`${product.name} dihapus dari katalog.`);
+            window.dispatchEvent(new Event('catalog-updated'));
+        } catch (deleteError) {
+            setError(deleteError.message);
+        }
+    };
+
+    const saveStore = async (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+        try {
+            const result = await request('/api/vendor/store', { method: 'PATCH', body: JSON.stringify(data) });
+            setStore(result.data);
+            setNotice('Pengaturan toko berhasil disimpan.');
+        } catch (saveError) {
+            setError(saveError.message);
+        }
+    };
+
+    const updateOrderStatus = async (order, status) => {
+        try {
+            const result = await request(`/api/vendor/orders/${order.id}/status`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status }),
+            });
+            setOrders((current) => current.map((item) => item.id === order.id ? result.data : item));
+            setNotice(`Status ${order.order_number} berhasil diperbarui.`);
+        } catch (saveError) {
+            setError(saveError.message);
+        }
     };
 
     if (user?.role !== 'vendor') {
         return (
-            <section className="mx-auto flex min-h-[65vh] w-full max-w-3xl items-center px-4 py-12">
-                <div className="w-full rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-7 text-center shadow-sm sm:p-10">
-                    <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--brand-50)] text-[var(--brand-700)]">
-                        <ShieldCheckIcon className="h-7 w-7" />
-                    </span>
-                    <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-[var(--brand-700)]">Akses Vendor</p>
-                    <h1 className="mt-2 text-2xl font-extrabold text-[var(--text-primary)]">
-                        {user ? 'Akun Vendor diperlukan' : 'Masuk untuk membuka dashboard'}
-                    </h1>
-                    <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--text-secondary)]">
-                        {user
-                            ? 'Akun ini terdaftar sebagai Customer. Gunakan akun Vendor terpisah untuk masuk ke ruang kerja penjual.'
-                            : 'Dashboard vendor hanya tersedia untuk akun dengan peran Vendor. Masuk ke akun yang sudah terdaftar atau buat akun Vendor baru.'}
-                    </p>
-                    <div className="mt-6 flex flex-wrap justify-center gap-3">
-                        {!user && (
-                            <button
-                                type="button"
-                                onClick={() => onOpenAuth?.('login', 'vendor')}
-                                className="rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--surface-muted)]"
-                            >
-                                Masuk sebagai Vendor
-                            </button>
-                        )}
-                        <button
-                            type="button"
-                            onClick={() => onOpenAuth?.('register', 'vendor')}
-                            className="rounded-xl bg-[var(--brand-600)] px-5 py-3 text-sm font-bold text-white hover:bg-[var(--brand-700)]"
-                        >
-                            Daftar akun Vendor
-                        </button>
-                        <button
-                            type="button"
-                            onClick={onNavigateToStorefront}
-                            className="rounded-xl px-5 py-3 text-sm font-bold text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
-                        >
-                            Kembali ke toko
-                        </button>
-                    </div>
+            <section className="mx-auto flex min-h-[65vh] max-w-2xl items-center px-4 text-center">
+                <div className="w-full rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-8">
+                    <ShieldCheckIcon className="mx-auto h-10 w-10 text-[var(--brand-600)]" />
+                    <h1 className="mt-4 text-2xl font-extrabold">Akun Vendor diperlukan</h1>
+                    <p className="mt-2 text-sm text-[var(--text-secondary)]">Masuk atau buat akun Vendor untuk membuka toko dan menjual produk.</p>
+                    <button type="button" onClick={() => onOpenAuth?.('register', 'vendor')} className="mt-5 rounded-xl bg-[var(--brand-600)] px-5 py-3 text-sm font-bold text-white">Daftar sebagai Vendor</button>
                 </div>
             </section>
         );
     }
 
-    const renderContent = () => {
-        if (activeSection === 'products') {
-            return (
-                <div className="space-y-6">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                            <h2 className="text-2xl font-extrabold text-[var(--text-primary)]">Kelola Produk</h2>
-                            <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
-                                Tambah barang dan kelola ketersediaan produk toko Anda.
-                            </p>
-                        </div>
-                        {!showProductForm && (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setProductNotice('');
-                                    setShowProductForm(true);
-                                }}
-                                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-600)] px-5 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-700)] sm:w-auto"
-                            >
-                                <span aria-hidden="true" className="text-lg leading-none">+</span>
-                                Tambah barang
-                            </button>
-                        )}
-                    </div>
-                    <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                        Data produk dan stok hanya tersimpan sementara di halaman ini. Fitur simpan ke katalog belum terhubung ke server.
-                    </div>
-                    {productNotice && (
-                        <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-                            {productNotice}
-                        </p>
-                    )}
-                    {showProductForm && (
-                        <VendorProductForm
-                            onSubmit={handleAddProduct}
-                            onCancel={() => setShowProductForm(false)}
-                        />
-                    )}
-                    <article className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-                        <div className="border-b border-[var(--border)] p-4 sm:p-5">
-                            <h3 className="font-bold text-[var(--text-primary)]">Daftar barang</h3>
-                            <p className="mt-1 text-sm text-[var(--text-secondary)]">{inventory.length} produk · pratinjau lokal</p>
-                        </div>
-                        <div className="divide-y divide-[var(--border)]">
-                            {inventory.map((product) => (
-                                <div key={product.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-                                    <div className="min-w-0">
-                                        <p className="break-words text-sm font-semibold text-[var(--text-primary)]">{product.name}</p>
-                                        <p className="mt-1 text-xs text-[var(--text-muted)]">
-                                            {product.categoryName}
-                                            {product.sku ? ` · SKU ${product.sku}` : ''}
-                                            {Number.isFinite(Number(product.price)) ? ` · Rp ${Number(product.price).toLocaleString('id-ID')}` : ''}
-                                            {Number.isFinite(Number(product.stock)) ? ` · Stok ${product.stock}` : ''}
-                                            {product.imageName ? ` · Foto ${product.imageName}` : ''}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center justify-between gap-3 sm:justify-end">
-                                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                                            product.inStock ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
-                                        }`}>
-                                            {product.inStock ? 'Tersedia' : 'Stok habis'}
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleToggleStock(product.id)}
-                                            className="min-h-10 rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-bold text-[var(--text-primary)] transition hover:bg-[var(--surface-muted)]"
-                                            aria-label={`${product.inStock ? 'Tandai stok habis' : 'Tandai tersedia'}: ${product.name}`}
-                                        >
-                                            Ubah stok
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </article>
-                </div>
-            );
-        }
-
-        if (activeSection === 'orders') {
-            return (
-                <div className="space-y-6">
-                    <div>
-                        <h2 className="text-2xl font-extrabold text-[var(--text-primary)]">Pesanan Masuk</h2>
-                        <p className="mt-1 text-sm text-[var(--text-secondary)]">Pantau dan tindak lanjuti pesanan pelanggan.</p>
-                    </div>
-                    <EmptyPanel
-                        title="Belum ada pesanan untuk ditampilkan"
-                        description="Daftar pesanan akan muncul di sini setelah layanan pesanan vendor tersedia."
-                    />
-                </div>
-            );
-        }
-
-        if (activeSection === 'reports') {
-            return (
-                <div className="space-y-6">
-                    <div>
-                        <h2 className="text-2xl font-extrabold text-[var(--text-primary)]">Laporan Penjualan</h2>
-                        <p className="mt-1 text-sm text-[var(--text-secondary)]">Ringkasan performa berdasarkan data transaksi.</p>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                        <MetricCard label="Penjualan kotor" help="Belum ada sumber transaksi terhubung." />
-                        <MetricCard label="Produk terjual" help="Akan dihitung dari pesanan yang diproses." />
-                        <MetricCard label="Nilai pesanan rata-rata" help="Belum ada data untuk periode ini." />
-                    </div>
-                    <PerformancePanel />
-                </div>
-            );
-        }
-
-        if (activeSection === 'settings') {
-            return (
-                <div className="space-y-6">
-                    <div>
-                        <h2 className="text-2xl font-extrabold text-[var(--text-primary)]">Pengaturan Toko</h2>
-                        <p className="mt-1 text-sm text-[var(--text-secondary)]">Informasi toko, gudang, rekening, dan keamanan.</p>
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-2">
-                        {[
-                            { title: 'Profil toko', detail: 'Nama, deskripsi, dan kontak toko', icon: UserIcon },
-                            { title: 'Alamat gudang', detail: 'Alamat pengiriman dan pengambilan barang', icon: MapPinIcon },
-                            { title: 'Rekening pencairan', detail: 'Informasi rekening untuk pencairan saldo', icon: HardDriveIcon },
-                            { title: 'Keamanan akun', detail: 'Kata sandi dan otentikasi keamanan', icon: ShieldCheckIcon },
-                        ].map(({ title, detail, icon: Icon }) => (
-                            <button
-                                key={title}
-                                type="button"
-                                onClick={onNavigateAccount}
-                                className="flex items-start gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 text-left hover:border-[var(--brand-300)] hover:shadow-sm"
-                            >
-                                <span className="rounded-xl bg-[var(--brand-50)] p-3 text-[var(--brand-700)]"><Icon /></span>
-                                <span>
-                                    <span className="block font-bold text-[var(--text-primary)]">{title}</span>
-                                    <span className="mt-1 block text-sm text-[var(--text-secondary)]">{detail}</span>
-                                    <span className="mt-3 block text-xs font-bold text-[var(--brand-700)]">Buka pengaturan akun</span>
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            );
-        }
-
-        return (
-            <div className="space-y-6">
-                <section className="rounded-3xl bg-gradient-to-br from-[var(--brand-950)] via-[var(--brand-900)] to-[var(--brand-800)] p-6 text-white shadow-sm sm:p-8">
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">Vendor workspace</p>
-                    <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
-                        <div>
-                            <h2 className="text-2xl font-extrabold sm:text-3xl">Selamat datang, {user?.name || 'Vendor'}</h2>
-                            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-200">
-                                Kelola katalog dan operasional toko Anda dari satu tempat.
-                            </p>
-                        </div>
-                        <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold">
-                            Data dashboard belum terhubung
-                        </span>
-                    </div>
-                </section>
-
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <MetricCard label="Total penjualan" help="Nilai tampil setelah transaksi tersedia." />
-                    <MetricCard label="Pesanan baru" help="Pesanan akan muncul setelah API terhubung." />
-                    <MetricCard label="Produk aktif" help="Belum dihitung dari katalog vendor." />
-                    <MetricCard label="Saldo tersedia" help="Informasi pencairan belum tersedia." />
-                </div>
-
-                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
-                    <PerformancePanel />
-                    <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:p-6">
-                        <div className="mb-4">
-                            <h2 className="text-lg font-bold text-[var(--text-primary)]">Status pesanan baru</h2>
-                            <p className="mt-1 text-sm text-[var(--text-secondary)]">Tidak ada data transaksi masuk.</p>
-                        </div>
-                        <EmptyPanel
-                            title="Belum ada pesanan baru"
-                            description="Pesanan yang membutuhkan tindakan akan ditampilkan di sini."
-                        />
-                    </article>
-                </div>
-                <QuickStockPanel
-                    inventory={inventory}
-                    onToggleStock={handleToggleStock}
-                    onNavigateProducts={() => onNavigateSection('products')}
-                />
+    const renderProducts = () => (
+        <div className="space-y-5">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+                <div><h2 className="text-2xl font-extrabold">Kelola Produk</h2><p className="text-sm text-[var(--text-secondary)]">Produk yang disimpan langsung tampil di katalog pelanggan.</p></div>
+                <button type="button" onClick={() => { setEditingProduct(null); setShowProductForm((value) => !value); }} className="rounded-xl bg-[var(--brand-600)] px-5 py-3 text-sm font-bold text-white">{showProductForm ? 'Tutup form' : '+ Tambah produk'}</button>
             </div>
-        );
-    };
-
-    return (
-        <div className="min-h-[calc(100vh-5rem)] bg-[var(--background)]">
-            <header className="border-b border-[var(--border)] bg-[var(--surface)]">
-                <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-                    <div className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-600)] text-white"><CpuIcon /></span>
-                        <div className="min-w-0">
-                            <p className="truncate font-extrabold text-[var(--text-primary)]">PC Store <span className="font-medium text-[var(--text-muted)]">/ Vendor</span></p>
-                            <p className="truncate text-xs text-[var(--text-secondary)]">{user?.email}</p>
-                        </div>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={onNavigateToStorefront}
-                        className="shrink-0 rounded-xl border border-[var(--border)] px-3 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--surface-muted)] sm:px-4 sm:text-sm"
-                    >
-                        Kembali ke toko
-                    </button>
-                </div>
-            </header>
-
-            <div className="mx-auto grid w-full min-w-0 max-w-[1440px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
-                <aside className="w-full min-w-0 border-b border-[var(--border)] bg-[var(--surface)] p-3 lg:min-h-[calc(100vh-4rem)] lg:border-b-0 lg:border-r lg:p-5">
-                    <p className="hidden px-3 pb-3 text-xs font-bold uppercase tracking-[0.14em] text-[var(--text-muted)] lg:block">Menu vendor</p>
-                    <nav className="flex min-w-0 max-w-full gap-2 overflow-x-auto lg:block lg:space-y-1" aria-label="Navigasi dashboard vendor">
-                        {vendorSections.map(({ id, label, icon: Icon }) => (
-                            <button
-                                key={id}
-                                type="button"
-                                onClick={() => onNavigateSection(id)}
-                                aria-current={activeSection === id ? 'page' : undefined}
-                                className={`flex min-w-0 shrink-0 items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold transition lg:w-full lg:gap-3 ${
-                                    activeSection === id
-                                        ? 'bg-[var(--brand-50)] text-[var(--brand-700)]'
-                                        : 'text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)]'
-                                }`}
-                            >
-                                <Icon className="h-4 w-4 shrink-0" />
-                                <span className="whitespace-nowrap">{label}</span>
-                            </button>
-                        ))}
-                    </nav>
-                </aside>
-                <div className="w-full min-w-0 p-4 sm:p-6 lg:p-8">
-                    <div className="mx-auto w-full min-w-0 max-w-[1120px]">{renderContent()}</div>
-                </div>
+            {showProductForm && (
+                <form key={editingProduct?.id || 'new'} onSubmit={saveProduct} className="grid gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:grid-cols-2">
+                    <Field name="name" label="Nama produk" defaultValue={editingProduct?.name} required className="sm:col-span-2" />
+                    <label className="text-sm font-semibold">Kategori<select name="category_id" defaultValue={editingProduct?.category_id || ''} required className={inputClass}><option value="">Pilih kategori</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
+                    <Field name="brand" label="Merek" defaultValue={editingProduct?.brand} required />
+                    <Field name="sku" label="SKU" defaultValue={editingProduct?.sku} />
+                    <Field name="price" label="Harga" type="number" min="1" defaultValue={editingProduct?.price} required />
+                    <Field name="stock" label="Stok" type="number" min="0" defaultValue={editingProduct?.stock} required />
+                    <Field name="weight_grams" label="Berat (gram)" type="number" min="0" defaultValue={editingProduct?.weight_grams} />
+                    <Field name="image_url" label="URL gambar" type="url" defaultValue={editingProduct?.image_url} className="sm:col-span-2" />
+                    <label className="text-sm font-semibold sm:col-span-2">Deskripsi<textarea name="description" defaultValue={editingProduct?.description || ''} rows="4" className={`${inputClass} resize-y`} /></label>
+                    <button className="rounded-xl bg-[var(--brand-600)] px-5 py-3 text-sm font-bold text-white sm:col-span-2">{editingProduct ? 'Simpan perubahan' : 'Terbitkan produk'}</button>
+                </form>
+            )}
+            <div className="divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]">
+                {products.length === 0 && <p className="p-8 text-center text-sm text-[var(--text-secondary)]">Belum ada produk. Tambahkan produk pertama toko Anda.</p>}
+                {products.map((product) => (
+                    <article key={product.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div><p className="font-bold">{product.name}</p><p className="text-xs text-[var(--text-muted)]">{product.category?.name} · {formatRupiah(product.price)} · Stok {product.stock}</p></div>
+                        <div className="flex flex-wrap gap-2"><button type="button" onClick={() => { setEditingProduct(product); setShowProductForm(true); }} className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-bold">Edit</button><button type="button" onClick={() => toggleStock(product)} className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-bold">{product.stock > 0 ? 'Kosongkan stok' : 'Aktifkan stok'}</button><button type="button" onClick={() => deleteProduct(product)} className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-bold text-rose-700">Hapus</button></div>
+                    </article>
+                ))}
             </div>
         </div>
     );
+
+    const renderOrders = () => (
+        <div className="space-y-5"><div><h2 className="text-2xl font-extrabold">Pesanan Masuk</h2><p className="text-sm text-[var(--text-secondary)]">Proses dan lacak pesanan yang berisi produk toko Anda.</p></div>
+            {orders.length === 0 && <div className="rounded-2xl border border-dashed border-[var(--border)] p-10 text-center text-sm text-[var(--text-secondary)]">Belum ada pesanan.</div>}
+            {orders.map((order) => <article key={order.id} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5"><div className="flex flex-wrap justify-between gap-3"><div><p className="font-extrabold">{order.order_number}</p><p className="text-xs text-[var(--text-muted)]">{order.customer?.name} · {new Date(order.created_at).toLocaleDateString('id-ID')}</p></div><select value={order.status} onChange={(event) => updateOrderStatus(order, event.target.value)} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm"><option value="pending" disabled>Menunggu</option><option value="processing">Diproses</option><option value="shipped">Dikirim</option><option value="completed">Selesai</option><option value="cancelled">Dibatalkan</option></select></div><div className="mt-4 space-y-2">{order.items.map((item) => <div key={item.id} className="flex justify-between text-sm"><span>{item.product_name} × {item.quantity}</span><strong>{formatRupiah(item.subtotal)}</strong></div>)}</div></article>)}
+        </div>
+    );
+
+    const renderSettings = () => <form onSubmit={saveStore} className="grid gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:grid-cols-2"><div className="sm:col-span-2"><h2 className="text-2xl font-extrabold">Pengaturan Toko</h2><p className="text-sm text-[var(--text-secondary)]">Perbarui identitas, alamat, dan rekening pencairan.</p></div><Field name="store_name" label="Nama toko" defaultValue={store?.store_name} required /><Field name="store_phone" label="Nomor telepon" defaultValue={store?.store_phone} /><Field name="store_logo" label="URL logo" type="url" defaultValue={store?.store_logo} className="sm:col-span-2" /><label className="text-sm font-semibold sm:col-span-2">Deskripsi<textarea name="store_description" defaultValue={store?.store_description || ''} rows="4" className={inputClass} /></label><label className="text-sm font-semibold sm:col-span-2">Alamat toko<textarea name="store_address" defaultValue={store?.store_address || ''} rows="3" className={inputClass} /></label><Field name="bank_name" label="Nama bank" defaultValue={store?.bank_name} /><Field name="bank_account_number" label="Nomor rekening" defaultValue={store?.bank_account_number} /><Field name="bank_account_holder" label="Pemilik rekening" defaultValue={store?.bank_account_holder} className="sm:col-span-2" /><button className="rounded-xl bg-[var(--brand-600)] px-5 py-3 text-sm font-bold text-white sm:col-span-2">Simpan pengaturan</button></form>;
+
+    const content = section === 'products' ? renderProducts() : section === 'orders' ? renderOrders() : section === 'settings' ? renderSettings() : (
+        <div className="space-y-6"><section className="rounded-3xl bg-gradient-to-br from-[var(--brand-950)] to-[var(--brand-800)] p-7 text-white"><p className="text-xs font-bold uppercase tracking-widest text-amber-300">Vendor workspace</p><h2 className="mt-2 text-3xl font-extrabold">{store?.store_name || `Toko ${user.name}`}</h2><p className="mt-2 text-sm text-slate-200">Kelola katalog, pesanan, dan hasil penjualan Anda.</p></section><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Metric label="Penjualan kotor" value={formatRupiah(metrics.gross_sales)} /><Metric label="Pesanan baru" value={metrics.new_orders || 0} /><Metric label="Produk aktif" value={metrics.active_products || 0} /><Metric label="Produk terjual" value={metrics.products_sold || 0} /></div>{section === 'reports' && <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6"><h3 className="font-bold">Ringkasan penjualan</h3><p className="mt-2 text-sm text-[var(--text-secondary)]">Angka di atas dihitung dari seluruh pesanan toko, kecuali pesanan yang dibatalkan.</p></div>}</div>
+    );
+
+    return <div className="min-h-screen bg-[var(--background)]"><header className="border-b border-[var(--border)] bg-[var(--surface)]"><div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-4"><strong>PC Store / Vendor</strong><button type="button" onClick={onNavigateToStorefront} className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-bold">Kembali ke toko</button></div></header><div className="mx-auto grid max-w-[1440px] lg:grid-cols-[250px_minmax(0,1fr)]"><aside className="border-b border-[var(--border)] bg-[var(--surface)] p-3 lg:min-h-[calc(100vh-4rem)] lg:border-b-0 lg:border-r lg:p-5"><nav className="flex gap-2 overflow-x-auto lg:block lg:space-y-1">{sections.map(([id, label, Icon]) => <button key={id} type="button" onClick={() => onNavigateSection(id)} className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold lg:w-full ${section === id ? 'bg-[var(--brand-50)] text-[var(--brand-700)]' : 'text-[var(--text-secondary)]'}`}><Icon className="h-4 w-4" />{label}</button>)}</nav></aside><main className="min-w-0 p-4 sm:p-6 lg:p-8">{isLoading ? <p className="text-sm text-[var(--text-secondary)]">Memuat data toko…</p> : <>{error && <p className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}{notice && <p className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p>}{content}</>}</main></div></div>;
+}
+
+function Field({ label, className = '', ...props }) {
+    return <label className={`text-sm font-semibold ${className}`}>{label}<input {...props} className={inputClass} /></label>;
 }
