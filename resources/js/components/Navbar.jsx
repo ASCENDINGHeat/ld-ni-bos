@@ -18,6 +18,7 @@ export default function Navbar({
     cartCount = 0,
     wishlistCount = 0,
     onOpenCart,
+    onViewCart,
     onOpenWishlist,
     onNavigateCategory,
     onSearchSubmit,
@@ -160,7 +161,7 @@ export default function Navbar({
                         {/* Cart Drawer Trigger */}
                         <button
                             type="button"
-                            onClick={onOpenCart}
+                            onClick={onViewCart || onOpenCart}
                             className="relative inline-flex items-center justify-center h-10 px-3 rounded-[var(--radius-md)] bg-[var(--brand-50)] text-[var(--brand-700)] border border-[var(--brand-100)] hover:bg-[var(--brand-100)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
                             aria-label={`Buka keranjang belanja, ${cartCount} barang`}
                             title="Buka Keranjang"

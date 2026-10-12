@@ -31,6 +31,22 @@ class StorefrontRoutesTest extends TestCase
         $response->assertSee('data-initial-view="pc-builder"', false);
     }
 
+    public function test_cart_route_renders_the_cart_view(): void
+    {
+        $response = $this->get('/keranjang');
+
+        $response->assertOk();
+        $response->assertSee('data-initial-view="cart"', false);
+    }
+
+    public function test_checkout_route_renders_the_checkout_view(): void
+    {
+        $response = $this->get('/checkout');
+
+        $response->assertOk();
+        $response->assertSee('data-initial-view="checkout"', false);
+    }
+
     public function test_product_route_renders_the_requested_product_detail(): void
     {
         $response = $this->get('/produk/intel-core-i9-14900k');

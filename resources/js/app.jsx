@@ -6,6 +6,8 @@ import ProductCatalog from './components/ProductCatalog';
 import ProductDetailPage from './components/ProductDetailPage';
 import ProductQuickViewModal from './components/ProductQuickViewModal';
 import PCBuilderSimulation from './components/PCBuilderSimulation';
+import CartPage from './components/CartPage';
+import CheckoutPage from './components/CheckoutPage';
 import productsData from './mocks/products.json';
 import {
     CpuIcon,
@@ -44,6 +46,8 @@ function App() {
             beranda: '/',
             katalog: '/katalog',
             'pc-builder': '/pc-builder',
+            cart: '/keranjang',
+            checkout: '/checkout',
         };
         const basePath =
             view === 'detail' && product?.slug
@@ -89,6 +93,8 @@ function App() {
                 '/': 'beranda',
                 '/katalog': 'katalog',
                 '/pc-builder': 'pc-builder',
+                '/keranjang': 'cart',
+                '/checkout': 'checkout',
             };
 
             const view = viewsByPath[window.location.pathname] || 'beranda';
@@ -126,10 +132,18 @@ function App() {
 
             if (
                 targetUrl.pathname === '/' ||
-                targetUrl.pathname === '/pc-builder'
+                targetUrl.pathname === '/pc-builder' ||
+                targetUrl.pathname === '/keranjang' ||
+                targetUrl.pathname === '/checkout'
             ) {
                 e.preventDefault();
-                navigateToView(targetUrl.pathname === '/' ? 'beranda' : 'pc-builder');
+                const viewsByPath = {
+                    '/': 'beranda',
+                    '/pc-builder': 'pc-builder',
+                    '/keranjang': 'cart',
+                    '/checkout': 'checkout',
+                };
+                navigateToView(viewsByPath[targetUrl.pathname]);
             }
         };
 
@@ -167,11 +181,17 @@ function App() {
             onSelectProduct={handleSelectProduct}
             onOpenCatalog={() => navigateToView('katalog')}
             onNavigateCategory={(category) => navigateToView('katalog', null, category)}
+            onViewCart={() => navigateToView('cart')}
+            onNavigateToCheckout={() => navigateToView('checkout')}
         >
             {({
                 onAddToCart,
                 onAddMultipleToCart,
                 onOpenCart,
+                onCompleteOrder,
+                cartItems,
+                onUpdateQuantity,
+                onRemoveCartItem,
                 onToggleWishlist,
                 wishlistItems,
                 onShowToast,
@@ -230,6 +250,23 @@ function App() {
                             onAddMultipleToCart={onAddMultipleToCart}
                             onOpenCart={onOpenCart}
                             onShowToast={onShowToast}
+                        />
+                    ) : activeView === 'cart' ? (
+                        <CartPage
+                            items={cartItems}
+                            onUpdateQuantity={onUpdateQuantity}
+                            onRemoveItem={onRemoveCartItem}
+                            onContinueShopping={() => navigateToView('katalog')}
+                            onCheckout={() => navigateToView('checkout')}
+                        />
+                    ) : activeView === 'checkout' ? (
+                        <CheckoutPage
+                            items={cartItems}
+                            onUpdateQuantity={onUpdateQuantity}
+                            onRemoveItem={onRemoveCartItem}
+                            onBackToCart={() => navigateToView('cart')}
+                            onCompleteOrder={onCompleteOrder}
+                            onReturnHome={() => navigateToView('beranda')}
                         />
                     ) : (
                         <div className="space-y-12 pb-16">
