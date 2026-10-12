@@ -12,13 +12,11 @@ return new class extends Migration
             $table->id();
             $table->string('order_number')->unique();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->decimal('total_amount', 12, 2);
-            $table->enum('status', ['pending', 'paid', 'processing', 'shipped', 'completed', 'cancelled'])
-                  ->default('paid');
+            $table->decimal('total_amount', 14, 2)->default(0);
+            $table->string('status')->default('pending');
             $table->text('shipping_address');
-            $table->string('shipping_phone');
-            $table->enum('payment_method', ['simulated_wallet', 'bank_transfer_simulated', 'cod'])
-                  ->default('simulated_wallet');
+            $table->string('shipping_phone')->nullable();
+            $table->string('payment_method')->default('simulated_wallet');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

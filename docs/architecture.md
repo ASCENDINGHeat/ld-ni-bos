@@ -49,59 +49,67 @@ ld-ni-bos/
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   │   ├── Api/
-│   │   │   │   └── AuthController.php   # Registration, login, logout, profile
-│   │   │   └── Controller.php           # Base controller
+│   │   │   │   ├── AuthController.php          # Customer & vendor authentication
+│   │   │   │   ├── CartController.php          # Cart items & calculations
+│   │   │   │   ├── CategoryController.php      # Component categories
+│   │   │   │   ├── CheckoutController.php      # Unified checkout pipeline
+│   │   │   │   ├── OrderController.php         # Customer orders & cancellations
+│   │   │   │   ├── ProductController.php       # Product catalog & filters
+│   │   │   │   ├── VendorController.php        # Vendor store profiles
+│   │   │   │   ├── VendorOrderController.php   # Vendor orders & item fulfillment
+│   │   │   │   ├── VendorProductController.php # Vendor product management
+│   │   │   │   └── WishlistController.php      # Customer wishlists
+│   │   │   └── Controller.php                  # Base controller
 │   │   ├── Requests/
-│   │   │   └── Auth/
-│   │   │       ├── LoginRequest.php     # Login validation rules
-│   │   │       └── RegisterRequest.php  # Registration validation rules
+│   │   │   ├── Auth/                           # Registration & login requests
+│   │   │   ├── Cart/                           # Cart addition & mutation requests
+│   │   │   ├── Checkout/                       # Direct itemized order requests
+│   │   │   ├── Order/                          # Cart checkout requests
+│   │   │   └── Vendor/                         # Vendor store & product requests
 │   │   └── Resources/
-│   │       └── UserResource.php         # User entity JSON transformation
+│   │       ├── CartItemResource.php            # Cart line items
+│   │       ├── CategoryResource.php            # Category details
+│   │       ├── OrderItemResource.php           # Order items with vendor attribution
+│   │       ├── OrderResource.php               # Customer & vendor order entities
+│   │       ├── ProductResource.php             # Products with specifications
+│   │       ├── UserResource.php                # User profiles
+│   │       ├── VendorResource.php              # Vendor store profiles
+│   │       └── WishlistResource.php            # Wishlist entries
 │   ├── Models/
-│   │   └── User.php                     # User model with HasApiTokens & attributes
+│   │   ├── CartItem.php                        # Cart item model
+│   │   ├── Category.php                        # Category model
+│   │   ├── Order.php                           # Order model with auto-sync
+│   │   ├── OrderItem.php                       # Order item model with auto-attribution
+│   │   ├── Product.php                         # Product model with catalog scopes
+│   │   ├── User.php                            # User model with role helpers
+│   │   ├── Vendor.php                          # Vendor store model
+│   │   └── Wishlist.php                        # Wishlist model
 │   └── Providers/
-│       └── AppServiceProvider.php       # Application service providers
+│       └── AppServiceProvider.php              # Application service provider
 ├── bootstrap/
-│   └── app.php                          # Application configuration & middleware pipeline
-├── config/                              # Configuration definitions
+│   └── app.php                                 # Application configuration & middleware
 ├── database/
-│   ├── factories/
-│   │   └── UserFactory.php              # User factory with admin state
-│   ├── migrations/                      # Schema definitions & migrations
-│   │   ├── 0001_01_01_000000_create_users_table.php
-│   │   ├── 0001_01_01_000001_create_cache_table.php
-│   │   ├── 0001_01_01_000002_create_jobs_table.php
-│   │   ├── 2026_10_12_053248_create_personal_access_tokens_table.php
-│   │   └── 2026_10_12_053400_add_role_and_profile_fields_to_users_table.php
-│   └── seeders/
-│       └── DatabaseSeeder.php           # Database seeders
-├── docs/                                # Technical documentation
-├── public/
-│   └── index.php                        # Application entrypoint
+│   ├── factories/                              # Model factories
+│   ├── migrations/                             # Database schema migrations
+│   └── seeders/                                # Database seeders (ProductSeeder)
+├── docs/                                       # Technical architecture documentation
 ├── resources/
-│   ├── css/
-│   │   └── app.css                      # Tailwind CSS v4 root stylesheet
+│   ├── css/app.css                             # Tailwind CSS v4 root stylesheet
 │   ├── js/
-│   │   └── app.jsx                      # React 19 application mounting script
-│   └── views/
-│       ├── app.blade.php                # React SPA host template
-│       └── welcome.blade.php            # Static fallback template
+│   │   ├── app.jsx                             # React mounting shell & router
+│   │   ├── components/                         # Storefront, checkout & vendor UI
+│   │   └── services/api.js                     # Unified frontend API client
+│   └── views/app.blade.php                     # Blade host template
 ├── routes/
-│   ├── api.php                          # API routes (Sanctum protected & public)
-│   ├── web.php                          # Web routes (session & CSRF enabled)
-│   └── console.php                      # Artisan console commands
-├── storage/                             # Logs, framework cache, and compiled views
+│   ├── api.php                                 # REST API endpoints (Sanctum)
+│   ├── web.php                                 # Storefront & vendor view routes
+│   └── console.php                             # Console commands
 ├── tests/
-│   ├── Feature/
-│   │   └── Auth/
-│   │       ├── LoginTest.php            # Login, profile, logout feature tests
-│   │       └── RegisterTest.php         # Registration feature tests
-│   ├── Unit/
-│   └── TestCase.php                     # Base test case class
-├── artisan                              # CLI runner for Artisan commands
-├── composer.json                        # PHP dependencies and autoload definitions
-├── package.json                         # Frontend dependencies and scripts
-└── vite.config.js                       # Vite asset bundler configuration
+│   └── Feature/                                # Feature tests (Auth, Cart, Orders, Vendors, Products)
+├── artisan                                     # Artisan CLI executable
+├── composer.json                               # Backend dependencies
+├── package.json                                # Frontend dependencies
+└── vite.config.js                              # Vite bundler configuration
 ```
 
 ---

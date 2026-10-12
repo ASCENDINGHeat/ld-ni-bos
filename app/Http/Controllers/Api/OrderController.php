@@ -47,9 +47,11 @@ class OrderController extends Controller
     /**
      * Checkout: convert cart items into a new order atomically.
      */
-    public function checkout(CheckoutRequest $request): JsonResponse
+    public function checkout(Request $request): JsonResponse
     {
-        $user      = $request->user();
+        $request->validate((new CheckoutRequest)->rules());
+
+        $user = $request->user();
         $cartItems = $user->cartItems()->with('product')->get();
 
         if ($cartItems->isEmpty()) {
@@ -67,7 +69,7 @@ class OrderController extends Controller
             if ($item->product->stock < $item->quantity) {
                 return response()->json([
                     'message' => "Insufficient stock for \"{$item->product->name}\". "
-                               . "Available: {$item->product->stock}, requested: {$item->quantity}.",
+                               ."Available: {$item->product->stock}, requested: {$item->quantity}.",
                 ], 422);
             }
         }
@@ -77,24 +79,24 @@ class OrderController extends Controller
 
             // Create the order
             $order = Order::create([
-                'order_number'     => Order::generateOrderNumber(),
-                'user_id'          => $user->id,
-                'total_amount'     => $totalAmount,
-                'status'           => 'paid',
+                'order_number' => Order::generateOrderNumber(),
+                'user_id' => $user->id,
+                'total_amount' => $totalAmount,
+                'status' => 'paid',
                 'shipping_address' => $request->shipping_address,
-                'shipping_phone'   => $request->shipping_phone,
-                'payment_method'   => $request->payment_method,
-                'notes'            => $request->notes,
+                'shipping_phone' => $request->shipping_phone,
+                'payment_method' => $request->payment_method,
+                'notes' => $request->notes,
             ]);
 
             // Snapshot each cart item into order_items and decrement stock
             foreach ($cartItems as $item) {
                 $order->items()->create([
-                    'product_id'   => $item->product_id,
+                    'product_id' => $item->product_id,
                     'product_name' => $item->product->name,
-                    'unit_price'   => $item->product->price,
-                    'quantity'     => $item->quantity,
-                    'subtotal'     => $item->product->price * $item->quantity,
+                    'unit_price' => $item->product->price,
+                    'quantity' => $item->quantity,
+                    'subtotal' => $item->product->price * $item->quantity,
                 ]);
 
                 $item->product->decrement('stock', $item->quantity);
@@ -108,7 +110,7 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Order placed successfully.',
-            'order'   => new OrderResource($order->load('items')),
+            'order' => new OrderResource($order->load('items')),
         ], 201);
     }
 
@@ -138,11 +140,12 @@ class OrderController extends Controller
             }
 
             $order->update(['status' => 'cancelled']);
+            $order->items()->update(['status' => 'cancelled']);
         });
 
         return response()->json([
             'message' => 'Order cancelled successfully.',
-            'order'   => new OrderResource($order->refresh()->load('items')),
+            'order' => new OrderResource($order->refresh()->load('items')),
         ]);
     }
 }

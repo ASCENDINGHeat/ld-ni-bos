@@ -26,12 +26,13 @@
 ## 🚀 Key Features
 
 - **🔐 Token-Based API Authentication**: Powered by Laravel Sanctum with rate-limited registration, login, profile inspection, and token revocation.
+- **🏬 Multi-Vendor Store Management**: Vendor registration, isolated product inventory, sales metrics dashboard, and item-level order fulfillment status tracking.
+- **🛒 Dynamic Cart & Wishlist**: Persistent shopping cart with calculated subtotal, automatic mock component mapping for PC builder simulations, and wishlisting.
 - **⚡ Modern PHP 8.4+ Syntax**: Declarative Eloquent attributes (`#[Fillable]`, `#[Hidden]`), typed properties, and constructor property promotion.
 - **🎨 React 19 & Tailwind CSS v4**: Fast Refresh Blade mounting shell (`app.blade.php`), CSS-first `@theme` configuration, and Vite 8 bundling.
-- **👥 Role & Permission Ready**: Native `customer` and `admin` roles on the `users` table with helper methods and factory states.
+- **💳 Unified Checkout Pipeline**: Handles both direct itemized checkouts (React SPA) and atomic cart checkouts with pessimistic inventory locks.
 - **📦 Zero-Config SQLite**: File-backed database (`database/database.sqlite`) running out-of-the-box with foreign keys and database-backed sessions, cache, and queues.
-- **💳 Simulated Checkout Workflow**: Zero external payment gateway credentials required — orders auto-transition with atomic inventory locks.
-- **🧪 Comprehensive Test Suite**: 100% passing automated feature and unit tests with PHPUnit 12.
+- **🧪 Comprehensive Test Suite**: 100% passing automated feature and unit tests with PHPUnit 12 (80 tests, 424 assertions).
 
 ---
 

@@ -11,247 +11,210 @@ The backend runs on **Laravel Framework 13.x** and **PHP 8.5**.
 Key features utilized:
 - **Constructor Property Promotion**: Concise service and action constructors.
 - **PHP 8.4+ Eloquent Attributes**: Clean declarative model properties (`#[Fillable]`, `#[Hidden]`).
-- **Laravel Sanctum Integration**: Built-in API personal access token issuance and verification.
-- **Lean Bootstrap Configuration**: Zero-bloat setup in `bootstrap/app.php` with web and API routing.
+- **Laravel Sanctum Integration**: Stateless API personal access token issuance and verification.
+- **Multi-Vendor Isolation**: Multi-vendor store profiles, isolated vendor product inventories, and vendor order fulfillment.
+- **Unified Checkout Pipeline**: Flexible checkout handling direct item payloads (frontend SPA) and atomic cart checkouts.
 
 ---
 
 ## 2. Eloquent Data Models
 
 ### User Model (`app/Models/User.php`)
+Represents customer, vendor, and administrator accounts.
+- Attributes: `name`, `email`, `password`, `role` (`'customer'`, `'vendor'`, `'admin'`), `phone`, `address`.
+- Relations:
+  - `vendor()`: `HasOne` to `Vendor`
+  - `orders()`: `HasMany` to `Order`
+  - `cartItems()`: `HasMany` to `CartItem`
+  - `wishlists()`: `HasMany` to `Wishlist`
+  - `wishlistProducts()`: `BelongsToMany` to `Product` through `wishlists`
+- Helpers: `isAdmin()`, `isCustomer()`, `isVendor()`.
 
-```php
-namespace App\Models;
+### Vendor Model (`app/Models/Vendor.php`)
+Represents vendor stores operating on the platform.
+- Attributes: `user_id`, `store_name`, `store_slug`, `description`, `logo_url`, `banner_url`, `phone`, `address`, `city`, `province`, `postal_code`, `is_verified`.
+- Relations:
+  - `user()`: `BelongsTo` `User`
+  - `products()`: `HasMany` `Product`
+  - `orderItems()`: `HasMany` `OrderItem`
 
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+### Category Model (`app/Models/Category.php`)
+Hierarchical PC part and component categories.
+- Attributes: `name`, `slug`, `description`, `icon`, `is_active`.
+- Relations:
+  - `products()`: `HasMany` `Product`
 
-#[Fillable(['name', 'email', 'password', 'role', 'phone', 'address'])]
-#[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
-{
-    /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+### Product Model (`app/Models/Product.php`)
+Catalog items (PC components and pre-built systems).
+- Attributes: `category_id`, `vendor_id`, `sku`, `name`, `slug`, `type` (`'part'`, `'prebuilt'`), `brand`, `price`, `stock`, `description`, `specifications`, `image_url`, `images`, `is_active`, `weight_grams`.
+- Scopes: `active()`, `inStock()`, `prebuilt()`, `part()`, `search()`, `category()`, `byVendor()`.
+- Relations:
+  - `category()`: `BelongsTo` `Category`
+  - `vendor()`: `BelongsTo` `Vendor`
+  - `cartItems()`: `HasMany` `CartItem`
+  - `wishlists()`: `HasMany` `Wishlist`
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+### CartItem Model (`app/Models/CartItem.php`)
+Active customer shopping cart items.
+- Attributes: `user_id`, `product_id`, `quantity`.
+- Relations:
+  - `user()`: `BelongsTo` `User`
+  - `product()`: `BelongsTo` `Product`
 
-    /**
-     * Determine if the user is an admin.
-     */
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
+### Wishlist Model (`app/Models/Wishlist.php`)
+Saved customer product bookmarks.
+- Attributes: `user_id`, `product_id`.
+- Relations:
+  - `user()`: `BelongsTo` `User`
+  - `product()`: `BelongsTo` `Product`
 
-    /**
-     * Determine if the user is a customer.
-     */
-    public function isCustomer(): bool
-    {
-        return $this->role === 'customer';
-    }
-}
-```
+### Order Model (`app/Models/Order.php`)
+Parent order placed by a customer.
+- Attributes: `order_number`, `user_id`, `status` (`'pending'`, `'paid'`, `'processing'`, `'shipped'`, `'completed'`, `'cancelled'`), `payment_method`, `shipping_method`, `recipient_name`, `recipient_phone`, `shipping_phone`, `shipping_address`, `customer_note`, `notes`, `subtotal`, `shipping_cost`, `total`, `total_amount`.
+- Automatic synchronization: A model lifecycle `creating` hook ensures `total` and `total_amount`, as well as `shipping_phone` and `recipient_phone`, remain synchronized.
+- Relations:
+  - `user()`: `BelongsTo` `User`
+  - `items()`: `HasMany` `OrderItem`
+- Helpers: `generateOrderNumber()`, `isCancellable()`.
 
-> [!NOTE]
-> Modern Laravel applications prefer PHP attributes `#[Fillable]` and `#[Hidden]` over traditional protected array properties for improved static analysis and code cleanliness.
+### OrderItem Model (`app/Models/OrderItem.php`)
+Itemized product line inside an order, attributed to a specific vendor.
+- Attributes: `order_id`, `product_id`, `vendor_id`, `product_name`, `product_sku`, `unit_price`, `quantity`, `subtotal`, `status`.
+- Automatic inference: A model lifecycle `creating` hook automatically infers `vendor_id` and `product_sku` from the associated `Product`, guaranteeing multi-vendor attribution even for cart-based checkout.
+- Relations:
+  - `order()`: `BelongsTo` `Order`
+  - `product()`: `BelongsTo` `Product`
+  - `vendor()`: `BelongsTo` `Vendor`
 
 ---
 
-## 3. Database Schema & Migrations
-
-The database currently provisions the following core system tables:
+## 3. Database Schema & Relationships
 
 ```mermaid
 erDiagram
-    USERS {
-        bigint id PK
-        string name
-        string email UK
-        timestamp email_verified_at
-        string password
-        string role "default: customer"
-        string phone "nullable"
-        text address "nullable"
-        string remember_token
-        timestamps created_at_updated_at
-    }
-    PERSONAL_ACCESS_TOKENS {
-        bigint id PK
-        morphs tokenable
-        string name
-        string token UK
-        text abilities
-        timestamp last_used_at
-        timestamp expires_at
-        timestamps created_at_updated_at
-    }
-    PASSWORD_RESET_TOKENS {
-        string email PK
-        string token
-        timestamp created_at
-    }
-    SESSIONS {
-        string id PK
-        foreign_id user_id FK
-        string ip_address
-        text user_agent
-        longText payload
-        integer last_activity
-    }
-    CACHE {
-        string key PK
-        mediumText value
-        integer expiration
-    }
-    CACHE_LOCKS {
-        string key PK
-        string owner
-        integer expiration
-    }
-    JOBS {
-        bigint id PK
-        string queue
-        longText payload
-        tinyint attempts
-        integer reserved_at
-        integer available_at
-        integer created_at
-    }
-    FAILED_JOBS {
-        bigint id PK
-        string uuid UK
-        text connection
-        text queue
-        longText payload
-        longText exception
-        timestamp failed_at
-    }
+    USERS ||--o| VENDORS : "operates"
+    USERS ||--o{ ORDERS : "places"
+    USERS ||--o{ CART_ITEMS : "has"
+    USERS ||--o{ WISHLISTS : "saves"
+    USERS ||--o{ PERSONAL_ACCESS_TOKENS : "owns"
 
-    USERS ||--o{ SESSIONS : "owns"
-    USERS ||--o{ PERSONAL_ACCESS_TOKENS : "issues"
+    VENDORS ||--o{ PRODUCTS : "stocks"
+    VENDORS ||--o{ ORDER_ITEMS : "fulfills"
+
+    CATEGORIES ||--o{ PRODUCTS : "classifies"
+
+    PRODUCTS ||--o{ CART_ITEMS : "added_in"
+    PRODUCTS ||--o{ WISHLISTS : "saved_in"
+    PRODUCTS ||--o{ ORDER_ITEMS : "purchased_as"
+
+    ORDERS ||--|{ ORDER_ITEMS : "contains"
 ```
 
-### Migration Files (`database/migrations/`)
+### Key Migration History
 
-1. **`0001_01_01_000000_create_users_table.php`**:
-   - Creates `users`, `password_reset_tokens`, and `sessions` tables.
-2. **`0001_01_01_000001_create_cache_table.php`**:
-   - Creates `cache` and `cache_locks` tables for database-backed caching.
-3. **`0001_01_01_000002_create_jobs_table.php`**:
-   - Creates `jobs`, `job_batches`, and `failed_jobs` tables for asynchronous queue processing.
-4. **`2026_10_12_053248_create_personal_access_tokens_table.php`**:
-   - Creates `personal_access_tokens` table for Laravel Sanctum API authentication.
-5. **`2026_10_12_053400_add_role_and_profile_fields_to_users_table.php`**:
-   - Adds `role` (default `'customer'`), `phone`, and `address` columns to `users`.
+1. **`0001_01_01_000000_create_users_table.php`**: Base authentication tables (`users`, `password_reset_tokens`, `sessions`).
+2. **`2026_10_12_053248_create_personal_access_tokens_table.php`**: Sanctum personal access tokens.
+3. **`2026_10_12_053400_add_role_and_profile_fields_to_users_table.php`**: Adds `role`, `phone`, and `address` to `users`.
+4. **`2026_10_12_102904_create_categories_table.php`**: PC parts and systems categories.
+5. **`2026_10_12_102916_create_products_table.php`**: Catalog products with specifications and stock.
+6. **`2026_10_12_102927_create_cart_items_table.php`**: Customer shopping carts.
+7. **`2026_10_12_102938_create_wishlists_table.php`**: Customer wishlists.
+8. **`2026_10_12_133422_create_orders_table.php`**: Primary orders table.
+9. **`2026_10_12_133423_create_order_items_table.php`**: Primary order items table.
+10. **`2026_10_12_152255_create_vendors_table.php`**: Multi-vendor store registry.
+11. **`2026_10_12_152305_add_vendor_id_to_products_table.php`**: Links catalog products to vendors.
+12. **`2026_10_12_163128_create_orders_table.php`**: Idempotent migration that safely adds vendor checkout columns (`shipping_method`, `recipient_name`, `recipient_phone`, `customer_note`, `subtotal`, `shipping_cost`, `total`, indexes) when table already exists.
+13. **`2026_10_12_163132_create_order_items_table.php`**: Idempotent migration that safely links `vendor_id` and `product_sku` to `order_items` once `vendors` table is present.
+14. **`2026_10_12_163240_add_sku_to_products_table.php`**: Adds `sku` and unique `['vendor_id', 'sku']` constraint to products.
+15. **`2026_10_12_164125_add_unique_user_constraint_to_vendors_table.php`**: Enforces one vendor store per user account.
+16. **`2026_10_12_164305_add_status_to_order_items_table.php`**: Adds granular item fulfillment status (`pending`, `processing`, `shipped`, `completed`, `cancelled`).
 
 ---
 
-## 4. Routing Structure
+## 4. Multi-Vendor Order Lifecycle
 
-### Web Routes (`routes/web.php`)
-
-Web routes handle stateful HTTP requests with session and CSRF middleware:
-
-```php
-use Illuminate\Support\Facades\Route;
-
-Route::view('/', 'app');
+```mermaid
+stateDiagram-v2
+    [*] --> pending: Checkout Created
+    pending --> paid: Payment Confirmed
+    paid --> processing: Vendor starts packing items
+    processing --> shipped: Vendor ships order items
+    shipped --> completed: Customer receives goods
+    pending --> cancelled: Cancelled by customer / vendor
+    paid --> cancelled: Cancelled (stock restored)
+    cancelled --> [*]
+    completed --> [*]
 ```
 
-### API Routes (`routes/api.php`)
-
-API routes handle stateless JSON interactions with Sanctum bearer token authentication:
-
-```php
-use App\Http\Controllers\Api\AuthController;
-use Illuminate\Support\Facades\Route;
-
-// Public Authentication Endpoints (Rate Limited)
-Route::prefix('auth')->group(function (): void {
-    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
-});
-
-Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
-
-// Protected Routes (auth:sanctum)
-Route::middleware('auth:sanctum')->group(function (): void {
-    Route::get('/user', [AuthController::class, 'user']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/auth/logout', [AuthController::class, 'logout']);
-});
-```
-
-### Console Routes (`routes/console.php`)
-
-Artisan console commands:
-
-```php
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
-
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
-```
+### Multi-Vendor Item-Level Status Resolution
+- In multi-vendor transactions, an order contains items from different vendors.
+- Each vendor manages their own items via `PATCH /api/vendor/orders/{order}/status`.
+- If an item is cancelled, stock for that vendor's product is restored atomically.
+- When all items in an order reach a unanimous status (e.g., all shipped), the parent order's status transitions automatically.
 
 ---
 
-## 5. API Form Requests, Resources & Controllers
+## 5. Unified Checkout Architecture
 
-### Form Requests (`app/Http/Requests/Auth/`)
-- **`RegisterRequest.php`**: Validates registration input (`name`, unique `email`, `password` confirmation with min 8 characters, optional `phone` and `address`).
-- **`LoginRequest.php`**: Validates authentication input (`email`, `password`, optional `device_name`).
+The platform supports two checkout modalities through `/api/checkout`:
 
-### API Resources (`app/Http/Resources/`)
-- **`UserResource.php`**: Transforms the User Eloquent model into a clean, consistent JSON shape without exposing sensitive database internals.
+1. **Direct Itemized Checkout (`POST /api/checkout`)**:
+   - Used by the React frontend (`CheckoutPage.jsx`) and API clients.
+   - Accepts payload containing `items: [{ product_id, quantity }]`, shipping options, and recipient details.
+   - Validates stock across all items with pessimistic database row locks (`lockForUpdate`).
+   - Decrements product inventory and snapshots vendor attribution.
+   - Returns HTTP 201 with created order details.
 
-### Authentication Controller (`app/Http/Controllers/Api/AuthController.php`)
-- **`register`**: Creates customer record, generates Sanctum personal access token, and returns HTTP 201 with bearer token.
-- **`login`**: Authenticates credentials against Bcrypt hash, creates a named token, and returns HTTP 200 with bearer token.
-- **`logout`**: Deletes the user's current access token, invalidating future requests with that token.
-- **`user`**: Returns the authenticated user wrapped in `UserResource`.
+2. **Cart-Based Checkout (`POST /api/checkout` or `POST /api/orders/checkout`)**:
+   - Used for quick conversion of a user's persistent cart (`cart_items`).
+   - Invoked when no `items` array is provided in payload.
+   - Verifies stock and availability for every item in the cart.
+   - Snapshots each cart item into `order_items`, auto-populates `vendor_id` and `sku`, decrements stock, and empties the cart.
 
 ---
 
-## 6. Creating New Backend Components
+## 6. API Route Catalog
 
-Always adhere to Laravel Artisan generators:
+### Authentication
+- `POST /api/register`: Register new customer account (rate limited: 10/min)
+- `POST /api/login`: Authenticate and receive Sanctum bearer token (rate limited: 6/min)
+- `GET /api/user`: Get authenticated user profile (`auth:sanctum`)
+- `POST /api/logout`: Revoke active bearer token (`auth:sanctum`)
 
-### Generate Model with Migration, Factory & Seeder
-```bash
-php artisan make:model Post -mfs --no-interaction
-```
+### Catalog & Discovery
+- `GET /api/categories`: List all component categories
+- `GET /api/categories/{slug}`: Category detail with product count
+- `GET /api/products`: Filterable product catalog (search, type, category, pagination)
+- `GET /api/products/{slug}`: Product details with specifications and active status
+- `GET /api/products/{slug}/related`: Related category products
 
-### Generate API Controller
-```bash
-php artisan make:controller Api/PostController --api --model=Post --no-interaction
-```
+### Wishlist & Shopping Cart
+- `GET /api/wishlist`: List user wishlist
+- `POST /api/wishlist`: Add product to wishlist
+- `POST /api/wishlist/toggle`: Toggle product in wishlist
+- `DELETE /api/wishlist/{productId}`: Remove product from wishlist
+- `GET /api/cart`: Current cart summary with calculated totals
+- `POST /api/cart`: Add or increment item in cart
+- `POST /api/cart/bulk`: Bulk synchronize cart items
+- `PATCH /api/cart/{cartItemId}`: Update item quantity
+- `DELETE /api/cart/{cartItemId}`: Remove cart item
+- `DELETE /api/cart`: Clear entire cart
 
-### Generate Form Request
-```bash
-php artisan make:request StorePostRequest --no-interaction
-```
+### Customer Orders & Checkout
+- `POST /api/checkout`: Unified checkout (supports direct items and cart fallback)
+- `POST /api/orders/checkout`: Dedicated cart-to-order checkout
+- `GET /api/orders`: List customer order history
+- `GET /api/orders/{id}`: Single order breakdown with item statuses
+- `PATCH /api/orders/{id}/cancel`: Cancel cancellable order (`pending` or `paid`) and restore stock
 
-### Generate Eloquent API Resource
-```bash
-php artisan make:resource PostResource --no-interaction
-```
+### Vendor Portal
+- `GET /api/vendor/store`: Vendor profile and catalog metrics
+- `POST /api/vendor/store`: Register new vendor store
+- `PATCH /api/vendor/store`: Update store details
+- `GET /api/vendor/products`: Vendor-owned product inventory
+- `POST /api/vendor/products`: Create vendor product
+- `PATCH /api/vendor/products/{product}`: Update vendor product
+- `DELETE /api/vendor/products/{product}`: Delete vendor product
+- `GET /api/vendor/dashboard`: Store performance metrics (gross sales, sold units, new orders)
+- `GET /api/vendor/orders`: Vendor orders with item-level status filtering
+- `PATCH /api/vendor/orders/{order}/status`: Update fulfillment status of vendor items

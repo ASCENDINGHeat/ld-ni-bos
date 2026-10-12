@@ -103,19 +103,28 @@ php artisan test tests/Feature/Auth/LoginTest.php
 php artisan test --filter=test_user_can_login_with_valid_credentials
 ```
 
-### Current Test Coverage
+### Current Test Coverage (80 Tests, 424 Assertions)
 
-The test suite currently includes:
-- **`tests/Feature/Auth/RegisterTest.php`**: Validates registration, required fields, duplicate emails, password confirmation mismatches, short passwords, and aliased routes.
-- **`tests/Feature/Auth/LoginTest.php`**: Validates valid credentials, invalid passwords, nonexistent emails, profile retrieval, unauthenticated rejection (401), token revocation (logout), and aliased routes.
-- **`tests/Feature/ExampleTest.php`**: Base HTTP response verification.
-- **`tests/Unit/ExampleTest.php`**: Base PHPUnit unit verification.
+The test suite provides 100% green coverage across 11 test files:
+- **`tests/Feature/Auth/RegisterTest.php`**: User registration, required field validation, duplicate email protection, password confirmation checks, and auth route aliases.
+- **`tests/Feature/Auth/LoginTest.php`**: Login authentication, credential checking, profile retrieval, unauthenticated 401 rejections, token revocation on logout.
+- **`tests/Feature/CartTest.php`**: Shopping cart retrieval with subtotal calculations, adding items, updating quantities, deleting items, and bulk cart additions.
+- **`tests/Feature/CategoryTest.php`**: Hardware category listing and slug lookups.
+- **`tests/Feature/ProductTest.php`**: Paginated catalog, searching, filtering by pre-built vs part type, price ranges, and category scopes.
+- **`tests/Feature/WishlistTest.php`**: Wishlist retrieval, adding products, duplicate handling, removing products, and wishlist toggling.
+- **`tests/Feature/OrderTest.php`**: Cart checkout execution, order numbering, inventory decrement, order listing, order cancellation, and stock restoration.
+- **`tests/Feature/Api/CheckoutControllerTest.php`**: Direct itemized checkout, stock checks, and vendor item line creation.
+- **`tests/Feature/Api/VendorControllerTest.php`**: Vendor store profile creation, updating store slug/info, and vendor authentication gating.
+- **`tests/Feature/Api/VendorProductControllerTest.php`**: Vendor-owned product management, creation, updates, and deletion.
+- **`tests/Feature/Api/VendorOrderControllerTest.php`**: Vendor order dashboard metrics, item-level fulfillment status updates, and order isolation.
+- **`tests/Feature/StorefrontRoutesTest.php`**: Blade views and React initial hydration view routes (`/`, `/katalog`, `/pc-builder`, `/keranjang`, `/checkout`, `/akun`, `/vendor/dashboard`, `/produk/{slug}`).
+- **`tests/Feature/ExampleTest.php` & `tests/Unit/ExampleTest.php`**: Core framework sanity checks.
 
 ### Writing Tests
 
 - Use `php artisan make:test --phpunit {NameTest}` to generate feature tests.
 - Add `--unit` flag only for pure isolated unit tests.
-- Always use model factories (`User::factory()->create()`) instead of manually inserting database rows in tests.
+- Always use model factories (`User::factory()->create()`, `Product::factory()->create()`) instead of manually inserting database rows in tests.
 
 ---
 
