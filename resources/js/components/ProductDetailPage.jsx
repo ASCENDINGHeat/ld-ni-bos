@@ -283,48 +283,82 @@ export default function ProductDetailPage({
                     {/* Core Specifications Highlight Cards */}
                     <div className="space-y-2">
                         <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
-                            Highlight Spesifikasi Hardware
+                            {product.type === 'prebuilt'
+                                ? 'Ringkasan Komponen PC Rakitan'
+                                : 'Highlight Spesifikasi Hardware'}
                         </h3>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                            {/* Socket */}
-                            <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
-                                <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
-                                    CPU Socket
-                                </span>
-                                <span className="text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate">
-                                    {cpuSocket || '-'}
-                                </span>
-                            </div>
-
-                            {/* TDP */}
-                            <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
-                                <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
-                                    TDP / Daya
-                                </span>
-                                <span className="text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate">
-                                    {tdp || '-'}
-                                </span>
-                            </div>
-
-                            {/* Chipset */}
-                            <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
-                                <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
-                                    Chipset
-                                </span>
-                                <span className="text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate">
-                                    {chipset || '-'}
-                                </span>
-                            </div>
-
-                            {/* Garansi */}
-                            <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
-                                <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
-                                    Garansi
-                                </span>
-                                <span className="text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate">
-                                    {warranty || 'Garansi Resmi'}
-                                </span>
-                            </div>
+                            {product.type === 'prebuilt' ? (
+                                <>
+                                    <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
+                                        <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
+                                            Processor
+                                        </span>
+                                        <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate" title={technicalSpecs?.processor}>
+                                            {technicalSpecs?.processor || '-'}
+                                        </span>
+                                    </div>
+                                    <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
+                                        <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
+                                            Kartu Grafis
+                                        </span>
+                                        <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate" title={technicalSpecs?.kartu_grafis || technicalSpecs?.gpu}>
+                                            {technicalSpecs?.kartu_grafis || technicalSpecs?.gpu || '-'}
+                                        </span>
+                                    </div>
+                                    <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
+                                        <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
+                                            RAM Memory
+                                        </span>
+                                        <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate" title={technicalSpecs?.ram}>
+                                            {technicalSpecs?.ram || '-'}
+                                        </span>
+                                    </div>
+                                    <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
+                                        <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
+                                            Storage SSD
+                                        </span>
+                                        <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate" title={technicalSpecs?.storage || technicalSpecs?.penyimpanan}>
+                                            {technicalSpecs?.storage || technicalSpecs?.penyimpanan || '-'}
+                                        </span>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
+                                        <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
+                                            CPU Socket / Form
+                                        </span>
+                                        <span className="text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate">
+                                            {cpuSocket || technicalSpecs?.socket || technicalSpecs?.form_factor || '-'}
+                                        </span>
+                                    </div>
+                                    <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
+                                        <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
+                                            TDP / Daya
+                                        </span>
+                                        <span className="text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate">
+                                            {tdp || technicalSpecs?.tdp || technicalSpecs?.tdp_daya || technicalSpecs?.daya_output || '-'}
+                                        </span>
+                                    </div>
+                                    <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
+                                        <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
+                                            Chipset / Speed
+                                        </span>
+                                        <span className="text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate">
+                                            {chipset || technicalSpecs?.chipset || technicalSpecs?.kecepatan || technicalSpecs?.vram || '-'}
+                                        </span>
+                                    </div>
+                                    <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs">
+                                        <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase block">
+                                            Garansi
+                                        </span>
+                                        <span className="text-sm font-bold text-[var(--text-primary)] block mt-0.5 truncate">
+                                            {warranty || technicalSpecs?.garansi || 'Garansi Resmi'}
+                                        </span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -485,7 +519,7 @@ export default function ProductDetailPage({
                                         }`}
                                     >
                                         <span className="font-semibold text-[var(--text-secondary)]">
-                                            {specKey}
+                                            {specKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                                         </span>
                                         <span className="sm:col-span-2 font-medium text-[var(--text-primary)] mt-0.5 sm:mt-0">
                                             {specVal}

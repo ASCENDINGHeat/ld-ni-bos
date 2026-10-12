@@ -9,20 +9,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['order_number', 'user_id', 'status', 'payment_method', 'shipping_method', 'recipient_name', 'recipient_phone', 'shipping_address', 'customer_note', 'subtotal', 'shipping_cost', 'total'])]
 class Order extends Model
 {
-    /** @use HasFactory<OrderFactory> */
-    use HasFactory;
+    protected $fillable = [
+        'order_number',
+        'user_id',
+        'total_amount',
+        'status',
+        'shipping_address',
+        'shipping_phone',
+        'payment_method',
+        'notes',
+    ];
 
-    protected function casts(): array
-    {
-        return [
-            'subtotal' => 'decimal:2',
-            'shipping_cost' => 'decimal:2',
-            'total' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'total_amount' => 'decimal:2',
+        'subtotal' => 'decimal:2',
+        'shipping_cost' => 'decimal:2',
+        'total' => 'decimal:2',
+    ];
+
+    // ─── Relationships ────────────────────────────────────────────────────────
 
     public function user(): BelongsTo
     {

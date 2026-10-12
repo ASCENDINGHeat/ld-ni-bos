@@ -26,6 +26,7 @@ class OrderResource extends JsonResource
             'recipient_phone' => $this->recipient_phone,
             'shipping_address' => $this->shipping_address,
             'customer_note' => $this->customer_note,
+            'is_cancellable'   => $this->isCancellable(),
             'subtotal' => (float) $this->subtotal,
             'shipping_cost' => (float) $this->shipping_cost,
             'total' => (float) $this->total,

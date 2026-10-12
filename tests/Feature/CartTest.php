@@ -195,4 +195,124 @@ class CartTest extends TestCase
 
         $this->assertDatabaseCount('cart_items', 0);
     }
+
+    public function test_user_can_add_multiple_items_to_cart_in_bulk(): void
+    {
+        $user = User::factory()->create();
+        $product1 = Product::factory()->create(['stock' => 10, 'price' => 500000]);
+        $product2 = Product::factory()->create(['stock' => 10, 'price' => 1000000]);
+
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson('/api/cart', [
+            'items' => [
+                ['product_id' => $product1->id, 'quantity' => 2],
+                ['product_id' => $product2->id, 'quantity' => 1],
+            ],
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('summary.total_unique_items', 2)
+            ->assertJsonPath('summary.total_quantity', 3)
+            ->assertJsonPath('summary.total_price', 2000000);
+
+        $this->assertDatabaseHas('cart_items', [
+            'user_id' => $user->id,
+            'product_id' => $product1->id,
+            'quantity' => 2,
+        ]);
+        $this->assertDatabaseHas('cart_items', [
+            'user_id' => $user->id,
+            'product_id' => $product2->id,
+            'quantity' => 1,
+        ]);
+    }
+
+    public function test_user_can_add_item_by_slug_or_mock_code(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create([
+            'slug' => 'intel-core-i9-14900k',
+            'stock' => 10,
+        ]);
+
+        Sanctum::actingAs($user);
+
+        // Add by mock code 'cpu-1' which resolves to 'intel-core-i9-14900k'
+        $response = $this->postJson('/api/cart', [
+            'product_id' => 'cpu-1',
+            'quantity' => 1,
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('cart_item.product_id', $product->id);
+
+        $this->assertDatabaseHas('cart_items', [
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ]);
+
+        // Add by exact slug
+        $response2 = $this->postJson('/api/cart', [
+            'product_id' => 'intel-core-i9-14900k',
+            'quantity' => 2,
+        ]);
+
+        $response2->assertCreated()
+            ->assertJsonPath('cart_item.quantity', 3);
+    }
+
+    public function test_user_can_add_multiple_items_via_bulk_endpoint(): void
+    {
+        $user = User::factory()->create();
+        $product1 = Product::factory()->create(['slug' => 'amd-ryzen-7-7800x3d', 'stock' => 5]);
+        $product2 = Product::factory()->create(['slug' => 'corsair-vengeance-rgb-32gb-ddr5-6000mhz', 'stock' => 5]);
+
+        Sanctum::actingAs($user);
+
+        // Bulk endpoint using mock IDs
+        $response = $this->postJson('/api/cart/bulk', [
+            'items' => [
+                ['product_id' => 'cpu-4', 'quantity' => 1],
+                ['product_id' => 'ram-1', 'quantity' => 2],
+            ],
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('summary.total_unique_items', 2)
+            ->assertJsonPath('summary.total_quantity', 3);
+
+        $this->assertDatabaseHas('cart_items', [
+            'user_id' => $user->id,
+            'product_id' => $product1->id,
+            'quantity' => 1,
+        ]);
+        $this->assertDatabaseHas('cart_items', [
+            'user_id' => $user->id,
+            'product_id' => $product2->id,
+            'quantity' => 2,
+        ]);
+    }
+
+    public function test_bulk_add_fails_atomically_if_one_item_exceeds_stock(): void
+    {
+        $user = User::factory()->create();
+        $product1 = Product::factory()->create(['stock' => 10]);
+        $product2 = Product::factory()->create(['stock' => 1]);
+
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson('/api/cart', [
+            'items' => [
+                ['product_id' => $product1->id, 'quantity' => 2],
+                ['product_id' => $product2->id, 'quantity' => 5], // exceeds stock
+            ],
+        ]);
+
+        $response->assertStatus(422);
+
+        // Ensure nothing was committed to DB due to transaction rollback
+        $this->assertDatabaseCount('cart_items', 0);
+    }
 }

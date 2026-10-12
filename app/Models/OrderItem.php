@@ -2,26 +2,26 @@
 
 namespace App\Models;
 
-use Database\Factories\OrderItemFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['order_id', 'product_id', 'vendor_id', 'product_name', 'product_sku', 'unit_price', 'quantity', 'subtotal', 'status'])]
 class OrderItem extends Model
 {
-    /** @use HasFactory<OrderItemFactory> */
-    use HasFactory;
+    protected $fillable = [
+        'order_id',
+        'product_id',
+        'product_name',
+        'unit_price',
+        'quantity',
+        'subtotal',
+    ];
 
-    protected function casts(): array
-    {
-        return [
-            'unit_price' => 'decimal:2',
-            'quantity' => 'integer',
-            'subtotal' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'unit_price' => 'decimal:2',
+        'subtotal'   => 'decimal:2',
+    ];
+
+    // ─── Relationships ────────────────────────────────────────────────────────
 
     public function order(): BelongsTo
     {
