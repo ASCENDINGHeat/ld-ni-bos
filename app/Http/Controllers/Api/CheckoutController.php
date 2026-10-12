@@ -8,14 +8,19 @@ use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
-    public function store(StoreOrderRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $validated = $request->validated();
+        if (! $request->has('items')) {
+            return app(OrderController::class)->checkout($request);
+        }
+
+        $validated = $request->validate((new StoreOrderRequest)->rules());
 
         $order = DB::transaction(function () use ($request, $validated): Order {
             $requestedItems = collect($validated['items'])->keyBy('product_id');

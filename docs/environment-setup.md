@@ -78,8 +78,9 @@ npm install
 cp .env.example .env
 php artisan key:generate
 
-# 5. Run database migrations:
+# 5. Run database migrations & seed catalog:
 php artisan migrate
+php artisan db:seed --class=ProductSeeder
 ```
 
 ---
