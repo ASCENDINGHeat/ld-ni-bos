@@ -18,6 +18,7 @@ export default function ProductCatalog({
     onQuickView,
     onSelectProduct,
     initialCategory = 'all',
+    products = mockProductsData,
 }) {
     // API States
     const [apiProducts, setApiProducts] = useState([]);
@@ -201,7 +202,35 @@ export default function ProductCatalog({
 
             return true;
         });
-    }, [baseProducts, selectedBrands, selectedSockets, selectedRamFactors]);
+    }, [
+        selectedCategory,
+        selectedBrands,
+        selectedSockets,
+        selectedRamFactors,
+        onlyInStock,
+        priceRange,
+        searchQuery,
+        products,
+    ]);
+
+    // Sorting Logic
+    const sortedProducts = useMemo(() => {
+        const list = [...filteredProducts];
+        switch (sortBy) {
+            case 'price-asc':
+                return list.sort((a, b) => a.price - b.price);
+            case 'price-desc':
+                return list.sort((a, b) => b.price - a.price);
+            case 'name-asc':
+                return list.sort((a, b) => a.name.localeCompare(b.name));
+            case 'name-desc':
+                return list.sort((a, b) => b.name.localeCompare(a.name));
+            case 'popular':
+            default:
+                // Prioritize in-stock and flagship/best sellers
+                return list.sort((a, b) => (b.inStock ? 1 : 0) - (a.inStock ? 1 : 0));
+        }
+    }, [filteredProducts, sortBy]);
 
     // Handlers
     const handleToggleBrand = (brandName) => {
@@ -494,6 +523,16 @@ export default function ProductCatalog({
                         </div>
                     )}
 
+                    {/* Product Count Indicator */}
+                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-4 px-1">
+                        <span>
+                            Menampilkan <strong className="text-[var(--text-primary)]">{sortedProducts.length}</strong> dari{' '}
+                            <strong>{products.length}</strong> total komponen
+                        </span>
+                    </div>
+
+                    {/* Responsive Product Grid */}
+                    {sortedProducts.length === 0 ? (
                     {/* Loading State or Products Grid */}
                     {isLoading ? (
                         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] p-12 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">

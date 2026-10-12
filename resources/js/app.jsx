@@ -137,6 +137,57 @@ function App() {
     };
 
     useEffect(() => {
+        const loadCatalog = () => fetch('/api/products?per_page=100')
+            .then((response) => response.ok ? response.json() : Promise.reject())
+            .then((result) => {
+                const serverProducts = (result.data || []).map((product) => ({
+                    ...product,
+                    category: product.category?.slug || 'other',
+                    categoryName: product.category?.name || 'Lainnya',
+                    inStock: product.is_in_stock,
+                    stock: product.stock,
+                    image: product.image_url,
+                    gallery: (product.images || []).map((image) => ({ image })),
+                    specs: Object.values(product.specifications || {}).map(String),
+                    technicalSpecs: product.specifications || {},
+                }));
+                if (serverProducts.length > 0) setCatalogProducts(serverProducts);
+            })
+            .catch(() => {});
+
+        loadCatalog();
+        window.addEventListener('catalog-updated', loadCatalog);
+
+        return () => window.removeEventListener('catalog-updated', loadCatalog);
+    }, []);
+
+    useEffect(() => {
+        if (!accessToken) return;
+
+        fetch('/api/user', { headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` } })
+            .then((response) => response.ok ? response.json() : Promise.reject())
+            .then((result) => {
+                setCurrentUser(result.data);
+                localStorage.setItem('pc-store-user', JSON.stringify(result.data));
+            })
+            .catch(() => {
+                setCurrentUser(null);
+                setAccessToken(null);
+                localStorage.removeItem('pc-store-user');
+                localStorage.removeItem('pc-store-token');
+            });
+    }, [accessToken]);
+
+    useEffect(() => {
+        const productSlug = window.location.pathname.startsWith('/produk/')
+            ? decodeURIComponent(window.location.pathname.replace('/produk/', ''))
+            : null;
+        if (productSlug) {
+            setSelectedProduct(catalogProducts.find((product) => product.slug === productSlug) || null);
+        }
+    }, [catalogProducts]);
+
+    useEffect(() => {
         const syncViewWithLocation = () => {
             const productSlug = window.location.pathname.match(/^\/produk\/([^/]+)$/)?.[1];
 
@@ -365,7 +416,7 @@ function App() {
                             )}
                             onOpenPCBuilder={handleOpenPCBuilder}
                             onSelectProduct={handleSelectProduct}
-                            relatedProducts={productsData.filter(
+                            relatedProducts={catalogProducts.filter(
                                 (p) =>
                                     p.id !== selectedProduct.id &&
                                     (p.category === selectedProduct.category ||
@@ -399,6 +450,7 @@ function App() {
                             wishlistItems={wishlistItems}
                             onQuickView={handleOpenQuickView}
                             onSelectProduct={handleSelectProduct}
+                            products={catalogProducts}
                         />
                     ) : activeView === 'pc-builder' ? (
                         <PCBuilderSimulation
@@ -423,6 +475,7 @@ function App() {
                             onBackToCart={() => navigateToView('cart')}
                             onCompleteOrder={onCompleteOrder}
                             onReturnHome={() => navigateToView('beranda')}
+                            accessToken={accessToken}
                         />
                     ) : activeView === 'account' ? (
                         <AccountSettingsPage
@@ -437,6 +490,7 @@ function App() {
                             onNavigateAccount={() => navigateToView('account')}
                             onNavigateToStorefront={() => navigateToView('beranda')}
                             onOpenAuth={onOpenAuth}
+                            accessToken={accessToken}
                         />
                     ) : (
                         <div className="space-y-12 pb-16">
