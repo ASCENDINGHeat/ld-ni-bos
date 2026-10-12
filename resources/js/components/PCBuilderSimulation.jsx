@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import productsData from '../mocks/products.json';
 import ComponentSlot from './ComponentSlot';
 import ComponentPickerModal from './ComponentPickerModal';
+import { getProducts } from '../services/api';
 import {
     WrenchIcon,
     ZapIcon,
@@ -23,6 +24,52 @@ export default function PCBuilderSimulation({
     onOpenCart,
     onShowToast,
 }) {
+    // Dynamic products from API with mock fallback
+    const [allProducts, setAllProducts] = useState(productsData);
+
+    useEffect(() => {
+        let isMounted = true;
+        getProducts({ type: 'part', per_page: 100 })
+            .then((res) => {
+                if (isMounted && res && Array.isArray(res.data) && res.data.length > 0) {
+                    const categoryMapping = {
+                        'kartu-grafis': 'vga',
+                        'power-supply': 'psu',
+                    };
+
+                    const apiMapped = res.data.map((p) => {
+                        const cat = categoryMapping[p.category] || p.category;
+                        const specs = p.specifications || {};
+                        return {
+                            ...p,
+                            category: cat,
+                            cpuSocket: p.cpuSocket || specs.cpuSocket || specs.socket,
+                            powerDraw: specs.powerDraw !== undefined ? Number(specs.powerDraw) : (p.tdp ? parseInt(p.tdp) : undefined),
+                            psuCapacity: specs.psuCapacity !== undefined ? Number(specs.psuCapacity) : (specs.daya_output ? parseInt(specs.daya_output) : undefined),
+                            ramFormFactor: p.ramFormFactor || specs.ramFormFactor || specs.tipe_memori,
+                            inStock: p.inStock ?? (p.stockCount > 0),
+                        };
+                    });
+
+                    const combined = [...apiMapped];
+                    productsData.forEach((mock) => {
+                        if (!combined.some((item) => item.slug === mock.slug)) {
+                            combined.push(mock);
+                        }
+                    });
+
+                    setAllProducts(combined);
+                }
+            })
+            .catch(() => {
+                // Fallback to static mock productsData
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
     // Selected Build State
     const [build, setBuild] = useState({
         cpu: null,
@@ -42,15 +89,26 @@ export default function PCBuilderSimulation({
                 motherboard: 'motherboard',
                 ram: 'ram',
                 vga: 'vga',
+                'kartu-grafis': 'vga',
                 storage: 'storage',
                 psu: 'psu',
+                'power-supply': 'psu',
                 casing: 'casing',
             };
             const targetSlot = slotMap[initialSelectedProduct.category];
             if (targetSlot) {
+                const specs = initialSelectedProduct.specifications || {};
+                const normalized = {
+                    ...initialSelectedProduct,
+                    category: targetSlot === 'vga' ? 'vga' : targetSlot === 'psu' ? 'psu' : initialSelectedProduct.category,
+                    cpuSocket: initialSelectedProduct.cpuSocket || specs.cpuSocket || specs.socket,
+                    powerDraw: specs.powerDraw !== undefined ? Number(specs.powerDraw) : (initialSelectedProduct.powerDraw !== undefined ? Number(initialSelectedProduct.powerDraw) : (initialSelectedProduct.tdp ? parseInt(initialSelectedProduct.tdp) : undefined)),
+                    psuCapacity: specs.psuCapacity !== undefined ? Number(specs.psuCapacity) : (initialSelectedProduct.psuCapacity !== undefined ? Number(initialSelectedProduct.psuCapacity) : (specs.daya_output ? parseInt(specs.daya_output) : undefined)),
+                    ramFormFactor: initialSelectedProduct.ramFormFactor || specs.ramFormFactor || specs.tipe_memori,
+                };
                 setBuild((prev) => ({
                     ...prev,
-                    [targetSlot]: initialSelectedProduct,
+                    [targetSlot]: normalized,
                 }));
             }
         }
@@ -369,26 +427,34 @@ export default function PCBuilderSimulation({
 
     // Quick presets
     const handleApplyPreset = (presetType) => {
+        const findComp = (id, slug) => {
+            return (
+                allProducts.find((p) => p.slug === slug || p.id === id) ||
+                productsData.find((p) => p.id === id || p.slug === slug) ||
+                null
+            );
+        };
+
         if (presetType === 'am5-gaming') {
             setBuild({
-                cpu: productsData.find((p) => p.id === 'cpu-4') || null, // Ryzen 7 7800X3D
-                motherboard: productsData.find((p) => p.id === 'mb-1') || null, // MSI B650 Tomahawk
-                ram: productsData.find((p) => p.id === 'ram-1') || null, // Corsair 32GB DDR5
-                vga: productsData.find((p) => p.id === 'vga-1') || null, // RTX 4070 SUPER
-                storage: productsData.find((p) => p.id === 'ssd-1') || null, // 990 PRO 2TB
-                psu: productsData.find((p) => p.id === 'psu-1') || null, // RM850e 850W
-                casing: productsData.find((p) => p.id === 'casing-1') || null, // H5 Flow
+                cpu: findComp('cpu-4', 'amd-ryzen-7-7800x3d'),
+                motherboard: findComp('mb-1', 'msi-mag-b650-tomahawk-wifi'),
+                ram: findComp('ram-1', 'corsair-vengeance-rgb-32gb-ddr5-6000mhz'),
+                vga: findComp('vga-1', 'asus-dual-rtx-4070-super-oc-12gb'),
+                storage: findComp('ssd-1', 'samsung-990-pro-nvme-2tb'),
+                psu: findComp('psu-1', 'corsair-rm850e-850w-gold-atx-3'),
+                casing: findComp('casing-1', 'nzxt-h5-flow-black'),
             });
             if (onShowToast) onShowToast('Preset Rakitan "AM5 Esports Gaming" berhasil dimuat!');
         } else if (presetType === 'intel-value') {
             setBuild({
-                cpu: productsData.find((p) => p.id === 'cpu-3') || null, // i5-14600K
-                motherboard: productsData.find((p) => p.id === 'mb-2') || null, // B760M AORUS
-                ram: productsData.find((p) => p.id === 'ram-2') || null, // FURY Beast DDR5
-                vga: productsData.find((p) => p.id === 'vga-2') || null, // RTX 4060 Ti
-                storage: productsData.find((p) => p.id === 'ssd-2') || null, // KC3000 1TB
-                psu: productsData.find((p) => p.id === 'psu-2') || null, // A750GL 750W
-                casing: productsData.find((p) => p.id === 'casing-2') || null, // 4000D Airflow
+                cpu: findComp('cpu-3', 'intel-core-i5-14600k'),
+                motherboard: findComp('mb-2', 'gigabyte-b760m-aorus-elite-ax'),
+                ram: findComp('ram-2', 'kingston-fury-beast-32gb-ddr5-5600mhz'),
+                vga: findComp('vga-2', 'msi-rtx-4060-ti-ventus-2x-8g-oc'),
+                storage: findComp('ssd-2', 'kingston-kc3000-pcie-4-nvme-1tb'),
+                psu: findComp('psu-2', 'msi-mag-a750gl-750w-gold'),
+                casing: findComp('casing-2', 'corsair-4000d-airflow-white'),
             });
             if (onShowToast) onShowToast('Preset Rakitan "Intel Gen 14 Balance" berhasil dimuat!');
         }
@@ -719,7 +785,7 @@ export default function PCBuilderSimulation({
                 onClose={() => setActivePicker(null)}
                 slotTitle={activePicker?.title || ''}
                 category={activePicker?.category || ''}
-                products={productsData}
+                products={allProducts}
                 selectedBuild={build}
                 onSelectProduct={handleSelectProduct}
             />

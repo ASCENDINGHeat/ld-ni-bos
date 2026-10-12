@@ -278,48 +278,76 @@ export default function ProductQuickViewModal({
                                     Spesifikasi Utama
                                 </h4>
                                 <div className="grid grid-cols-2 gap-2 text-xs">
-                                    {cpuSocket && (
-                                        <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
-                                            <span className="text-[10px] text-[var(--text-muted)] block">
-                                                CPU Socket
-                                            </span>
-                                            <span className="font-semibold text-[var(--text-primary)]">
-                                                {cpuSocket}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {tdp && (
-                                        <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
-                                            <span className="text-[10px] text-[var(--text-muted)] block">
-                                                TDP / Daya
-                                            </span>
-                                            <span className="font-semibold text-[var(--text-primary)] truncate block">
-                                                {tdp}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {chipset && (
-                                        <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
-                                            <span className="text-[10px] text-[var(--text-muted)] block">
-                                                Chipset
-                                            </span>
-                                            <span className="font-semibold text-[var(--text-primary)] truncate block">
-                                                {chipset}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {warranty && (
-                                        <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
-                                            <span className="text-[10px] text-[var(--text-muted)] block">
-                                                Garansi
-                                            </span>
-                                            <span className="font-semibold text-[var(--text-primary)] truncate block">
-                                                {warranty}
-                                            </span>
-                                        </div>
+                                    {product.type === 'prebuilt' ? (
+                                        <>
+                                            <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
+                                                <span className="text-[10px] text-[var(--text-muted)] block">
+                                                    Processor
+                                                </span>
+                                                <span className="font-semibold text-[var(--text-primary)] truncate block" title={product.specifications?.processor}>
+                                                    {product.specifications?.processor || '-'}
+                                                </span>
+                                            </div>
+                                            <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
+                                                <span className="text-[10px] text-[var(--text-muted)] block">
+                                                    Kartu Grafis (GPU)
+                                                </span>
+                                                <span className="font-semibold text-[var(--text-primary)] truncate block" title={product.specifications?.kartu_grafis || product.specifications?.gpu}>
+                                                    {product.specifications?.kartu_grafis || product.specifications?.gpu || '-'}
+                                                </span>
+                                            </div>
+                                            <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
+                                                <span className="text-[10px] text-[var(--text-muted)] block">
+                                                    RAM Memory
+                                                </span>
+                                                <span className="font-semibold text-[var(--text-primary)] truncate block" title={product.specifications?.ram}>
+                                                    {product.specifications?.ram || '-'}
+                                                </span>
+                                            </div>
+                                            <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
+                                                <span className="text-[10px] text-[var(--text-muted)] block">
+                                                    Storage SSD
+                                                </span>
+                                                <span className="font-semibold text-[var(--text-primary)] truncate block" title={product.specifications?.storage || product.specifications?.penyimpanan}>
+                                                    {product.specifications?.storage || product.specifications?.penyimpanan || '-'}
+                                                </span>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
+                                                <span className="text-[10px] text-[var(--text-muted)] block">
+                                                    Socket / Form Factor
+                                                </span>
+                                                <span className="font-semibold text-[var(--text-primary)] truncate block">
+                                                    {cpuSocket || product.specifications?.socket || product.specifications?.form_factor || '-'}
+                                                </span>
+                                            </div>
+                                            <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
+                                                <span className="text-[10px] text-[var(--text-muted)] block">
+                                                    TDP / Daya
+                                                </span>
+                                                <span className="font-semibold text-[var(--text-primary)] truncate block">
+                                                    {tdp || product.specifications?.tdp || product.specifications?.tdp_daya || product.specifications?.daya_output || '-'}
+                                                </span>
+                                            </div>
+                                            <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
+                                                <span className="text-[10px] text-[var(--text-muted)] block">
+                                                    Chipset / Fitur
+                                                </span>
+                                                <span className="font-semibold text-[var(--text-primary)] truncate block">
+                                                    {chipset || product.specifications?.chipset || product.specifications?.vram || '-'}
+                                                </span>
+                                            </div>
+                                            <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--surface-muted)] border border-[var(--border)]">
+                                                <span className="text-[10px] text-[var(--text-muted)] block">
+                                                    Garansi
+                                                </span>
+                                                <span className="font-semibold text-[var(--text-primary)] truncate block">
+                                                    {warranty || product.specifications?.garansi || 'Garansi Resmi'}
+                                                </span>
+                                            </div>
+                                        </>
                                     )}
                                 </div>
                             </div>

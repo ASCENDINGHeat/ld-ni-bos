@@ -402,5 +402,85 @@ class ProductSeeder extends Seeder
                 );
             }
         }
+
+        // Seed products from PC Builder mock data
+        $mocksPath = resource_path('js/mocks/products.json');
+        if (file_exists($mocksPath)) {
+            $mockProducts = json_decode(file_get_contents($mocksPath), true) ?: [];
+            $categorySlugMap = [
+                'processor' => 'processor',
+                'motherboard' => 'motherboard',
+                'vga' => 'kartu-grafis',
+                'ram' => 'ram',
+                'storage' => 'storage',
+                'psu' => 'power-supply',
+                'casing' => 'casing',
+            ];
+
+            foreach ($mockProducts as $mock) {
+                $categorySlug = $categorySlugMap[$mock['category']] ?? $mock['category'];
+                $category = $categories[$categorySlug] ?? Category::where('slug', $categorySlug)->first();
+                if (! $category) {
+                    continue;
+                }
+
+                $stock = ($mock['inStock'] ?? true) ? (str_contains(strtolower($mock['stock'] ?? ''), 'terbatas') ? 3 : 15) : 0;
+
+                $specs = $mock['technicalSpecs'] ?? [];
+                if (! empty($mock['cpuSocket'])) {
+                    $specs['cpuSocket'] = $mock['cpuSocket'];
+                    $specs['socket'] = $mock['cpuSocket'];
+                }
+                if (isset($mock['powerDraw'])) {
+                    $specs['powerDraw'] = $mock['powerDraw'];
+                }
+                if (isset($mock['psuCapacity'])) {
+                    $specs['psuCapacity'] = $mock['psuCapacity'];
+                }
+                if (! empty($mock['ramFormFactor'])) {
+                    $specs['ramFormFactor'] = $mock['ramFormFactor'];
+                    $specs['tipe_memori'] = $mock['ramFormFactor'];
+                }
+                if (! empty($mock['chipset'])) {
+                    $specs['chipset'] = $mock['chipset'];
+                }
+                if (! empty($mock['tdp'])) {
+                    $specs['tdp'] = $mock['tdp'];
+                }
+                if (! empty($mock['warranty'])) {
+                    $specs['warranty'] = $mock['warranty'];
+                }
+
+                $images = [];
+                if (! empty($mock['gallery']) && is_array($mock['gallery'])) {
+                    foreach ($mock['gallery'] as $g) {
+                        if (! empty($g['url'])) {
+                            $images[] = $g['url'];
+                        }
+                    }
+                }
+                if (empty($images) && ! empty($mock['image'])) {
+                    $images[] = $mock['image'];
+                }
+
+                Product::updateOrCreate(
+                    ['slug' => $mock['slug']],
+                    [
+                        'category_id' => $category->id,
+                        'name' => $mock['name'],
+                        'type' => 'part',
+                        'brand' => $mock['brand'] ?? 'Official',
+                        'price' => $mock['price'],
+                        'stock' => $stock,
+                        'description' => $mock['description'] ?? '',
+                        'specifications' => $specs,
+                        'image_url' => $mock['image'] ?? null,
+                        'images' => $images,
+                        'is_active' => true,
+                        'weight_grams' => 600,
+                    ]
+                );
+            }
+        }
     }
 }

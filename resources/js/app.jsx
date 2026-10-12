@@ -8,10 +8,18 @@ import ProductQuickViewModal from './components/ProductQuickViewModal';
 import PCBuilderSimulation from './components/PCBuilderSimulation';
 import CartPage from './components/CartPage';
 import CheckoutPage from './components/CheckoutPage';
-import AuthModal from './components/AuthModal';
 import AccountSettingsPage from './components/AccountSettingsPage';
 import VendorDashboard from './components/VendorDashboard';
 import productsData from './mocks/products.json';
+import {
+    getStoredToken,
+    setStoredToken,
+    getStoredUser,
+    setStoredUser,
+    clearAuthStorage,
+    getProductDetail,
+    normalizeProduct,
+} from './services/api';
 import {
     CpuIcon,
     MonitorIcon,
@@ -22,9 +30,10 @@ import {
 } from './components/Icons';
 
 const categoryCards = [
-    { id: 'processor', name: 'Processor', count: '6 Pilihan', icon: CpuIcon },
-    { id: 'vga', name: 'VGA Card', count: '4 Pilihan', icon: MonitorIcon },
-    { id: 'motherboard', name: 'Motherboard', count: '3 Pilihan', icon: HardDriveIcon },
+    { id: 'pc-siap-pakai', name: 'PC Siap Pakai', count: 'Rakitan Lengkap', icon: MonitorIcon, highlight: true },
+    { id: 'processor', name: 'Processor', count: 'Intel & AMD Ryzen', icon: CpuIcon },
+    { id: 'kartu-grafis', name: 'VGA / GPU', count: 'RTX 40 Series & RX', icon: MonitorIcon },
+    { id: 'motherboard', name: 'Motherboard', count: 'AM5 & LGA1700', icon: HardDriveIcon },
     { id: 'builder', name: 'Rakit PC', count: 'Simulasi Online', icon: WrenchIcon, highlight: true },
 ];
 
@@ -36,18 +45,49 @@ function App() {
     const [vendorSection, setVendorSection] = useState(
         () => rootElement?.dataset.vendorSection || 'overview'
     );
-    const [currentUser, setCurrentUser] = useState(null);
-    const [accessToken, setAccessToken] = useState(null);
-    const [selectedProduct, setSelectedProduct] = useState(() =>
-        productsData.find((product) => product.slug === rootElement?.dataset.productSlug) || null
-    );
+    const [currentUser, setCurrentUser] = useState(() => getStoredUser());
+    const [accessToken, setAccessToken] = useState(() => getStoredToken());
+    const [selectedProduct, setSelectedProduct] = useState(() => {
+        const slug = rootElement?.dataset.productSlug;
+        if (!slug) return null;
+        const mock = productsData.find((p) => p.slug === slug);
+        return mock ? normalizeProduct(mock) : null;
+    });
     const [builderProduct, setBuilderProduct] = useState(null);
     const [quickViewProduct, setQuickViewProduct] = useState(null);
     const [catalogNavigationKey, setCatalogNavigationKey] = useState(0);
     const [catalogCategory, setCatalogCategory] = useState(() => {
         const category = new URLSearchParams(window.location.search).get('category');
-        return productsData.some((product) => product.category === category) ? category : 'all';
+        return category || 'all';
     });
+
+    // Validate stored token on mount
+    useEffect(() => {
+        const token = getStoredToken();
+        if (token) {
+            fetch('/api/user', {
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then((res) => (res.ok ? res.json() : null))
+                .then((data) => {
+                    if (data?.data || data?.user || data?.id) {
+                        const user = data.data || data.user || data;
+                        setCurrentUser(user);
+                        setStoredUser(user);
+                    } else {
+                        clearAuthStorage();
+                        setCurrentUser(null);
+                        setAccessToken(null);
+                    }
+                })
+                .catch(() => {
+                    // Network issue, keep existing offline user
+                });
+        }
+    }, []);
 
     const navigateToView = (view, product = null, category = null, section = 'overview') => {
         const paths = {
@@ -101,9 +141,14 @@ function App() {
             const productSlug = window.location.pathname.match(/^\/produk\/([^/]+)$/)?.[1];
 
             if (productSlug) {
-                setSelectedProduct(
-                    productsData.find((product) => product.slug === productSlug) || null
-                );
+                getProductDetail(productSlug)
+                    .then((prod) => {
+                        if (prod) setSelectedProduct(prod);
+                    })
+                    .catch(() => {
+                        const fallback = productsData.find((product) => product.slug === productSlug);
+                        if (fallback) setSelectedProduct(normalizeProduct(fallback));
+                    });
                 setActiveView('detail');
                 return;
             }
@@ -130,11 +175,7 @@ function App() {
             if (currentVendorSection) setVendorSection(currentVendorSection);
             if (view === 'katalog') {
                 const category = new URLSearchParams(window.location.search).get('category');
-                setCatalogCategory(
-                    productsData.some((product) => product.category === category)
-                        ? category
-                        : 'all'
-                );
+                setCatalogCategory(category || 'all');
             }
         };
 
@@ -207,6 +248,17 @@ function App() {
     }, []);
 
     const handleSelectProduct = (product) => {
+        if (product?.slug) {
+            getProductDetail(product.slug)
+                .then((detail) => {
+                    setSelectedProduct(detail || product);
+                })
+                .catch(() => {
+                    setSelectedProduct(product);
+                });
+        } else {
+            setSelectedProduct(product);
+        }
         navigateToView('detail', product);
     };
 
@@ -215,7 +267,17 @@ function App() {
     };
 
     const handleOpenQuickView = (product) => {
-        setQuickViewProduct(product);
+        if (product?.slug) {
+            getProductDetail(product.slug)
+                .then((detail) => {
+                    setQuickViewProduct(detail || product);
+                })
+                .catch(() => {
+                    setQuickViewProduct(product);
+                });
+        } else {
+            setQuickViewProduct(product);
+        }
     };
 
     const handleCloseQuickView = () => {
@@ -229,6 +291,8 @@ function App() {
     const handleAuthenticated = ({ user, token }) => {
         setCurrentUser(user);
         setAccessToken(token);
+        setStoredUser(user);
+        setStoredToken(token);
         if (user.role === 'vendor') {
             navigateToView('vendor-dashboard');
         } else if (activeView === 'vendor-dashboard') {
@@ -237,31 +301,24 @@ function App() {
     };
 
     const handleLogout = async () => {
-        if (!accessToken) {
-            throw new Error('Sesi login tidak tersedia. Silakan masuk kembali.');
-        }
-
-        const response = await fetch('/api/logout', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        let result;
-
-        try {
-            result = await response.json();
-        } catch {
-            throw new Error('Server memberikan respons logout yang tidak dapat dibaca.');
-        }
-
-        if (!response.ok) {
-            throw new Error(result.message || 'Tidak dapat keluar dari akun saat ini.');
+        const token = accessToken || getStoredToken();
+        if (token) {
+            try {
+                await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+            } catch {
+                // Ignore network error during logout
+            }
         }
 
         setCurrentUser(null);
         setAccessToken(null);
+        clearAuthStorage();
         if (window.location.pathname.startsWith('/vendor/')) {
             navigateToView('beranda');
         }
@@ -400,7 +457,7 @@ function App() {
                                         </h1>
 
                                         <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
-                                            Temukan beragam komponen komputer resmi dari distributor ternama dengan garansi penuh dan layanan konsultasi perakitan PC gratis.
+                                            Pilihan PC rakitan siap pakai dan beragam komponen komputer resmi dari distributor ternama dengan garansi penuh.
                                         </p>
 
                                         <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -414,10 +471,10 @@ function App() {
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={() => handleSelectProduct(productsData[0])}
+                                                onClick={() => navigateToView('katalog', null, 'pc-siap-pakai')}
                                                 className="inline-flex items-center justify-center px-6 py-3 rounded-[var(--radius-md)] bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-colors border border-white/20"
                                             >
-                                                Lihat Contoh Detail Produk
+                                                Lihat PC Siap Pakai
                                             </button>
                                         </div>
                                     </div>
@@ -430,16 +487,20 @@ function App() {
 
                             {/* Quick Category Cards */}
                             <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                                     {categoryCards.map((cat, idx) => {
                                         const IconComponent = cat.icon;
                                         return (
                                             <button
                                                 key={idx}
                                                 type="button"
-                                                onClick={() => navigateToView(
-                                                    cat.id === 'builder' ? 'pc-builder' : 'katalog'
-                                                )}
+                                                onClick={() => {
+                                                    if (cat.id === 'builder') {
+                                                        navigateToView('pc-builder');
+                                                    } else {
+                                                        navigateToView('katalog', null, cat.id);
+                                                    }
+                                                }}
                                                 className={`group p-4 sm:p-5 rounded-[var(--radius-lg)] border transition-all duration-200 flex flex-col justify-between text-left ${
                                                     cat.highlight
                                                         ? 'bg-[var(--brand-50)] dark:bg-[var(--surface-muted)] border-[var(--brand-500)] shadow-xs'
