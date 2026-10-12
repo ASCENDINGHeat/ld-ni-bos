@@ -6,6 +6,7 @@ import {
     MonitorIcon,
     HardDriveIcon,
     CheckCircleIcon,
+    EyeIcon,
 } from './Icons';
 
 export default function ProductCard({
@@ -13,7 +14,10 @@ export default function ProductCard({
     onAddToCart,
     onToggleWishlist,
     isWishlisted = false,
+    onQuickView,
+    onSelectProduct,
 }) {
+
     const {
         id,
         name,
@@ -94,27 +98,48 @@ export default function ProductCard({
                     )}
                 </div>
 
-                {/* Wishlist Button */}
-                <button
-                    type="button"
-                    onClick={() => onToggleWishlist && onToggleWishlist(product)}
-                    className={`p-1.5 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)] ${
-                        isWishlisted
-                            ? 'text-[var(--danger)] bg-[var(--danger-bg)]'
-                            : 'text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--surface-muted)]'
-                    }`}
-                    aria-label={`Simpan ${name} ke wishlist`}
-                    title="Simpan ke wishlist"
-                >
-                    <HeartIcon
-                        className="w-4 h-4"
-                        fill={isWishlisted ? 'currentColor' : 'none'}
-                    />
-                </button>
+                {/* Top Right Action Buttons: Quick View & Wishlist */}
+                <div className="flex items-center gap-1">
+                    {onQuickView && (
+                        <button
+                            type="button"
+                            onClick={() => onQuickView(product)}
+                            className="p-1.5 rounded-full text-[var(--text-muted)] hover:text-[var(--brand-600)] hover:bg-[var(--surface-muted)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
+                            aria-label={`Lihat preview cepat ${name}`}
+                            title="Quick View"
+                        >
+                            <EyeIcon className="w-4 h-4" />
+                        </button>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={() => onToggleWishlist && onToggleWishlist(product)}
+                        className={`p-1.5 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)] ${
+                            isWishlisted
+                                ? 'text-[var(--danger)] bg-[var(--danger-bg)]'
+                                : 'text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--surface-muted)]'
+                        }`}
+                        aria-label={`Simpan ${name} ke wishlist`}
+                        title="Simpan ke wishlist"
+                    >
+                        <HeartIcon
+                            className="w-4 h-4"
+                            fill={isWishlisted ? 'currentColor' : 'none'}
+                        />
+                    </button>
+                </div>
             </div>
 
             {/* Product Image / Visual Area (1:1 Ratio) */}
-            <div className="w-full aspect-square rounded-[var(--radius-md)] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center p-3 mb-3.5 overflow-hidden group-hover:scale-[1.01] transition-transform duration-200">
+            <div
+                onClick={() => {
+                    if (onSelectProduct) onSelectProduct(product);
+                    else if (onQuickView) onQuickView(product);
+                }}
+                className="w-full aspect-square rounded-[var(--radius-md)] bg-[var(--surface-muted)] border border-[var(--border)] flex items-center justify-center p-3 mb-3.5 overflow-hidden group-hover:scale-[1.01] transition-transform duration-200 cursor-pointer relative"
+                title="Klik untuk melihat detail produk"
+            >
                 {image ? (
                     <img
                         src={image}
@@ -142,9 +167,17 @@ export default function ProductCard({
                     </div>
 
                     {/* Product Name */}
-                    <h3 className="text-sm font-semibold text-[var(--text-primary)] leading-snug line-clamp-2 min-h-[2.5rem] group-hover:text-[var(--brand-600)] transition-colors">
+                    <h3
+                        onClick={() => {
+                            if (onSelectProduct) onSelectProduct(product);
+                            else if (onQuickView) onQuickView(product);
+                        }}
+                        className="text-sm font-semibold text-[var(--text-primary)] leading-snug line-clamp-2 min-h-[2.5rem] group-hover:text-[var(--brand-600)] transition-colors cursor-pointer"
+                        title="Klik untuk melihat detail produk"
+                    >
                         {name}
                     </h3>
+
 
                     {/* Specifications Chips / Summary */}
                     <div className="mt-2 space-y-1">
