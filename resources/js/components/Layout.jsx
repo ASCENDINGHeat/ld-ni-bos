@@ -62,6 +62,24 @@ export default function Layout({
         showToast(`"${product.name}" ditambahkan ke keranjang.`);
     };
 
+    const handleAddMultipleToCart = (products) => {
+        setCartItems((prev) => {
+            let updated = [...prev];
+            products.forEach((product) => {
+                const existing = updated.find((item) => item.id === product.id);
+                if (existing) {
+                    updated = updated.map((item) =>
+                        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+                    );
+                } else {
+                    updated.push({ ...product, quantity: 1 });
+                }
+            });
+            return updated;
+        });
+        showToast(`${products.length} komponen rakitan berhasil ditambahkan ke keranjang!`);
+    };
+
     const handleToggleWishlist = () => {
         setWishlistCount((prev) => prev + 1);
         showToast('Produk berhasil disimpan ke daftar Wishlist Anda.');
@@ -113,11 +131,14 @@ export default function Layout({
                 {typeof children === 'function'
                     ? children({
                           onAddToCart: handleAddToCart,
+                          onAddMultipleToCart: handleAddMultipleToCart,
                           onOpenCart: () => setIsCartOpen(true),
                           onToggleWishlist: handleToggleWishlist,
+                          onShowToast: showToast,
                       })
                     : children}
             </main>
+
 
             {/* Storefront Footer */}
             <Footer />

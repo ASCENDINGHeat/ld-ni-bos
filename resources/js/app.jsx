@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import ProductCatalog from './components/ProductCatalog';
 import ProductDetailPage from './components/ProductDetailPage';
 import ProductQuickViewModal from './components/ProductQuickViewModal';
+import PCBuilderSimulation from './components/PCBuilderSimulation';
 import productsData from './mocks/products.json';
 import {
     CpuIcon,
@@ -75,9 +76,31 @@ function App() {
             setActiveView(viewsByPath[window.location.pathname] || 'beranda');
         };
 
-        window.addEventListener('popstate', syncViewWithLocation);
+        const handleLinkClick = (e) => {
+            const anchor = e.target.closest('a');
+            if (!anchor) return;
+            const href = anchor.getAttribute('href');
+            if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('mailto:')) {
+                return;
+            }
+            if (href === '/' || href === '/katalog' || href === '/pc-builder') {
+                e.preventDefault();
+                const viewMap = {
+                    '/': 'beranda',
+                    '/katalog': 'katalog',
+                    '/pc-builder': 'pc-builder',
+                };
+                navigateToView(viewMap[href]);
+            }
+        };
 
-        return () => window.removeEventListener('popstate', syncViewWithLocation);
+        window.addEventListener('popstate', syncViewWithLocation);
+        document.addEventListener('click', handleLinkClick);
+
+        return () => {
+            window.removeEventListener('popstate', syncViewWithLocation);
+            document.removeEventListener('click', handleLinkClick);
+        };
     }, []);
 
     const handleSelectProduct = (product) => {
@@ -102,7 +125,7 @@ function App() {
 
     return (
         <Layout>
-            {({ onAddToCart, onOpenCart, onToggleWishlist }) => (
+            {({ onAddToCart, onAddMultipleToCart, onOpenCart, onToggleWishlist, onShowToast }) => (
                 <div className="w-full flex flex-col">
                     {/* Active View Display */}
                     {activeView === 'detail' && selectedProduct ? (
@@ -129,12 +152,13 @@ function App() {
                                 <p className="mt-2 text-sm text-[var(--text-secondary)]">
                                     Produk tersebut tidak tersedia di katalog saat ini.
                                 </p>
-                                <a
-                                    href="/katalog"
-                                    className="inline-flex mt-5 px-5 py-3 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)]"
+                                <button
+                                    type="button"
+                                    onClick={handleBackToCatalog}
+                                    className="inline-flex mt-5 px-5 py-3 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)] transition-colors"
                                 >
                                     Kembali ke katalog
-                                </a>
+                                </button>
                             </div>
                         </section>
                     ) : activeView === 'katalog' ? (
@@ -145,28 +169,12 @@ function App() {
                             onSelectProduct={handleSelectProduct}
                         />
                     ) : activeView === 'pc-builder' ? (
-                        <section className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-                            <div className="max-w-2xl mx-auto text-center rounded-[var(--radius-xl)] bg-[var(--surface)] border border-[var(--border)] shadow-[var(--shadow-card)] p-8 sm:p-12">
-                                <WrenchIcon className="w-12 h-12 mx-auto text-[var(--brand-600)]" />
-                                <h1 className="mt-5 text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
-                                    PC Builder sedang disiapkan
-                                </h1>
-                                <p className="mt-3 text-sm sm:text-base text-[var(--text-secondary)]">
-                                    Simulasi dan pemeriksaan kompatibilitas belum tersedia.
-                                </p>
-                                {builderProduct && (
-                                    <p className="mt-3 text-sm text-[var(--text-primary)]">
-                                        Komponen pilihan: <strong>{builderProduct.name}</strong>
-                                    </p>
-                                )}
-                                <a
-                                    href="/katalog"
-                                    className="inline-flex items-center justify-center mt-6 px-5 py-3 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)] transition-colors"
-                                >
-                                    Kembali ke katalog
-                                </a>
-                            </div>
-                        </section>
+                        <PCBuilderSimulation
+                            initialSelectedProduct={builderProduct}
+                            onAddMultipleToCart={onAddMultipleToCart}
+                            onOpenCart={onOpenCart}
+                            onShowToast={onShowToast}
+                        />
                     ) : (
                         <div className="space-y-12 pb-16">
                             {/* Hero Section */}
@@ -270,13 +278,20 @@ function App() {
                                             Pilih CPU, Motherboard, GPU, dan PSU yang sesuai. Sistem kalkulator kami akan memeriksa kebutuhan socket, form-factor, dan kapasitas daya watt secara cerdas.
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigateToView('pc-builder')}
+                                            className="px-5 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)] transition-colors shadow-sm"
+                                        >
+                                            Mulai Simulasi PC Builder →
+                                        </button>
                                         <button
                                             type="button"
                                             onClick={() => navigateToView('katalog')}
-                                            className="px-5 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)] transition-colors shadow-sm"
+                                            className="px-4 py-2.5 rounded-[var(--radius-md)] bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] text-sm font-medium transition-colors"
                                         >
-                                            Buka Katalog Komponen →
+                                            Katalog Komponen
                                         </button>
                                     </div>
                                 </div>
