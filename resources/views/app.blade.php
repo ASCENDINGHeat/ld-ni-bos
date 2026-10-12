@@ -35,6 +35,7 @@
     <div
         id="root"
         data-initial-view="{{ $initialView ?? 'beranda' }}"
+        @isset($vendorSection) data-vendor-section="{{ $vendorSection }}" @endisset
         @isset($productSlug) data-product-slug="{{ $productSlug }}" @endisset
     ></div>
 </body>

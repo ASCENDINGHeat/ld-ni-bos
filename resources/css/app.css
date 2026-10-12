@@ -176,6 +176,10 @@
 }
 
 @layer base {
+    html {
+        overflow-x: clip;
+    }
+
     body {
         background-color: var(--background);
         color: var(--text-primary);

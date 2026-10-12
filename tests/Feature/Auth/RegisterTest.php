@@ -137,4 +137,41 @@ class RegisterTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonPath('user.email', 'prefixed@example.com');
     }
+
+    public function test_user_can_register_as_a_vendor(): void
+    {
+        $response = $this->postJson('/api/register', [
+            'name' => 'Vendor User',
+            'email' => 'vendor@example.com',
+            'password' => 'secret1234',
+            'password_confirmation' => 'secret1234',
+            'role' => 'vendor',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('user.role', 'vendor');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'vendor@example.com',
+            'role' => 'vendor',
+        ]);
+    }
+
+    public function test_user_cannot_register_as_an_admin(): void
+    {
+        $response = $this->postJson('/api/register', [
+            'name' => 'Admin Attempt',
+            'email' => 'admin-attempt@example.com',
+            'password' => 'secret1234',
+            'password_confirmation' => 'secret1234',
+            'role' => 'admin',
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['role']);
+
+        $this->assertDatabaseMissing('users', [
+            'email' => 'admin-attempt@example.com',
+        ]);
+    }
 }
