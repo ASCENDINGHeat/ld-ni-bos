@@ -145,6 +145,7 @@ php vendor/bin/pint --dirty --format agent
 Detailed technical guides and architectural specifications are located in the [docs/](docs/) directory:
 
 - [docs/README.md](docs/README.md) — Documentation index and quick overview
+- [docs/api-authentication.md](docs/api-authentication.md) — API bearer token authentication, request formats, and cURL examples
 - [docs/architecture.md](docs/architecture.md) — System architecture, request lifecycle, and data flow
 - [docs/frontend.md](docs/frontend.md) — React 19 mounting, Tailwind v4 theme, and Vite setup
 - [docs/backend.md](docs/backend.md) — Eloquent models, attributes, SQLite schema, and controllers

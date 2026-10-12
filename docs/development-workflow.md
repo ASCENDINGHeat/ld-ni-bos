@@ -54,17 +54,19 @@ Follow these conventions when writing or refactoring PHP code:
 Before finalizing changes to any PHP files, run **Laravel Pint** to ensure consistent style:
 
 ```bash
-vendor/bin/pint --dirty --format agent
+export GIT_CONFIG_NOSYSTEM=1
+php vendor/bin/pint --dirty --format agent
 ```
 
-To format all files:
+To format all files across the repository:
 
 ```bash
-vendor/bin/pint --format agent
+export GIT_CONFIG_NOSYSTEM=1
+php vendor/bin/pint --format agent
 ```
 
 > [!NOTE]
-> Do not run `vendor/bin/pint --test`, run Pint directly to fix formatting issues automatically.
+> On Android emulated storage (`/storage/emulated/0`), execute permissions may require prefixing the binary with `php`, and Git requires `export GIT_CONFIG_NOSYSTEM=1`.
 
 ---
 
@@ -74,7 +76,7 @@ The test suite uses **PHPUnit 12**.
 
 ### Running Tests
 
-Run the test suite with compact output:
+Run the complete test suite with compact output:
 
 ```bash
 php artisan test --compact
@@ -83,15 +85,31 @@ php artisan test --compact
 Or run directly via PHPUnit runner:
 
 ```bash
-vendor/bin/phpunit
+php vendor/bin/phpunit
 ```
 
-Filter to run a single test or test file:
+### Scoped Test Runs
+
+Run only authentication feature tests:
 
 ```bash
-php artisan test tests/Feature/ExampleTest.php
-php artisan test --filter=test_the_application_returns_a_successful_response
+php artisan test --compact tests/Feature/Auth/
 ```
+
+Run a specific test case:
+
+```bash
+php artisan test tests/Feature/Auth/LoginTest.php
+php artisan test --filter=test_user_can_login_with_valid_credentials
+```
+
+### Current Test Coverage
+
+The test suite currently includes:
+- **`tests/Feature/Auth/RegisterTest.php`**: Validates registration, required fields, duplicate emails, password confirmation mismatches, short passwords, and aliased routes.
+- **`tests/Feature/Auth/LoginTest.php`**: Validates valid credentials, invalid passwords, nonexistent emails, profile retrieval, unauthenticated rejection (401), token revocation (logout), and aliased routes.
+- **`tests/Feature/ExampleTest.php`**: Base HTTP response verification.
+- **`tests/Unit/ExampleTest.php`**: Base PHPUnit unit verification.
 
 ### Writing Tests
 
@@ -110,6 +128,6 @@ php artisan test --filter=test_the_application_returns_a_successful_response
   git config --global --add safe.directory "/storage/emulated/0/Documents/projects/ld-ni-bos"
   ```
 - Before pushing or committing:
-  1. Verify tests pass: `php artisan test`
-  2. Format code: `vendor/bin/pint --dirty --format agent`
+  1. Verify tests pass: `php artisan test --compact`
+  2. Format code: `export GIT_CONFIG_NOSYSTEM=1 && php vendor/bin/pint --dirty --format agent`
   3. Inspect changed files: `git status`

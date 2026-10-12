@@ -11,7 +11,8 @@ The backend runs on **Laravel Framework 13.x** and **PHP 8.5**.
 Key features utilized:
 - **Constructor Property Promotion**: Concise service and action constructors.
 - **PHP 8.4+ Eloquent Attributes**: Clean declarative model properties (`#[Fillable]`, `#[Hidden]`).
-- **Lean Bootstrap Configuration**: Zero-bloat setup in `bootstrap/app.php`.
+- **Laravel Sanctum Integration**: Built-in API personal access token issuance and verification.
+- **Lean Bootstrap Configuration**: Zero-bloat setup in `bootstrap/app.php` with web and API routing.
 
 ---
 
@@ -28,13 +29,14 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role', 'phone', 'address'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -47,6 +49,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Determine if the user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Determine if the user is a customer.
+     */
+    public function isCustomer(): bool
+    {
+        return $this->role === 'customer';
     }
 }
 ```
@@ -68,7 +86,20 @@ erDiagram
         string email UK
         timestamp email_verified_at
         string password
+        string role "default: customer"
+        string phone "nullable"
+        text address "nullable"
         string remember_token
+        timestamps created_at_updated_at
+    }
+    PERSONAL_ACCESS_TOKENS {
+        bigint id PK
+        morphs tokenable
+        string name
+        string token UK
+        text abilities
+        timestamp last_used_at
+        timestamp expires_at
         timestamps created_at_updated_at
     }
     PASSWORD_RESET_TOKENS {
@@ -114,6 +145,7 @@ erDiagram
     }
 
     USERS ||--o{ SESSIONS : "owns"
+    USERS ||--o{ PERSONAL_ACCESS_TOKENS : "issues"
 ```
 
 ### Migration Files (`database/migrations/`)
@@ -124,6 +156,10 @@ erDiagram
    - Creates `cache` and `cache_locks` tables for database-backed caching.
 3. **`0001_01_01_000002_create_jobs_table.php`**:
    - Creates `jobs`, `job_batches`, and `failed_jobs` tables for asynchronous queue processing.
+4. **`2026_10_12_053248_create_personal_access_tokens_table.php`**:
+   - Creates `personal_access_tokens` table for Laravel Sanctum API authentication.
+5. **`2026_10_12_053400_add_role_and_profile_fields_to_users_table.php`**:
+   - Adds `role` (default `'customer'`), `phone`, and `address` columns to `users`.
 
 ---
 
@@ -139,9 +175,34 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'app');
 ```
 
+### API Routes (`routes/api.php`)
+
+API routes handle stateless JSON interactions with Sanctum bearer token authentication:
+
+```php
+use App\Http\Controllers\Api\AuthController;
+use Illuminate\Support\Facades\Route;
+
+// Public Authentication Endpoints (Rate Limited)
+Route::prefix('auth')->group(function (): void {
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
+});
+
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
+
+// Protected Routes (auth:sanctum)
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+});
+```
+
 ### Console Routes (`routes/console.php`)
 
-Closure-based Artisan console commands:
+Artisan console commands:
 
 ```php
 use Illuminate\Foundation\Inspiring;
@@ -154,7 +215,24 @@ Artisan::command('inspire', function () {
 
 ---
 
-## 5. Creating New Backend Components
+## 5. API Form Requests, Resources & Controllers
+
+### Form Requests (`app/Http/Requests/Auth/`)
+- **`RegisterRequest.php`**: Validates registration input (`name`, unique `email`, `password` confirmation with min 8 characters, optional `phone` and `address`).
+- **`LoginRequest.php`**: Validates authentication input (`email`, `password`, optional `device_name`).
+
+### API Resources (`app/Http/Resources/`)
+- **`UserResource.php`**: Transforms the User Eloquent model into a clean, consistent JSON shape without exposing sensitive database internals.
+
+### Authentication Controller (`app/Http/Controllers/Api/AuthController.php`)
+- **`register`**: Creates customer record, generates Sanctum personal access token, and returns HTTP 201 with bearer token.
+- **`login`**: Authenticates credentials against Bcrypt hash, creates a named token, and returns HTTP 200 with bearer token.
+- **`logout`**: Deletes the user's current access token, invalidating future requests with that token.
+- **`user`**: Returns the authenticated user wrapped in `UserResource`.
+
+---
+
+## 6. Creating New Backend Components
 
 Always adhere to Laravel Artisan generators:
 
