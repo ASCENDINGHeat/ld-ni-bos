@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import ProductCatalog from './components/ProductCatalog';
 import ProductDetailPage from './components/ProductDetailPage';
 import ProductQuickViewModal from './components/ProductQuickViewModal';
+import PCBuilderSimulation from './components/PCBuilderSimulation';
 import productsData from './mocks/products.json';
 import {
     CpuIcon,
@@ -32,25 +33,43 @@ function App() {
     );
     const [builderProduct, setBuilderProduct] = useState(null);
     const [quickViewProduct, setQuickViewProduct] = useState(null);
+    const [catalogNavigationKey, setCatalogNavigationKey] = useState(0);
+    const [catalogCategory, setCatalogCategory] = useState(() => {
+        const category = new URLSearchParams(window.location.search).get('category');
+        return productsData.some((product) => product.category === category) ? category : 'all';
+    });
 
-    const navigateToView = (view, product = null) => {
+    const navigateToView = (view, product = null, category = null) => {
         const paths = {
             beranda: '/',
             katalog: '/katalog',
             'pc-builder': '/pc-builder',
         };
-        const path =
+        const basePath =
             view === 'detail' && product?.slug
                 ? `/produk/${encodeURIComponent(product.slug)}`
                 : paths[view];
 
-        if (!path) return;
+        if (!basePath) return;
+
+        const path =
+            view === 'katalog' && category && category !== 'all'
+                ? `${basePath}?category=${encodeURIComponent(category)}`
+                : basePath;
 
         if (view === 'detail') setSelectedProduct(product);
         if (view === 'pc-builder') setBuilderProduct(product);
+        if (view === 'katalog') {
+            setCatalogCategory(category || 'all');
+            setCatalogNavigationKey((previous) => previous + 1);
+        }
 
         setActiveView(view);
-        window.history.pushState({ view, productSlug: product?.slug ?? null }, '', path);
+        window.history.pushState(
+            { view, productSlug: product?.slug ?? null, category: category || 'all' },
+            '',
+            path
+        );
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -72,12 +91,55 @@ function App() {
                 '/pc-builder': 'pc-builder',
             };
 
-            setActiveView(viewsByPath[window.location.pathname] || 'beranda');
+            const view = viewsByPath[window.location.pathname] || 'beranda';
+            setActiveView(view);
+            if (view === 'katalog') {
+                const category = new URLSearchParams(window.location.search).get('category');
+                setCatalogCategory(
+                    productsData.some((product) => product.category === category)
+                        ? category
+                        : 'all'
+                );
+            }
+        };
+
+        const handleLinkClick = (e) => {
+            const anchor = e.target.closest('a');
+            if (!anchor) return;
+            const href = anchor.getAttribute('href');
+            if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('mailto:')) {
+                return;
+            }
+
+            const targetUrl = new URL(href, window.location.origin);
+            if (targetUrl.origin !== window.location.origin) return;
+
+            if (targetUrl.pathname === '/katalog') {
+                e.preventDefault();
+                navigateToView(
+                    'katalog',
+                    null,
+                    targetUrl.searchParams.get('category') || 'all'
+                );
+                return;
+            }
+
+            if (
+                targetUrl.pathname === '/' ||
+                targetUrl.pathname === '/pc-builder'
+            ) {
+                e.preventDefault();
+                navigateToView(targetUrl.pathname === '/' ? 'beranda' : 'pc-builder');
+            }
         };
 
         window.addEventListener('popstate', syncViewWithLocation);
+        document.addEventListener('click', handleLinkClick);
 
-        return () => window.removeEventListener('popstate', syncViewWithLocation);
+        return () => {
+            window.removeEventListener('popstate', syncViewWithLocation);
+            document.removeEventListener('click', handleLinkClick);
+        };
     }, []);
 
     const handleSelectProduct = (product) => {
@@ -101,8 +163,19 @@ function App() {
     };
 
     return (
-        <Layout>
-            {({ onAddToCart, onOpenCart, onToggleWishlist }) => (
+        <Layout
+            onSelectProduct={handleSelectProduct}
+            onOpenCatalog={() => navigateToView('katalog')}
+            onNavigateCategory={(category) => navigateToView('katalog', null, category)}
+        >
+            {({
+                onAddToCart,
+                onAddMultipleToCart,
+                onOpenCart,
+                onToggleWishlist,
+                wishlistItems,
+                onShowToast,
+            }) => (
                 <div className="w-full flex flex-col">
                     {/* Active View Display */}
                     {activeView === 'detail' && selectedProduct ? (
@@ -111,6 +184,9 @@ function App() {
                             onBackToCatalog={handleBackToCatalog}
                             onAddToCart={onAddToCart}
                             onToggleWishlist={onToggleWishlist}
+                            isWishlisted={wishlistItems.some(
+                                (item) => item.id === selectedProduct.id
+                            )}
                             onOpenPCBuilder={handleOpenPCBuilder}
                             onSelectProduct={handleSelectProduct}
                             relatedProducts={productsData.filter(
@@ -129,44 +205,32 @@ function App() {
                                 <p className="mt-2 text-sm text-[var(--text-secondary)]">
                                     Produk tersebut tidak tersedia di katalog saat ini.
                                 </p>
-                                <a
-                                    href="/katalog"
-                                    className="inline-flex mt-5 px-5 py-3 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)]"
+                                <button
+                                    type="button"
+                                    onClick={handleBackToCatalog}
+                                    className="inline-flex mt-5 px-5 py-3 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)] transition-colors"
                                 >
                                     Kembali ke katalog
-                                </a>
+                                </button>
                             </div>
                         </section>
                     ) : activeView === 'katalog' ? (
                         <ProductCatalog
+                            key={`${catalogCategory}-${catalogNavigationKey}`}
+                            initialCategory={catalogCategory}
                             onAddToCart={onAddToCart}
                             onToggleWishlist={onToggleWishlist}
+                            wishlistItems={wishlistItems}
                             onQuickView={handleOpenQuickView}
                             onSelectProduct={handleSelectProduct}
                         />
                     ) : activeView === 'pc-builder' ? (
-                        <section className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-                            <div className="max-w-2xl mx-auto text-center rounded-[var(--radius-xl)] bg-[var(--surface)] border border-[var(--border)] shadow-[var(--shadow-card)] p-8 sm:p-12">
-                                <WrenchIcon className="w-12 h-12 mx-auto text-[var(--brand-600)]" />
-                                <h1 className="mt-5 text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
-                                    PC Builder sedang disiapkan
-                                </h1>
-                                <p className="mt-3 text-sm sm:text-base text-[var(--text-secondary)]">
-                                    Simulasi dan pemeriksaan kompatibilitas belum tersedia.
-                                </p>
-                                {builderProduct && (
-                                    <p className="mt-3 text-sm text-[var(--text-primary)]">
-                                        Komponen pilihan: <strong>{builderProduct.name}</strong>
-                                    </p>
-                                )}
-                                <a
-                                    href="/katalog"
-                                    className="inline-flex items-center justify-center mt-6 px-5 py-3 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)] transition-colors"
-                                >
-                                    Kembali ke katalog
-                                </a>
-                            </div>
-                        </section>
+                        <PCBuilderSimulation
+                            initialSelectedProduct={builderProduct}
+                            onAddMultipleToCart={onAddMultipleToCart}
+                            onOpenCart={onOpenCart}
+                            onShowToast={onShowToast}
+                        />
                     ) : (
                         <div className="space-y-12 pb-16">
                             {/* Hero Section */}
@@ -270,13 +334,20 @@ function App() {
                                             Pilih CPU, Motherboard, GPU, dan PSU yang sesuai. Sistem kalkulator kami akan memeriksa kebutuhan socket, form-factor, dan kapasitas daya watt secara cerdas.
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigateToView('pc-builder')}
+                                            className="px-5 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)] transition-colors shadow-sm"
+                                        >
+                                            Mulai Simulasi PC Builder →
+                                        </button>
                                         <button
                                             type="button"
                                             onClick={() => navigateToView('katalog')}
-                                            className="px-5 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-600)] text-white text-sm font-semibold hover:bg-[var(--brand-700)] transition-colors shadow-sm"
+                                            className="px-4 py-2.5 rounded-[var(--radius-md)] bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] text-sm font-medium transition-colors"
                                         >
-                                            Buka Katalog Komponen →
+                                            Katalog Komponen
                                         </button>
                                     </div>
                                 </div>
@@ -291,6 +362,9 @@ function App() {
                         onClose={handleCloseQuickView}
                         onAddToCart={onAddToCart}
                         onToggleWishlist={onToggleWishlist}
+                        isWishlisted={wishlistItems.some(
+                            (item) => item.id === quickViewProduct?.id
+                        )}
                         onOpenPCBuilder={handleOpenPCBuilder}
                         onViewFullDetail={handleSelectProduct}
                     />

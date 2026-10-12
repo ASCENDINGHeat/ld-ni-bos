@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CartDrawer from './CartDrawer';
+import WishlistModal from './WishlistModal';
 import { CheckCircleIcon } from './Icons';
 
 export default function Layout({
@@ -24,11 +25,14 @@ export default function Layout({
             image: null,
         },
     ],
-    initialWishlistCount = 3,
+    onSelectProduct,
+    onOpenCatalog,
+    onNavigateCategory,
 }) {
     const [cartItems, setCartItems] = useState(initialCartItems);
-    const [wishlistCount, setWishlistCount] = useState(initialWishlistCount);
+    const [wishlistItems, setWishlistItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [isWishlistOpen, setIsWishlistOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
 
     const showToast = (message) => {
@@ -62,9 +66,38 @@ export default function Layout({
         showToast(`"${product.name}" ditambahkan ke keranjang.`);
     };
 
-    const handleToggleWishlist = () => {
-        setWishlistCount((prev) => prev + 1);
-        showToast('Produk berhasil disimpan ke daftar Wishlist Anda.');
+    const handleAddMultipleToCart = (products) => {
+        setCartItems((prev) => {
+            let updated = [...prev];
+            products.forEach((product) => {
+                const existing = updated.find((item) => item.id === product.id);
+                if (existing) {
+                    updated = updated.map((item) =>
+                        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+                    );
+                } else {
+                    updated.push({ ...product, quantity: 1 });
+                }
+            });
+            return updated;
+        });
+        showToast(`${products.length} komponen rakitan berhasil ditambahkan ke keranjang!`);
+    };
+
+    const handleToggleWishlist = (product) => {
+        if (!product) return;
+
+        const isWishlisted = wishlistItems.some((item) => item.id === product.id);
+        setWishlistItems((prev) =>
+            isWishlisted
+                ? prev.filter((item) => item.id !== product.id)
+                : [...prev, product]
+        );
+        showToast(
+            isWishlisted
+                ? `"${product.name}" dihapus dari wishlist.`
+                : `"${product.name}" ditambahkan ke wishlist.`
+        );
     };
 
     const handleSearchSubmit = (query) => {
@@ -92,9 +125,10 @@ export default function Layout({
             {/* Responsive Navbar */}
             <Navbar
                 cartCount={totalCartCount}
-                wishlistCount={wishlistCount}
+                wishlistCount={wishlistItems.length}
                 onOpenCart={() => setIsCartOpen(true)}
-                onOpenWishlist={handleToggleWishlist}
+                onOpenWishlist={() => setIsWishlistOpen(true)}
+                onNavigateCategory={onNavigateCategory}
                 onSearchSubmit={handleSearchSubmit}
             />
 
@@ -108,16 +142,35 @@ export default function Layout({
                 onCheckout={handleCheckout}
             />
 
+            <WishlistModal
+                isOpen={isWishlistOpen}
+                items={wishlistItems}
+                onClose={() => setIsWishlistOpen(false)}
+                onRemove={handleToggleWishlist}
+                onOpenCatalog={() => {
+                    setIsWishlistOpen(false);
+                    onOpenCatalog?.();
+                }}
+                onSelectProduct={(product) => {
+                    setIsWishlistOpen(false);
+                    onSelectProduct?.(product);
+                }}
+            />
+
             {/* Main Content Area */}
             <main className="flex-1 w-full flex flex-col">
                 {typeof children === 'function'
                     ? children({
                           onAddToCart: handleAddToCart,
+                          onAddMultipleToCart: handleAddMultipleToCart,
                           onOpenCart: () => setIsCartOpen(true),
                           onToggleWishlist: handleToggleWishlist,
+                          wishlistItems,
+                          onShowToast: showToast,
                       })
                     : children}
             </main>
+
 
             {/* Storefront Footer */}
             <Footer />

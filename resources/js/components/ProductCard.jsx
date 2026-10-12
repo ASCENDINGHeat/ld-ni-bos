@@ -120,8 +120,13 @@ export default function ProductCard({
                                 ? 'text-[var(--danger)] bg-[var(--danger-bg)]'
                                 : 'text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--surface-muted)]'
                         }`}
-                        aria-label={`Simpan ${name} ke wishlist`}
-                        title="Simpan ke wishlist"
+                        aria-label={
+                            isWishlisted
+                                ? `Hapus ${name} dari wishlist`
+                                : `Simpan ${name} ke wishlist`
+                        }
+                        aria-pressed={isWishlisted}
+                        title={isWishlisted ? 'Hapus dari wishlist' : 'Simpan ke wishlist'}
                     >
                         <HeartIcon
                             className="w-4 h-4"

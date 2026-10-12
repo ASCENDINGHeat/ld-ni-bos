@@ -372,6 +372,12 @@ export default function ProductDetailPage({
                             <button
                                 type="button"
                                 onClick={() => onToggleWishlist && onToggleWishlist(product)}
+                                aria-pressed={isWishlisted}
+                                aria-label={
+                                    isWishlisted
+                                        ? `Hapus ${name} dari wishlist`
+                                        : `Simpan ${name} ke wishlist`
+                                }
                                 className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-[var(--radius-md)] border text-xs font-semibold transition-colors ${
                                     isWishlisted
                                         ? 'border-[var(--danger)] text-[var(--danger)] bg-[var(--danger-bg)]'

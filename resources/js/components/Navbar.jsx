@@ -19,16 +19,17 @@ export default function Navbar({
     wishlistCount = 0,
     onOpenCart,
     onOpenWishlist,
+    onNavigateCategory,
     onSearchSubmit,
     categories = [
         { id: 'builder', name: 'Rakit PC', href: '/pc-builder', isHighlight: true },
-        { id: 'processor', name: 'Processor', href: '#processor' },
-        { id: 'vga', name: 'VGA Card', href: '#vga' },
-        { id: 'motherboard', name: 'Motherboard', href: '#motherboard' },
-        { id: 'ram', name: 'RAM', href: '#ram' },
-        { id: 'storage', name: 'Storage SSD', href: '#storage' },
-        { id: 'psu', name: 'Power Supply', href: '#psu' },
-        { id: 'casing', name: 'Casing & Cooler', href: '#casing' },
+        { id: 'processor', name: 'Processor', href: '/katalog?category=processor' },
+        { id: 'vga', name: 'VGA Card', href: '/katalog?category=vga' },
+        { id: 'motherboard', name: 'Motherboard', href: '/katalog?category=motherboard' },
+        { id: 'ram', name: 'RAM', href: '/katalog?category=ram' },
+        { id: 'storage', name: 'Storage SSD', href: '/katalog?category=storage' },
+        { id: 'psu', name: 'Power Supply', href: '/katalog?category=psu' },
+        { id: 'casing', name: 'Casing & Cooler', href: '/katalog?category=casing' },
     ],
 }) {
     const [searchQuery, setSearchQuery] = useState('');
@@ -248,7 +249,13 @@ export default function Navbar({
                                                 <a
                                                     key={cat.id}
                                                     href={cat.href}
-                                                    onClick={() => setIsCategoryDropdownOpen(false)}
+                                                    onClick={(event) => {
+                                                        if (!cat.isHighlight && onNavigateCategory) {
+                                                            event.preventDefault();
+                                                            onNavigateCategory(cat.id);
+                                                        }
+                                                        setIsCategoryDropdownOpen(false);
+                                                    }}
                                                     className="flex items-center justify-between px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-muted)] hover:text-[var(--brand-600)] transition-colors"
                                                 >
                                                     <span className={cat.isHighlight ? 'font-semibold text-[var(--brand-600)]' : ''}>
@@ -267,11 +274,14 @@ export default function Navbar({
                             {/* Direct Category Links */}
                             {categories
                                 .filter((c) => !c.isHighlight)
-                                .slice(0, 6)
                                 .map((cat) => (
                                     <a
                                         key={cat.id}
                                         href={cat.href}
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            onNavigateCategory?.(cat.id);
+                                        }}
                                         className="px-3 py-1.5 rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] font-medium text-xs xl:text-sm transition-colors whitespace-nowrap"
                                     >
                                         {cat.name}
@@ -302,6 +312,12 @@ export default function Navbar({
                     <a
                         key={cat.id}
                         href={cat.href}
+                        onClick={(event) => {
+                            if (!cat.isHighlight) {
+                                event.preventDefault();
+                                onNavigateCategory?.(cat.id);
+                            }
+                        }}
                         className={`shrink-0 px-3 py-1.5 rounded-[var(--radius-pill)] font-medium transition-colors ${
                             cat.isHighlight
                                 ? 'bg-[var(--brand-600)] text-white shadow-xs'
@@ -346,7 +362,7 @@ export default function Navbar({
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
                             {/* PC Builder Callout */}
                             <a
-                                href="#pc-builder"
+                                href="/pc-builder"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className="flex items-center justify-between p-3 rounded-[var(--radius-md)] bg-[var(--brand-50)] text-[var(--brand-700)] border border-[var(--brand-100)] font-medium text-sm"
                             >
@@ -369,7 +385,11 @@ export default function Navbar({
                                             <a
                                                 key={cat.id}
                                                 href={cat.href}
-                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                onClick={(event) => {
+                                                    event.preventDefault();
+                                                    setIsMobileMenuOpen(false);
+                                                    onNavigateCategory?.(cat.id);
+                                                }}
                                                 className="flex items-center justify-between py-2 px-3 rounded-[var(--radius-sm)] text-sm text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-colors"
                                             >
                                                 <span>{cat.name}</span>
