@@ -50,6 +50,8 @@ export default function CartDrawer({
             className={`fixed inset-0 z-50 transition-opacity duration-300 ${
                 isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
             }`}
+            aria-hidden={!isOpen}
+            inert={!isOpen}
             aria-labelledby="cart-drawer-title"
             role="dialog"
             aria-modal="true"

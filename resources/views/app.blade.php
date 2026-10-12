@@ -32,6 +32,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.jsx'])
 </head>
 <body class="bg-[var(--background)] text-[var(--text-primary)] antialiased min-h-screen">
-    <div id="root" data-initial-view="{{ $initialView ?? 'beranda' }}"></div>
+    <div
+        id="root"
+        data-initial-view="{{ $initialView ?? 'beranda' }}"
+        @isset($vendorSection) data-vendor-section="{{ $vendorSection }}" @endisset
+        @isset($productSlug) data-product-slug="{{ $productSlug }}" @endisset
+    ></div>
 </body>
 </html>

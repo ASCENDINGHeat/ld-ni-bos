@@ -12,34 +12,58 @@ import {
     WrenchIcon,
     UserIcon,
     ShieldCheckIcon,
+    ArrowRightIcon,
 } from './Icons';
 
 export default function Navbar({
     cartCount = 0,
     wishlistCount = 0,
     onOpenCart,
+    onViewCart,
     onOpenWishlist,
+    onNavigateCategory,
     onSearchSubmit,
+    currentUser = null,
+    isVendorMode = false,
+    onOpenAuth,
+    onLogout,
+    onNavigateToAccount,
+    onNavigateVendorDashboard,
+    onNavigateToStorefront,
     categories = [
         { id: 'builder', name: 'Rakit PC', href: '/pc-builder', isHighlight: true },
-        { id: 'processor', name: 'Processor', href: '#processor' },
-        { id: 'vga', name: 'VGA Card', href: '#vga' },
-        { id: 'motherboard', name: 'Motherboard', href: '#motherboard' },
-        { id: 'ram', name: 'RAM', href: '#ram' },
-        { id: 'storage', name: 'Storage SSD', href: '#storage' },
-        { id: 'psu', name: 'Power Supply', href: '#psu' },
-        { id: 'casing', name: 'Casing & Cooler', href: '#casing' },
+        { id: 'processor', name: 'Processor', href: '/katalog?category=processor' },
+        { id: 'vga', name: 'VGA Card', href: '/katalog?category=vga' },
+        { id: 'motherboard', name: 'Motherboard', href: '/katalog?category=motherboard' },
+        { id: 'ram', name: 'RAM', href: '/katalog?category=ram' },
+        { id: 'storage', name: 'Storage SSD', href: '/katalog?category=storage' },
+        { id: 'psu', name: 'Power Supply', href: '/katalog?category=psu' },
+        { id: 'casing', name: 'Casing & Cooler', href: '/katalog?category=casing' },
     ],
 }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
     const handleSearch = (e) => {
         e.preventDefault();
         if (onSearchSubmit) {
             onSearchSubmit(searchQuery);
         }
+    };
+
+    const handleVendorModeToggle = () => {
+        if (currentUser?.role === 'vendor') {
+            if (isVendorMode) {
+                onNavigateToStorefront?.();
+            } else {
+                onNavigateVendorDashboard?.();
+            }
+            return;
+        }
+
+        onOpenAuth?.('register', 'vendor');
     };
 
     return (
@@ -159,7 +183,7 @@ export default function Navbar({
                         {/* Cart Drawer Trigger */}
                         <button
                             type="button"
-                            onClick={onOpenCart}
+                            onClick={onViewCart || onOpenCart}
                             className="relative inline-flex items-center justify-center h-10 px-3 rounded-[var(--radius-md)] bg-[var(--brand-50)] text-[var(--brand-700)] border border-[var(--brand-100)] hover:bg-[var(--brand-100)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
                             aria-label={`Buka keranjang belanja, ${cartCount} barang`}
                             title="Buka Keranjang"
@@ -177,15 +201,121 @@ export default function Navbar({
                             </span>
                         </button>
 
-                        {/* User / Account Button */}
-                        <a
-                            href="#akun"
-                            className="hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-[var(--radius-md)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)]"
-                            aria-label="Akun Pengguna"
-                            title="Akun Saya"
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={isVendorMode}
+                            aria-label="Mode Vendor"
+                            title={currentUser?.role === 'vendor' ? 'Beralih ke Mode Vendor' : 'Daftar atau masuk sebagai Vendor'}
+                            onClick={handleVendorModeToggle}
+                            className="hidden lg:inline-flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]"
                         >
-                            <UserIcon className="w-5 h-5" />
-                        </a>
+                            <span>Mode Vendor</span>
+                            <span className={`relative h-5 w-9 rounded-full transition-colors ${isVendorMode ? 'bg-[var(--brand-600)]' : 'bg-slate-300'}`}>
+                                <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${isVendorMode ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </span>
+                        </button>
+
+                        <div className="relative">
+                            <button
+                                type="button"
+                                onClick={() => setIsProfileDropdownOpen((open) => !open)}
+                                className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] px-2 text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-500)] sm:px-3"
+                                aria-label={currentUser ? `Menu profil ${currentUser.name}` : 'Menu akun'}
+                                aria-expanded={isProfileDropdownOpen}
+                            >
+                                <UserIcon className="h-5 w-5" />
+                                <span className="hidden max-w-24 truncate text-xs font-semibold sm:inline">
+                                    {currentUser?.name || 'Akun'}
+                                </span>
+                                <ChevronDownIcon className={`hidden h-3.5 w-3.5 transition-transform sm:block ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                            {isProfileDropdownOpen && (
+                                <>
+                                    <button
+                                        type="button"
+                                        className="fixed inset-0 z-30 cursor-default"
+                                        aria-label="Tutup menu profil"
+                                        onClick={() => setIsProfileDropdownOpen(false)}
+                                    />
+                                    <div className="absolute right-0 z-40 mt-2 w-64 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-2 shadow-[var(--shadow-elevated)]">
+                                        <div className="border-b border-[var(--border)] px-3 py-2.5">
+                                            <p className="truncate text-sm font-bold text-[var(--text-primary)]">{currentUser?.name || 'Pengunjung'}</p>
+                                            <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+                                                {currentUser?.email || 'Belum masuk'}
+                                            </p>
+                                        </div>
+                                        <a
+                                            href="/akun"
+                                            onClick={(event) => {
+                                                event.preventDefault();
+                                                onNavigateToAccount?.();
+                                                setIsProfileDropdownOpen(false);
+                                            }}
+                                            className="mt-1 flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-muted)]"
+                                        >
+                                            Pengaturan akun <ArrowRightIcon />
+                                        </a>
+                                        <a
+                                            href="/vendor/dashboard"
+                                            onClick={(event) => {
+                                                event.preventDefault();
+                                                onNavigateVendorDashboard?.();
+                                                setIsProfileDropdownOpen(false);
+                                            }}
+                                            className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-muted)]"
+                                        >
+                                            Ke Dashboard Vendor <ArrowRightIcon />
+                                        </a>
+                                        {currentUser ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    onLogout?.();
+                                                    setIsProfileDropdownOpen(false);
+                                                }}
+                                                className="mt-1 w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-rose-600 hover:bg-rose-50"
+                                            >
+                                                Keluar dari akun
+                                            </button>
+                                        ) : (
+                                            <div className="grid grid-cols-2 gap-2 p-1 pt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        onOpenAuth?.('login', 'customer');
+                                                        setIsProfileDropdownOpen(false);
+                                                    }}
+                                                    className="rounded-lg border border-[var(--border)] px-2 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--surface-muted)]"
+                                                >
+                                                    Masuk
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        onOpenAuth?.('register', 'customer');
+                                                        setIsProfileDropdownOpen(false);
+                                                    }}
+                                                    className="rounded-lg bg-[var(--brand-600)] px-2 py-2 text-xs font-bold text-white hover:bg-[var(--brand-700)]"
+                                                >
+                                                    Daftar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        onOpenAuth?.('register', 'vendor');
+                                                        setIsProfileDropdownOpen(false);
+                                                    }}
+                                                    className="col-span-2 rounded-lg px-2 py-2 text-xs font-bold text-[var(--brand-700)] hover:bg-[var(--brand-50)]"
+                                                >
+                                                    Daftar sebagai Vendor
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -248,7 +378,13 @@ export default function Navbar({
                                                 <a
                                                     key={cat.id}
                                                     href={cat.href}
-                                                    onClick={() => setIsCategoryDropdownOpen(false)}
+                                                    onClick={(event) => {
+                                                        if (!cat.isHighlight && onNavigateCategory) {
+                                                            event.preventDefault();
+                                                            onNavigateCategory(cat.id);
+                                                        }
+                                                        setIsCategoryDropdownOpen(false);
+                                                    }}
                                                     className="flex items-center justify-between px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-muted)] hover:text-[var(--brand-600)] transition-colors"
                                                 >
                                                     <span className={cat.isHighlight ? 'font-semibold text-[var(--brand-600)]' : ''}>
@@ -267,11 +403,14 @@ export default function Navbar({
                             {/* Direct Category Links */}
                             {categories
                                 .filter((c) => !c.isHighlight)
-                                .slice(0, 6)
                                 .map((cat) => (
                                     <a
                                         key={cat.id}
                                         href={cat.href}
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            onNavigateCategory?.(cat.id);
+                                        }}
                                         className="px-3 py-1.5 rounded-[var(--radius-sm)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] font-medium text-xs xl:text-sm transition-colors whitespace-nowrap"
                                     >
                                         {cat.name}
@@ -302,6 +441,12 @@ export default function Navbar({
                     <a
                         key={cat.id}
                         href={cat.href}
+                        onClick={(event) => {
+                            if (!cat.isHighlight) {
+                                event.preventDefault();
+                                onNavigateCategory?.(cat.id);
+                            }
+                        }}
                         className={`shrink-0 px-3 py-1.5 rounded-[var(--radius-pill)] font-medium transition-colors ${
                             cat.isHighlight
                                 ? 'bg-[var(--brand-600)] text-white shadow-xs'
@@ -346,7 +491,7 @@ export default function Navbar({
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
                             {/* PC Builder Callout */}
                             <a
-                                href="#pc-builder"
+                                href="/pc-builder"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className="flex items-center justify-between p-3 rounded-[var(--radius-md)] bg-[var(--brand-50)] text-[var(--brand-700)] border border-[var(--brand-100)] font-medium text-sm"
                             >
@@ -369,7 +514,11 @@ export default function Navbar({
                                             <a
                                                 key={cat.id}
                                                 href={cat.href}
-                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                onClick={(event) => {
+                                                    event.preventDefault();
+                                                    setIsMobileMenuOpen(false);
+                                                    onNavigateCategory?.(cat.id);
+                                                }}
                                                 className="flex items-center justify-between py-2 px-3 rounded-[var(--radius-sm)] text-sm text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-colors"
                                             >
                                                 <span>{cat.name}</span>
@@ -386,13 +535,44 @@ export default function Navbar({
                                 </h5>
                                 <div className="space-y-1">
                                     <a
-                                        href="#akun"
-                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        href="/akun"
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            onNavigateToAccount?.();
+                                            setIsMobileMenuOpen(false);
+                                        }}
                                         className="flex items-center gap-2.5 py-2 px-3 rounded-[var(--radius-sm)] text-sm text-[var(--text-primary)] hover:bg-[var(--surface-muted)]"
                                     >
                                         <UserIcon className="w-4 h-4 text-[var(--text-muted)]" />
-                                        <span>Masuk / Akun Saya</span>
+                                        <span>{currentUser ? 'Pengaturan akun' : 'Masuk / Akun Saya'}</span>
                                     </a>
+                                    <a
+                                        href="/vendor/dashboard"
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            onNavigateVendorDashboard?.();
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className="flex items-center gap-2.5 py-2 px-3 rounded-[var(--radius-sm)] text-sm text-[var(--text-primary)] hover:bg-[var(--surface-muted)]"
+                                    >
+                                        <CpuIcon className="w-4 h-4 text-[var(--text-muted)]" />
+                                        <span>Ke Dashboard Vendor</span>
+                                    </a>
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        aria-checked={isVendorMode}
+                                        onClick={() => {
+                                            handleVendorModeToggle();
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className="flex w-full items-center justify-between gap-2 rounded-[var(--radius-sm)] px-3 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--surface-muted)]"
+                                    >
+                                        <span>Mode Vendor</span>
+                                        <span className={`relative h-5 w-9 rounded-full transition-colors ${isVendorMode ? 'bg-[var(--brand-600)]' : 'bg-slate-300'}`}>
+                                            <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${isVendorMode ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                                        </span>
+                                    </button>
                                     <a
                                         href="#bantuan"
                                         onClick={() => setIsMobileMenuOpen(false)}

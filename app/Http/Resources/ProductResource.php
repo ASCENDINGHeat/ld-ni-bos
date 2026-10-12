@@ -23,6 +23,8 @@ class ProductResource extends JsonResource
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
+            'vendor_id' => $this->vendor_id,
+            'sku' => $this->sku,
             'name' => $this->name,
             'slug' => $this->slug,
             'type' => $this->type,
@@ -38,6 +40,7 @@ class ProductResource extends JsonResource
             'is_active' => (bool) $this->is_active,
             'weight_grams' => (int) $this->weight_grams,
             'category' => new CategoryResource($this->whenLoaded('category')),
+            'vendor' => new VendorResource($this->whenLoaded('vendor')),
             'is_wishlisted' => $user ? $this->relationLoaded('wishlists')
                 ? $this->wishlists->contains('user_id', $user->id)
                 : $this->wishlists()->where('user_id', $user->id)->exists()

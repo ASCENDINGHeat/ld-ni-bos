@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import productsData from '../mocks/products.json';
 import ProductCard from './ProductCard';
 import ProductFilterSidebar from './ProductFilterSidebar';
+import { getProducts, getCategories, normalizeProduct } from '../services/api';
 import {
     SearchIcon,
     SlidersHorizontalIcon,
@@ -14,10 +15,21 @@ export default function ProductCatalog({
     onAddToCart,
     onToggleWishlist,
     wishlistItems = [],
+    onQuickView,
+    onSelectProduct,
+    initialCategory = 'all',
+    products = mockProductsData,
 }) {
+    // API States
+    const [apiProducts, setApiProducts] = useState([]);
+    const [apiCategories, setApiCategories] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+
     // Filter & Sort States
+    const [selectedType, setSelectedType] = useState('all'); // 'all' | 'prebuilt' | 'part'
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [selectedCategory, setSelectedCategory] = useState(initialCategory);
     const [selectedBrands, setSelectedBrands] = useState([]);
     const [selectedSockets, setSelectedSockets] = useState([]);
     const [selectedRamFactors, setSelectedRamFactors] = useState([]);
@@ -26,96 +38,166 @@ export default function ProductCatalog({
     const [sortBy, setSortBy] = useState('popular');
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-    // Categories list with counts
+    // Fetch categories from Backend API
+    useEffect(() => {
+        let isMounted = true;
+        setIsCategoriesLoading(true);
+
+        getCategories()
+            .then((cats) => {
+                if (isMounted && Array.isArray(cats) && cats.length > 0) {
+                    setApiCategories(cats);
+                }
+            })
+            .catch(() => {
+                // Fallback to static mock categories
+            })
+            .finally(() => {
+                if (isMounted) setIsCategoriesLoading(false);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    // Fetch products from Backend API
+    useEffect(() => {
+        let isMounted = true;
+        setIsLoading(true);
+
+        const params = {
+            search: searchQuery.trim() || undefined,
+            category: selectedCategory !== 'all' ? selectedCategory : undefined,
+            type: selectedType !== 'all' ? selectedType : undefined,
+            min_price: priceRange.min !== '' ? priceRange.min : undefined,
+            max_price: priceRange.max !== '' ? priceRange.max : undefined,
+            in_stock: onlyInStock ? true : undefined,
+            sort:
+                sortBy === 'price-asc'
+                    ? 'price_asc'
+                    : sortBy === 'price-desc'
+                    ? 'price_desc'
+                    : sortBy === 'name-asc'
+                    ? 'name_asc'
+                    : sortBy === 'name-desc'
+                    ? 'name_desc'
+                    : 'latest',
+            per_page: 50,
+        };
+
+        getProducts(params)
+            .then((res) => {
+                if (isMounted && res && Array.isArray(res.data)) {
+                    setApiProducts(res.data);
+                }
+            })
+            .catch(() => {
+                // Fallback to normalized mock data
+                if (isMounted) {
+                    setApiProducts(productsData.map(normalizeProduct));
+                }
+            })
+            .finally(() => {
+                if (isMounted) setIsLoading(false);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [selectedCategory, selectedType, searchQuery, onlyInStock, priceRange.min, priceRange.max, sortBy]);
+
+    // Active products source (either API or mock fallback)
+    const baseProducts = useMemo(() => {
+        if (apiProducts.length > 0) return apiProducts;
+        return productsData.map(normalizeProduct);
+    }, [apiProducts]);
+
+    // Categories list for sidebar with dynamic count
     const categoryOptions = useMemo(() => {
-        const cats = [
+        if (apiCategories.length > 0) {
+            const list = [{ id: 'all', name: 'Semua Kategori', count: baseProducts.length }];
+            apiCategories.forEach((cat) => {
+                const count = baseProducts.filter(
+                    (p) => p.category === cat.slug || p.category_id === cat.id
+                ).length;
+                list.push({
+                    id: cat.slug,
+                    name: cat.name,
+                    count: cat.products_count !== undefined ? cat.products_count : count,
+                    type: cat.type,
+                });
+            });
+            return list;
+        }
+
+        const fallbackCats = [
             { id: 'all', name: 'Semua Kategori' },
+            { id: 'pc-siap-pakai', name: 'PC Siap Pakai' },
             { id: 'processor', name: 'Processor' },
-            { id: 'vga', name: 'VGA Card' },
+            { id: 'kartu-grafis', name: 'Kartu Grafis (GPU)' },
             { id: 'motherboard', name: 'Motherboard' },
             { id: 'ram', name: 'RAM' },
             { id: 'storage', name: 'Storage SSD' },
-            { id: 'psu', name: 'Power Supply' },
+            { id: 'power-supply', name: 'Power Supply' },
+            { id: 'casing', name: 'Casing PC' },
+            { id: 'cooler', name: 'Pendingin PC' },
         ];
 
-        return cats.map((c) => ({
+        return fallbackCats.map((c) => ({
             ...c,
             count:
                 c.id === 'all'
-                    ? productsData.length
-                    : productsData.filter((p) => p.category === c.id).length,
+                    ? baseProducts.length
+                    : baseProducts.filter((p) => p.category === c.id).length,
         }));
-    }, []);
+    }, [apiCategories, baseProducts]);
 
     // Brand options with counts
     const brandOptions = useMemo(() => {
-        const brandSet = new Set(productsData.map((p) => p.brand));
+        const brandSet = new Set(baseProducts.map((p) => p.brand).filter(Boolean));
         return Array.from(brandSet).sort().map((b) => ({
             name: b,
-            count: productsData.filter((p) => p.brand === b).length,
+            count: baseProducts.filter((p) => p.brand === b).length,
         }));
-    }, []);
+    }, [baseProducts]);
 
     // Socket CPU options with counts
     const socketOptions = useMemo(() => {
-        const sockets = ['LGA1700', 'AM5', 'AM4'];
+        const sockets = ['AM5', 'LGA1700', 'AM4'];
         return sockets.map((s) => ({
             name: s,
-            count: productsData.filter((p) => p.cpuSocket === s).length,
+            count: baseProducts.filter((p) => p.cpuSocket === s || p.specifications?.socket === s).length,
         }));
-    }, []);
+    }, [baseProducts]);
 
     // RAM Form Factor options with counts
     const ramOptions = useMemo(() => {
-        const factors = ['DDR5 DIMM', 'DDR4 DIMM', 'DDR5 SO-DIMM'];
+        const factors = ['DDR5', 'DDR4', 'DDR5 DIMM', 'DDR4 DIMM'];
         return factors.map((f) => ({
             name: f,
-            count: productsData.filter((p) => p.ramFormFactor === f).length,
+            count: baseProducts.filter((p) => p.ramFormFactor?.includes(f)).length,
         }));
-    }, []);
+    }, [baseProducts]);
 
-    // Filter Logic
+    // Client-side refinement for brand, socket, and ram
     const filteredProducts = useMemo(() => {
-        return productsData.filter((product) => {
-            // Category
-            if (selectedCategory !== 'all' && product.category !== selectedCategory) {
-                return false;
-            }
-
-            // Brand
+        return baseProducts.filter((product) => {
+            // Brand filter
             if (selectedBrands.length > 0 && !selectedBrands.includes(product.brand)) {
                 return false;
             }
 
-            // Socket CPU
-            if (selectedSockets.length > 0 && !selectedSockets.includes(product.cpuSocket)) {
-                return false;
+            // Socket filter
+            if (selectedSockets.length > 0) {
+                const s = product.cpuSocket || product.specifications?.socket;
+                if (!s || !selectedSockets.includes(s)) return false;
             }
 
-            // RAM Form Factor
-            if (selectedRamFactors.length > 0 && !selectedRamFactors.includes(product.ramFormFactor)) {
-                return false;
-            }
-
-            // Ready Stock
-            if (onlyInStock && !product.inStock) {
-                return false;
-            }
-
-            // Price range
-            const min = priceRange.min !== '' ? Number(priceRange.min) : null;
-            const max = priceRange.max !== '' ? Number(priceRange.max) : null;
-            if (min !== null && product.price < min) return false;
-            if (max !== null && product.price > max) return false;
-
-            // Search query
-            if (searchQuery.trim()) {
-                const q = searchQuery.toLowerCase();
-                const matchName = product.name.toLowerCase().includes(q);
-                const matchBrand = product.brand.toLowerCase().includes(q);
-                const matchCat = (product.categoryName || product.category).toLowerCase().includes(q);
-                const matchSpecs = product.specs?.some((s) => s.toLowerCase().includes(q));
-                if (!matchName && !matchBrand && !matchCat && !matchSpecs) return false;
+            // RAM filter
+            if (selectedRamFactors.length > 0) {
+                const r = product.ramFormFactor || product.specifications?.tipe_memori;
+                if (!r || !selectedRamFactors.some((factor) => r.includes(factor))) return false;
             }
 
             return true;
@@ -128,6 +210,7 @@ export default function ProductCatalog({
         onlyInStock,
         priceRange,
         searchQuery,
+        products,
     ]);
 
     // Sorting Logic
@@ -170,6 +253,7 @@ export default function ProductCatalog({
 
     const handleResetAllFilters = () => {
         setSearchQuery('');
+        setSelectedType('all');
         setSelectedCategory('all');
         setSelectedBrands([]);
         setSelectedSockets([]);
@@ -179,6 +263,7 @@ export default function ProductCatalog({
     };
 
     const hasActiveFilters =
+        selectedType !== 'all' ||
         selectedCategory !== 'all' ||
         selectedBrands.length > 0 ||
         selectedSockets.length > 0 ||
@@ -196,17 +281,17 @@ export default function ProductCatalog({
                     Beranda
                 </a>
                 <ChevronRightIcon className="w-3 h-3 text-[var(--border-strong)]" />
-                <span className="text-[var(--text-primary)] font-medium">Katalog Komponen PC</span>
+                <span className="text-[var(--text-primary)] font-medium">Katalog Komponen PC & Rakitan</span>
             </nav>
 
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[var(--border)] gap-4 mb-6">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight">
-                        Katalog Produk Hardware
+                        Katalog Produk PC & Komponen
                     </h1>
                     <p className="text-sm text-[var(--text-secondary)] mt-1">
-                        Pilih komponen resmi bergaransi distributor untuk kebutuhan rakitan gaming & workstation Anda.
+                        Pilihan PC siap pakai dan part komputer resmi (Processor, VGA, RAM, Motherboard, SSD, PSU, Case, Cooler) dengan garansi penuh.
                     </p>
                 </div>
 
@@ -224,6 +309,52 @@ export default function ProductCatalog({
                         )}
                     </button>
                 </div>
+            </div>
+
+            {/* Product Type Tabs (PC Siap Pakai vs Part PC) */}
+            <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1">
+                <button
+                    type="button"
+                    onClick={() => {
+                        setSelectedType('all');
+                        if (selectedCategory === 'pc-siap-pakai') setSelectedCategory('all');
+                    }}
+                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 ${
+                        selectedType === 'all'
+                            ? 'bg-[var(--brand-600)] text-white shadow-xs'
+                            : 'bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--surface-muted)]'
+                    }`}
+                >
+                    Semua Produk
+                </button>
+                <button
+                    type="button"
+                    onClick={() => {
+                        setSelectedType('prebuilt');
+                        setSelectedCategory('all');
+                    }}
+                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                        selectedType === 'prebuilt'
+                            ? 'bg-[var(--brand-600)] text-white shadow-xs'
+                            : 'bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--surface-muted)]'
+                    }`}
+                >
+                    <span>🖥️ PC Siap Pakai (Pre-built)</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => {
+                        setSelectedType('part');
+                        if (selectedCategory === 'pc-siap-pakai') setSelectedCategory('all');
+                    }}
+                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                        selectedType === 'part'
+                            ? 'bg-[var(--brand-600)] text-white shadow-xs'
+                            : 'bg-[var(--surface)] text-[var(--text-secondary)] border border-[var(--border)] hover:bg-[var(--surface-muted)]'
+                    }`}
+                >
+                    <span>⚙️ Part & Komponen PC Terpisah</span>
+                </button>
             </div>
 
             {/* Main Content: Sidebar + Grid */}
@@ -247,7 +378,7 @@ export default function ProductCatalog({
                     onlyInStock={onlyInStock}
                     onToggleOnlyInStock={() => setOnlyInStock(!onlyInStock)}
                     onResetFilters={handleResetAllFilters}
-                    totalProductsCount={productsData.length}
+                    totalProductsCount={baseProducts.length}
                     filteredCount={filteredProducts.length}
                     isMobileOpen={isMobileFilterOpen}
                     onCloseMobile={() => setIsMobileFilterOpen(false)}
@@ -263,7 +394,7 @@ export default function ProductCatalog({
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Cari nama produk, brand, atau spesifikasi..."
+                                placeholder="Cari PC rakitan, CPU, GPU, brand, atau spesifikasi..."
                                 className="w-full text-xs py-2 pl-9 pr-8 rounded-[var(--radius-md)] bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:bg-[var(--surface)] focus:border-[var(--brand-500)] focus:outline-none"
                             />
                             <div className="absolute left-2.5 top-2.5 text-[var(--text-muted)] pointer-events-none">
@@ -291,7 +422,7 @@ export default function ProductCatalog({
                                 onChange={(e) => setSortBy(e.target.value)}
                                 className="text-xs py-1.5 px-3 rounded-[var(--radius-md)] bg-[var(--surface-muted)] border border-[var(--border)] text-[var(--text-primary)] font-medium focus:bg-[var(--surface)] focus:border-[var(--brand-500)] focus:outline-none cursor-pointer"
                             >
-                                <option value="popular">Paling Sesuai / Populer</option>
+                                <option value="popular">Terbaru / Populer</option>
                                 <option value="price-asc">Harga: Terendah ke Tertinggi</option>
                                 <option value="price-desc">Harga: Tertinggi ke Terendah</option>
                                 <option value="name-asc">Nama Produk (A - Z)</option>
@@ -307,9 +438,24 @@ export default function ProductCatalog({
                                 Filter Aktif:
                             </span>
 
+                            {selectedType !== 'all' && (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--brand-50)] text-[var(--brand-700)] border border-[var(--brand-100)]">
+                                    <span>Tipe: {selectedType === 'prebuilt' ? 'PC Siap Pakai' : 'Part PC'}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedType('all')}
+                                        className="hover:text-[var(--danger)]"
+                                    >
+                                        <XIcon className="w-3 h-3" />
+                                    </button>
+                                </span>
+                            )}
+
                             {selectedCategory !== 'all' && (
                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--brand-50)] text-[var(--brand-700)] border border-[var(--brand-100)]">
-                                    <span>Kategori: {categoryOptions.find((c) => c.id === selectedCategory)?.name}</span>
+                                    <span>
+                                        Kategori: {categoryOptions.find((c) => c.id === selectedCategory)?.name || selectedCategory}
+                                    </span>
                                     <button
                                         type="button"
                                         onClick={() => setSelectedCategory('all')}
@@ -329,38 +475,6 @@ export default function ProductCatalog({
                                     <button
                                         type="button"
                                         onClick={() => handleToggleBrand(b)}
-                                        className="hover:text-[var(--danger)]"
-                                    >
-                                        <XIcon className="w-3 h-3" />
-                                    </button>
-                                </span>
-                            ))}
-
-                            {selectedSockets.map((s) => (
-                                <span
-                                    key={s}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--surface-muted)] text-[var(--text-primary)] border border-[var(--border)]"
-                                >
-                                    <span>Socket: {s}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleToggleSocket(s)}
-                                        className="hover:text-[var(--danger)]"
-                                    >
-                                        <XIcon className="w-3 h-3" />
-                                    </button>
-                                </span>
-                            ))}
-
-                            {selectedRamFactors.map((r) => (
-                                <span
-                                    key={r}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--surface-muted)] text-[var(--text-primary)] border border-[var(--border)]"
-                                >
-                                    <span>RAM: {r}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleToggleRamFactor(r)}
                                         className="hover:text-[var(--danger)]"
                                     >
                                         <XIcon className="w-3 h-3" />
@@ -413,12 +527,21 @@ export default function ProductCatalog({
                     <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-4 px-1">
                         <span>
                             Menampilkan <strong className="text-[var(--text-primary)]">{sortedProducts.length}</strong> dari{' '}
-                            <strong>{productsData.length}</strong> total komponen
+                            <strong>{products.length}</strong> total komponen
                         </span>
                     </div>
 
                     {/* Responsive Product Grid */}
                     {sortedProducts.length === 0 ? (
+                    {/* Loading State or Products Grid */}
+                    {isLoading ? (
+                        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] p-12 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
+                            <div className="w-8 h-8 border-3 border-[var(--brand-600)] border-t-transparent rounded-full animate-spin mb-3" />
+                            <p className="text-xs font-semibold text-[var(--text-secondary)]">
+                                Memuat produk dari server database...
+                            </p>
+                        </div>
+                    ) : filteredProducts.length === 0 ? (
                         /* Empty State */
                         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] p-12 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
                             <div className="w-16 h-16 rounded-full bg-[var(--surface-muted)] flex items-center justify-center text-[var(--text-muted)] mb-4">
@@ -428,7 +551,7 @@ export default function ProductCatalog({
                                 Tidak ada komponen yang cocok
                             </h3>
                             <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-md mb-6 leading-relaxed">
-                                Coba ubah rentang harga, hapus filter brand, atau ganti kata kunci pencarian Anda untuk menemukan produk hardware lainnya.
+                                Coba ubah rentang harga, pilih kategori lain, atau ganti kata kunci pencarian Anda.
                             </p>
                             <button
                                 type="button"
@@ -441,13 +564,15 @@ export default function ProductCatalog({
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                            {sortedProducts.map((product) => (
+                            {filteredProducts.map((product) => (
                                 <ProductCard
                                     key={product.id}
                                     product={product}
                                     onAddToCart={onAddToCart}
                                     onToggleWishlist={onToggleWishlist}
                                     isWishlisted={wishlistItems.some((w) => w.id === product.id)}
+                                    onQuickView={onQuickView}
+                                    onSelectProduct={onSelectProduct}
                                 />
                             ))}
                         </div>

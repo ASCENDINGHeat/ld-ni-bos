@@ -11,10 +11,30 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": "LGA1700",
-        "ramFormFactor": null,
+        "powerDraw": 253,
+        "tdp": "125W (Base) / 253W (Turbo)",
+        "chipset": "Intel Z790, Z690, B760, B660",
+        "warranty": "3 Tahun Garansi Resmi Distributor",
+        "ramFormFactor": "DDR5 / DDR4 DIMM",
+        "description": "Processor flagship desktop generasi ke-14 Raptor Lake Refresh dari Intel dengan arsitektur hybrid revolusioner (8 Performance-cores + 16 Efficient-cores). Mampu mencapai kecepatan thermal boost hingga 6.0 GHz tanpa overclock manual, memberikan performa gaming tak tertandingi dan efisiensi multitasking tingkat profesional untuk rendering 3D, editing video 8K, dan streaming berat.",
         "specs": ["24 Cores (8P + 16E)", "32 Threads", "Up to 6.0 GHz", "36MB Intel Smart Cache", "TDP 125W - 253W"],
+        "technicalSpecs": {
+            "CPU Socket": "LGA1700",
+            "TDP / Daya": "125 Watt (Base) / 253 Watt (Maximum Turbo Power)",
+            "Chipset Kompatibel": "Intel Seri 600 & 700 (Z790, B760, Z690, B660)",
+            "Garansi Resmi": "3 Tahun Garansi Resmi Distributor Indonesia",
+            "Jumlah Core": "24 Core (8 P-Core + 16 E-Core)",
+            "Jumlah Thread": "32 Thread",
+            "Max Turbo Frequency": "Hingga 6.0 GHz",
+            "Intel Smart Cache": "36 MB L3 + 32 MB L2",
+            "Dukungan Memori": "DDR5 5600 MT/s & DDR4 3200 MT/s"
+        },
         "badge": "Flagship",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Kemasan Box Retail" },
+            { "label": "IHS Unit Processor" }
+        ]
     },
     {
         "id": "cpu-2",
@@ -28,10 +48,27 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": "LGA1700",
-        "ramFormFactor": null,
+        "powerDraw": 253,
+        "tdp": "125W (Base) / 253W (Turbo)",
+        "chipset": "Intel Z790, B760, Z690",
+        "warranty": "3 Tahun Garansi Resmi Distributor",
+        "ramFormFactor": "DDR5 / DDR4 DIMM",
+        "description": "Processor kelas enthusiast dengan penambahan 4 E-core ekstra dibandingkan generasi sebelumnya. Menghadirkan keseimbangan ideal antara gaming resolusi 1440p/4K dan produktivitas kreasi konten berat dengan 20 core dan 28 thread.",
         "specs": ["20 Cores (8P + 12E)", "28 Threads", "Up to 5.6 GHz", "33MB Intel Smart Cache", "TDP 125W - 253W"],
+        "technicalSpecs": {
+            "CPU Socket": "LGA1700",
+            "TDP / Daya": "125 Watt (Base) / 253 Watt (Turbo)",
+            "Chipset Kompatibel": "Intel Z790, B760, Z690, B660",
+            "Garansi Resmi": "3 Tahun Garansi Resmi Distributor Indonesia",
+            "Jumlah Core": "20 Core (8 P-Core + 12 E-Core)",
+            "Jumlah Thread": "28 Thread",
+            "Max Turbo Frequency": "Hingga 5.6 GHz"
+        },
         "badge": "Populer",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Kemasan Resmi Box" }
+        ]
     },
     {
         "id": "cpu-3",
@@ -45,10 +82,26 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": "LGA1700",
-        "ramFormFactor": null,
+        "powerDraw": 181,
+        "tdp": "125W (Base) / 181W (Turbo)",
+        "chipset": "Intel B760, Z790, B660",
+        "warranty": "3 Tahun Garansi Resmi Distributor",
+        "ramFormFactor": "DDR5 / DDR4 DIMM",
+        "description": "Pilihan terbaik para gamer kompetitif. Dilengkapi 14 Core (6 P-Core + 8 E-Core) dengan clock speed hingga 5.3 GHz, mampu menjalankan seluruh game AAA modern dengan frame rate tinggi tanpa bottleneck.",
         "specs": ["14 Cores (6P + 8E)", "20 Threads", "Up to 5.3 GHz", "24MB Intel Smart Cache", "Intel UHD 770"],
+        "technicalSpecs": {
+            "CPU Socket": "LGA1700",
+            "TDP / Daya": "125 Watt (Base) / 181 Watt (Turbo)",
+            "Chipset Kompatibel": "Intel B760, Z790, B660, H610",
+            "Garansi Resmi": "3 Tahun Garansi Resmi Distributor",
+            "Jumlah Core": "14 Core",
+            "Jumlah Thread": "20 Thread"
+        },
         "badge": "Best Seller",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Box i5-14600K" }
+        ]
     },
     {
         "id": "cpu-4",
@@ -62,10 +115,26 @@
         "stock": "Stok Terbatas",
         "inStock": true,
         "cpuSocket": "AM5",
-        "ramFormFactor": null,
+        "powerDraw": 120,
+        "tdp": "120W (TDP)",
+        "chipset": "AMD B650, X670, A620",
+        "warranty": "3 Tahun Garansi Resmi Distributor",
+        "ramFormFactor": "DDR5 DIMM",
+        "description": "Raja prosesor gaming saat ini dengan teknologi 3D V-Cache generasi ke-2 berkapasitas masif 96MB L3 cache. Memberikan efisiensi daya luar biasa dengan frame rate rata-rata tertinggi di kelasnya.",
         "specs": ["8 Cores / 16 Threads", "Up to 5.0 GHz", "96MB 3D V-Cache", "TDP 120W", "PCIe 5.0 Ready"],
+        "technicalSpecs": {
+            "CPU Socket": "AM5 (LGA1718)",
+            "TDP / Daya": "120 Watt",
+            "Chipset Kompatibel": "AMD B650, B650E, X670, X670E, A620",
+            "Garansi Resmi": "3 Tahun Garansi Resmi Distributor AMD Indonesia",
+            "Jumlah Core": "8 Core (Zen 4)",
+            "Jumlah Thread": "16 Thread"
+        },
         "badge": "Top Gaming CPU",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Box Resmi Ryzen 7000X3D" }
+        ]
     },
     {
         "id": "cpu-5",
@@ -79,10 +148,24 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": "AM5",
-        "ramFormFactor": null,
+        "powerDraw": 105,
+        "tdp": "105W (TDP)",
+        "chipset": "AMD B650, A620",
+        "warranty": "3 Tahun Garansi Resmi Distributor",
+        "ramFormFactor": "DDR5 DIMM",
+        "description": "Gerbang masuk platform masa depan socket AM5 berbasis arsitektur Zen 4. Mendukung kecepatan memori DDR5 dan interface PCIe 5.0.",
         "specs": ["6 Cores / 12 Threads", "Up to 5.3 GHz", "32MB L3 Cache", "TDP 105W", "Radeon Graphics"],
+        "technicalSpecs": {
+            "CPU Socket": "AM5",
+            "TDP / Daya": "105 Watt",
+            "Chipset Kompatibel": "AMD B650, X670, A620",
+            "Garansi Resmi": "3 Tahun Garansi Resmi"
+        },
         "badge": null,
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Box Ryzen 5 7600X" }
+        ]
     },
     {
         "id": "cpu-6",
@@ -96,78 +179,24 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": "AM4",
-        "ramFormFactor": null,
+        "powerDraw": 65,
+        "tdp": "65W (Sangat Hemat Daya)",
+        "chipset": "AMD B550, B450, X570, A520",
+        "warranty": "3 Tahun Garansi Resmi Distributor",
+        "ramFormFactor": "DDR4 DIMM",
+        "description": "Processor 8 core paling ramah di kantong untuk upgrade motherboard socket AM4 DDR4. Beroperasi dingin dengan TDP hanya 65 Watt.",
         "specs": ["8 Cores / 16 Threads", "Up to 4.6 GHz", "32MB L3 Cache", "TDP 65W Hemat Daya", "DDR4 Support"],
+        "technicalSpecs": {
+            "CPU Socket": "AM4",
+            "TDP / Daya": "65 Watt",
+            "Chipset Kompatibel": "AMD B550, B450, X570, A520",
+            "Garansi Resmi": "3 Tahun Garansi Resmi"
+        },
         "badge": "Value AM4",
-        "image": null
-    },
-    {
-        "id": "vga-1",
-        "name": "ASUS Dual GeForce RTX 4070 SUPER OC Edition 12GB GDDR6X",
-        "slug": "asus-dual-rtx-4070-super-oc-12gb",
-        "category": "vga",
-        "categoryName": "VGA Card",
-        "brand": "ASUS",
-        "price": 11200000,
-        "originalPrice": 11800000,
-        "stock": "Tersedia",
-        "inStock": true,
-        "cpuSocket": null,
-        "ramFormFactor": null,
-        "specs": ["12GB GDDR6X 192-bit", "Boost Clock 2550 MHz", "Axial-tech Dual Fan", "DLSS 3 & Ray Tracing"],
-        "badge": "Best Seller",
-        "image": null
-    },
-    {
-        "id": "vga-2",
-        "name": "MSI GeForce RTX 4060 Ti VENTUS 2X BLACK 8G OC GDDR6",
-        "slug": "msi-rtx-4060-ti-ventus-2x-8g-oc",
-        "category": "vga",
-        "categoryName": "VGA Card",
-        "brand": "MSI",
-        "price": 6850000,
-        "originalPrice": 7200000,
-        "stock": "Tersedia",
-        "inStock": true,
-        "cpuSocket": null,
-        "ramFormFactor": null,
-        "specs": ["8GB GDDR6 128-bit", "TORX Fan 4.0", "Reinforced Backplate", "DLSS 3 AI Powered"],
-        "badge": null,
-        "image": null
-    },
-    {
-        "id": "vga-3",
-        "name": "Gigabyte Radeon RX 7800 XT GAMING OC 16GB GDDR6",
-        "slug": "gigabyte-rx-7800-xt-gaming-oc-16gb",
-        "category": "vga",
-        "categoryName": "VGA Card",
-        "brand": "Gigabyte",
-        "price": 9950000,
-        "originalPrice": 10500000,
-        "stock": "Stok Terbatas",
-        "inStock": true,
-        "cpuSocket": null,
-        "ramFormFactor": null,
-        "specs": ["16GB GDDR6 256-bit", "WINDFORCE 3X Cooling", "Dual BIOS", "AMD RDNA 3 Architecture"],
-        "badge": "16GB VRAM",
-        "image": null
-    },
-    {
-        "id": "vga-4",
-        "name": "ASUS ROG Strix GeForce RTX 4080 SUPER 16GB OC Edition",
-        "slug": "asus-rog-strix-rtx-4080-super-16gb-oc",
-        "category": "vga",
-        "categoryName": "VGA Card",
-        "brand": "ASUS",
-        "price": 21500000,
-        "originalPrice": null,
-        "stock": "Habis",
-        "inStock": false,
-        "cpuSocket": null,
-        "ramFormFactor": null,
-        "specs": ["16GB GDDR6X 256-bit", "Vented Exoskeleton Frame", "Patented Vapor Chamber", "AURA Sync RGB"],
-        "badge": "Habis",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Kemasan AM4 Ryzen 7 5700X" }
+        ]
     },
     {
         "id": "mb-1",
@@ -181,10 +210,25 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": "AM5",
+        "powerDraw": 50,
+        "tdp": "14+2+1 Duet Rail VRM (TDP CPU hingga 170W+)",
+        "chipset": "AMD B650 Chipset",
+        "warranty": "3 Tahun Garansi Resmi MSI Indonesia",
         "ramFormFactor": "DDR5 DIMM",
+        "description": "Motherboard ATX tangguh dengan desain serba hitam militer. Dilengkapi power phase 14+2+1 Duet Rail VRM yang sanggup melayani CPU flagship AMD Ryzen 9. Menawarkan Wi-Fi 6E, 2.5G LAN, serta 3 slot M.2 PCIe 4.0 berlapis Shield Frozr.",
         "specs": ["AMD B650 Chipset", "DDR5 Up to 6600+ MHz (OC)", "Wi-Fi 6E + 2.5G LAN", "3x Lightning M.2 Gen4", "14+2+1 Duet Rail VRM"],
+        "technicalSpecs": {
+            "CPU Socket": "AM5",
+            "Chipset": "AMD B650",
+            "Tipe RAM": "DDR5 DIMM (4 slot)",
+            "Form Factor": "ATX",
+            "Garansi Resmi": "3 Tahun Garansi Resmi MSI"
+        },
         "badge": "Rekomendasi",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Tampak Penuh Motherboard" }
+        ]
     },
     {
         "id": "mb-2",
@@ -198,10 +242,25 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": "LGA1700",
+        "powerDraw": 45,
+        "tdp": "12+1+1 Twin Digital VRM",
+        "chipset": "Intel B760 Express Chipset",
+        "warranty": "3 Tahun Garansi Resmi NJT",
         "ramFormFactor": "DDR5 DIMM",
+        "description": "Motherboard Micro-ATX berperforma tinggi dengan soket LGA1700 untuk Intel Core Gen 12, 13, dan 14. Dilengkapi modul Intel Wi-Fi 6E dan heatsink VRM tebal berlapis silver elegan.",
         "specs": ["Intel B760 Chipset", "DDR5 Support Up to 7600MHz", "Wi-Fi 6E Onboard", "Dual M.2 PCIe 4.0", "12+1+1 Phases VRM"],
+        "technicalSpecs": {
+            "CPU Socket": "LGA1700",
+            "Chipset": "Intel B760",
+            "Tipe RAM": "DDR5 DIMM (4 slot)",
+            "Form Factor": "Micro-ATX",
+            "Garansi Resmi": "3 Tahun Garansi Resmi"
+        },
         "badge": null,
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Unit B760M AORUS" }
+        ]
     },
     {
         "id": "mb-3",
@@ -215,10 +274,149 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": "AM4",
+        "powerDraw": 45,
+        "tdp": "8+2 DrMOS Power Stages",
+        "chipset": "AMD B550 Chipset",
+        "warranty": "3 Tahun Garansi Resmi ASUS Indonesia",
         "ramFormFactor": "DDR4 DIMM",
+        "description": "Ketahanan standar militer TUF Gaming dengan komponen chokes dan kapasitor bersertifikasi. Solusi hemat untuk prosesor Ryzen seri 5000 dengan kestabilan operasional jangka panjang.",
         "specs": ["AMD B550 Chipset", "DDR4 Support Up to 4800MHz", "PCIe 4.0 Ready", "2.5Gb Ethernet", "TUF Protection Components"],
+        "technicalSpecs": {
+            "CPU Socket": "AM4",
+            "Chipset": "AMD B550",
+            "Tipe RAM": "DDR4 DIMM (4 slot)",
+            "Form Factor": "ATX",
+            "Garansi Resmi": "3 Tahun Garansi Resmi ASUS"
+        },
         "badge": "AM4 Best Deal",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Motherboard TUF B550" }
+        ]
+    },
+    {
+        "id": "vga-1",
+        "name": "ASUS Dual GeForce RTX 4070 SUPER OC Edition 12GB GDDR6X",
+        "slug": "asus-dual-rtx-4070-super-oc-12gb",
+        "category": "vga",
+        "categoryName": "VGA Card",
+        "brand": "ASUS",
+        "price": 11200000,
+        "originalPrice": 11800000,
+        "stock": "Tersedia",
+        "inStock": true,
+        "cpuSocket": null,
+        "powerDraw": 220,
+        "tdp": "220W (Rekomendasi PSU 650W)",
+        "chipset": "NVIDIA GeForce RTX 4070 SUPER",
+        "warranty": "3 Tahun Garansi Resmi ASUS Indonesia",
+        "ramFormFactor": null,
+        "description": "Kartu grafis generasi GeForce RTX 40 SUPER dengan peningkatan 20% CUDA Core dibanding versi non-SUPER. Desain kipas Axial-tech ganda dengan bantalan peluru ganda menjaga suhu tetap dingin dan hening pada sesi gaming resolusi 1440p.",
+        "specs": ["12GB GDDR6X 192-bit", "Boost Clock 2550 MHz", "Axial-tech Dual Fan", "DLSS 3 & Ray Tracing"],
+        "technicalSpecs": {
+            "Chipset": "NVIDIA GeForce RTX 4070 SUPER",
+            "Konsumsi Daya": "220 Watt",
+            "Rekomendasi PSU": "Minimal 650 Watt",
+            "Garansi Resmi": "3 Tahun Garansi Resmi ASUS"
+        },
+        "badge": "Best Seller",
+        "image": null,
+        "gallery": [
+            { "label": "Tampak Depan Dual Fan" }
+        ]
+    },
+    {
+        "id": "vga-2",
+        "name": "MSI GeForce RTX 4060 Ti VENTUS 2X BLACK 8G OC GDDR6",
+        "slug": "msi-rtx-4060-ti-ventus-2x-8g-oc",
+        "category": "vga",
+        "categoryName": "VGA Card",
+        "brand": "MSI",
+        "price": 6850000,
+        "originalPrice": 7200000,
+        "stock": "Tersedia",
+        "inStock": true,
+        "cpuSocket": null,
+        "powerDraw": 160,
+        "tdp": "160W (Rekomendasi PSU 550W)",
+        "chipset": "NVIDIA GeForce RTX 4060 Ti",
+        "warranty": "3 Tahun Garansi Resmi MSI Indonesia",
+        "ramFormFactor": null,
+        "description": "Kartu grafis ringkas hemat daya bertenaga arsitektur Ada Lovelace. Dilengkapi kipas TORX Fan 4.0 dan utility MSI Center untuk monitor performa real-time.",
+        "specs": ["8GB GDDR6 128-bit", "TORX Fan 4.0", "Reinforced Backplate", "DLSS 3 AI Powered"],
+        "technicalSpecs": {
+            "Chipset": "NVIDIA GeForce RTX 4060 Ti",
+            "Konsumsi Daya": "160 Watt",
+            "Rekomendasi PSU": "550 Watt",
+            "Garansi Resmi": "3 Tahun Garansi Resmi MSI"
+        },
+        "badge": null,
+        "image": null,
+        "gallery": [
+            { "label": "Front Dual Fan" }
+        ]
+    },
+    {
+        "id": "vga-3",
+        "name": "Gigabyte Radeon RX 7800 XT GAMING OC 16GB GDDR6",
+        "slug": "gigabyte-rx-7800-xt-gaming-oc-16gb",
+        "category": "vga",
+        "categoryName": "VGA Card",
+        "brand": "Gigabyte",
+        "price": 9950000,
+        "originalPrice": 10500000,
+        "stock": "Stok Terbatas",
+        "inStock": true,
+        "cpuSocket": null,
+        "powerDraw": 263,
+        "tdp": "263W (Rekomendasi PSU 700W)",
+        "chipset": "AMD Radeon RX 7800 XT",
+        "warranty": "3 Tahun Garansi Resmi",
+        "ramFormFactor": null,
+        "description": "VRAM lega 16GB dengan memory bus 256-bit untuk tekstur resolusi ultra. Sistem pendingin WINDFORCE 3X dengan kipas berputar berlawanan memastikan airflow maksimal.",
+        "specs": ["16GB GDDR6 256-bit", "WINDFORCE 3X Cooling", "Dual BIOS", "AMD RDNA 3 Architecture"],
+        "technicalSpecs": {
+            "Chipset": "AMD Radeon RX 7800 XT",
+            "Konsumsi Daya": "263 Watt",
+            "Rekomendasi PSU": "700 Watt",
+            "Garansi Resmi": "3 Tahun Garansi Resmi"
+        },
+        "badge": "16GB VRAM",
+        "image": null,
+        "gallery": [
+            { "label": "Triple Fan WINDFORCE" }
+        ]
+    },
+    {
+        "id": "vga-4",
+        "name": "ASUS ROG Strix GeForce RTX 4080 SUPER 16GB OC Edition",
+        "slug": "asus-rog-strix-rtx-4080-super-16gb-oc",
+        "category": "vga",
+        "categoryName": "VGA Card",
+        "brand": "ASUS",
+        "price": 21500000,
+        "originalPrice": null,
+        "stock": "Habis",
+        "inStock": false,
+        "cpuSocket": null,
+        "powerDraw": 320,
+        "tdp": "320W (Rekomendasi PSU 850W)",
+        "chipset": "NVIDIA GeForce RTX 4080 SUPER",
+        "warranty": "3 Tahun Garansi Resmi ASUS",
+        "ramFormFactor": null,
+        "description": "Mahakarya kartu grafis gaming kelas antariksa ROG Strix dengan vapor chamber paten dan kerangka diecast logam yang kokoh.",
+        "specs": ["16GB GDDR6X 256-bit", "Vented Exoskeleton Frame", "Patented Vapor Chamber", "AURA Sync RGB"],
+        "technicalSpecs": {
+            "Chipset": "NVIDIA GeForce RTX 4080 SUPER",
+            "Konsumsi Daya": "320 Watt",
+            "Rekomendasi PSU": "850 Watt",
+            "Garansi Resmi": "3 Tahun Garansi Resmi ASUS"
+        },
+        "badge": "Habis",
+        "image": null,
+        "gallery": [
+            { "label": "ROG Strix Unit" }
+        ]
     },
     {
         "id": "ram-1",
@@ -232,10 +430,24 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": null,
+        "powerDraw": 15,
+        "tdp": "1.35V Operasional Rendah Daya",
+        "chipset": "Intel XMP 3.0 & AMD EXPO",
+        "warranty": "Lifetime Warranty Distributor DTG",
         "ramFormFactor": "DDR5 DIMM",
+        "description": "Kit memori DDR5 performa tinggi dengan latensi super ketat CL30-36-36-76 pada frekuensi 6000MHz. Mendukung profil Intel XMP 3.0 dan AMD EXPO untuk kemudahan overclocking satu klik.",
         "specs": ["32GB Kit (2x16GB)", "Speed: 6000MHz", "Latency: CL30-36-36-76", "Intel XMP 3.0 & AMD EXPO", "Dynamic Ten-Zone RGB"],
+        "technicalSpecs": {
+            "Form Factor": "DDR5 DIMM",
+            "Kapasitas": "32 GB (2x16GB)",
+            "Kecepatan": "6000 MHz",
+            "Garansi Resmi": "Lifetime Warranty"
+        },
         "badge": "Top Seller",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Modul Dual Kit RGB" }
+        ]
     },
     {
         "id": "ram-2",
@@ -249,10 +461,24 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": null,
+        "powerDraw": 15,
+        "tdp": "1.25V Voltase",
+        "chipset": "Intel & AMD AM5 Kompatibel",
+        "warranty": "Lifetime Warranty Distributor Resmi",
         "ramFormFactor": "DDR5 DIMM",
+        "description": "Memori DDR5 profil rendah tanpa RGB yang cocok untuk pendingin CPU heatsink ganda berukuran besar.",
         "specs": ["32GB Kit (2x16GB)", "Speed: 5600MHz", "Low Profile Heatspreader", "Plug N Play at 4800MHz", "Intel XMP 3.0 Certified"],
+        "technicalSpecs": {
+            "Form Factor": "DDR5 DIMM",
+            "Kapasitas": "32 GB (2x16GB)",
+            "Kecepatan": "5600 MHz",
+            "Garansi Resmi": "Lifetime Warranty"
+        },
         "badge": null,
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Kit FURY Beast DDR5" }
+        ]
     },
     {
         "id": "ram-3",
@@ -266,27 +492,24 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": null,
+        "powerDraw": 12,
+        "tdp": "1.35V Voltase",
+        "chipset": "Platform DDR4 Intel & AMD",
+        "warranty": "Lifetime Warranty Distributor DTG",
         "ramFormFactor": "DDR4 DIMM",
+        "description": "Standar emas memori DDR4 teruji di ribuan konfigurasi rakitan PC gaming dan workstation.",
         "specs": ["16GB Kit (2x8GB)", "Speed: 3200MHz", "Latency: CL16-20-20-38", "Pure Aluminum Heat Spreader", "DDR4 Platform"],
+        "technicalSpecs": {
+            "Form Factor": "DDR4 DIMM",
+            "Kapasitas": "16 GB (2x8GB)",
+            "Kecepatan": "3200 MHz",
+            "Garansi Resmi": "Lifetime Warranty"
+        },
         "badge": "Value Pack",
-        "image": null
-    },
-    {
-        "id": "ram-4",
-        "name": "Kingston 16GB DDR5 5600MHz Non-ECC CL46 SODIMM",
-        "slug": "kingston-16gb-ddr5-5600mhz-sodimm",
-        "category": "ram",
-        "categoryName": "RAM",
-        "brand": "Kingston",
-        "price": 890000,
-        "originalPrice": null,
-        "stock": "Tersedia",
-        "inStock": true,
-        "cpuSocket": null,
-        "ramFormFactor": "DDR5 SO-DIMM",
-        "specs": ["16GB Single Module", "Speed: 5600MHz", "Form Factor: 262-pin SO-DIMM", "Laptop & Mini-PC Compatible"],
-        "badge": "Laptop/Mini-PC",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Dual Kit LPX DDR4" }
+        ]
     },
     {
         "id": "ssd-1",
@@ -300,10 +523,24 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": null,
+        "powerDraw": 8,
+        "tdp": "Daya Rata-rata 5.5W / Peak 8W",
+        "chipset": "Samsung Pascal Controller",
+        "warranty": "5 Tahun Garansi Resmi Distributor",
         "ramFormFactor": null,
+        "description": "Kecepatan baca sekuensial mendekati batas teoritis PCIe Gen 4 hingga 7.450 MB/s. Dilengkapi kontroler efisiensi daya berlapisan nikel untuk mencegah thermal throttling.",
         "specs": ["Kapasitas 2TB", "Read Up to 7450 MB/s", "Write Up to 6900 MB/s", "Samsung In-House Controller", "5 Years Warranty / 1200 TBW"],
+        "technicalSpecs": {
+            "Form Factor": "M.2 2280",
+            "Kapasitas": "2 TB",
+            "Kecepatan Baca": "Hingga 7.450 MB/s",
+            "Garansi Resmi": "5 Tahun Garansi Resmi"
+        },
         "badge": "High Speed",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Unit M.2 2280" }
+        ]
     },
     {
         "id": "ssd-2",
@@ -317,10 +554,24 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": null,
+        "powerDraw": 7,
+        "tdp": "Operasional 7.5W Maksimal",
+        "chipset": "Phison PS5018-E18 Controller",
+        "warranty": "5 Tahun Garansi Resmi Distributor",
         "ramFormFactor": null,
+        "description": "Performa PCIe 4.0 sejati dengan penyebar panas graphene aluminium berprofil ramping yang mudah dipasang di desktop maupun laptop.",
         "specs": ["Kapasitas 1TB", "Read Up to 7000 MB/s", "Write Up to 6000 MB/s", "Graphene Aluminum Heat Spreader", "Phison E18 Controller"],
+        "technicalSpecs": {
+            "Form Factor": "M.2 2280",
+            "Kapasitas": "1 TB",
+            "Kecepatan Baca": "7.000 MB/s",
+            "Garansi Resmi": "5 Tahun Garansi Resmi"
+        },
         "badge": null,
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Unit SSD KC3000" }
+        ]
     },
     {
         "id": "psu-1",
@@ -334,9 +585,178 @@
         "stock": "Tersedia",
         "inStock": true,
         "cpuSocket": null,
+        "psuCapacity": 850,
+        "tdp": "Output Daya Kontinu 850 Watt",
+        "chipset": "Standar Intel ATX 3.0 & PCIe 5.0 Compliant",
+        "warranty": "7 Tahun Garansi Resmi Distributor DTG",
         "ramFormFactor": null,
+        "description": "Catu daya modular penuh dengan sertifikasi efisiensi 80 PLUS Gold dan Cybenetics Platinum. Dilengkapi kabel khusus native 16-pin 12VHPWR untuk kartu grafis NVIDIA seri RTX 40.",
         "specs": ["Daya 850 Watt", "Sertifikasi 80 PLUS Gold", "ATX 3.0 & PCIe 5.0 12VHPWR Cable", "Zero RPM Fan Mode", "100% Japanese Capacitors"],
+        "technicalSpecs": {
+            "Total Daya (Wattage)": "850 Watt",
+            "Sertifikasi Efisiensi": "80 PLUS Gold",
+            "Modularitas": "Fully Modular",
+            "Garansi Resmi": "7 Tahun Garansi Resmi Distributor"
+        },
         "badge": "ATX 3.0 Ready",
-        "image": null
+        "image": null,
+        "gallery": [
+            { "label": "Unit PSU RM850e" }
+        ]
+    },
+    {
+        "id": "psu-2",
+        "name": "MSI MAG A750GL PCIE5 750W 80 PLUS Gold Fully Modular",
+        "slug": "msi-mag-a750gl-750w-gold",
+        "category": "psu",
+        "categoryName": "Power Supply",
+        "brand": "MSI",
+        "price": 1650000,
+        "originalPrice": 1800000,
+        "stock": "Tersedia",
+        "inStock": true,
+        "cpuSocket": null,
+        "psuCapacity": 750,
+        "tdp": "Output Daya Kontinu 750 Watt",
+        "chipset": "ATX 3.0 & PCIe 5.0 Ready",
+        "warranty": "5 Tahun Garansi Resmi MSI Indonesia",
+        "ramFormFactor": null,
+        "description": "PSU ATX 3.0 750W efisiensi 80 PLUS Gold dengan konektor 16-pin 12VHPWR berkepala kuning dua warna untuk memastikan pemasangan kabel rapat sempurna.",
+        "specs": ["Daya 750 Watt", "80 PLUS Gold", "Native PCIe 5.0 12VHPWR", "Desain Flat Cable", "Kipas 120mm FDB"],
+        "technicalSpecs": {
+            "Total Daya (Wattage)": "750 Watt",
+            "Sertifikasi Efisiensi": "80 PLUS Gold",
+            "Modularitas": "Fully Modular",
+            "Garansi Resmi": "5 Tahun Garansi Resmi MSI"
+        },
+        "badge": "Best Value Gold",
+        "image": null,
+        "gallery": [
+            { "label": "Kemasan MAG A750GL" }
+        ]
+    },
+    {
+        "id": "psu-3",
+        "name": "ASUS TUF Gaming 650B 650W 80 PLUS Bronze",
+        "slug": "asus-tuf-gaming-650b-650w-bronze",
+        "category": "psu",
+        "categoryName": "Power Supply",
+        "brand": "ASUS",
+        "price": 1050000,
+        "originalPrice": null,
+        "stock": "Tersedia",
+        "inStock": true,
+        "cpuSocket": null,
+        "psuCapacity": 650,
+        "tdp": "Output Daya Kontinu 650 Watt",
+        "chipset": "Standar ATX 12V",
+        "warranty": "6 Tahun Garansi Resmi ASUS Indonesia",
+        "ramFormFactor": null,
+        "description": "Catu daya tangguh bersertifikasi militer TUF Gaming dengan lapisan pelindung PCB anti-kelembapan dan debu.",
+        "specs": ["Daya 650 Watt", "80 PLUS Bronze", "Kipas Axial-tech 135mm", "Kapasitor Standar Militer", "Kabel Berselubung Hitam"],
+        "technicalSpecs": {
+            "Total Daya (Wattage)": "650 Watt",
+            "Sertifikasi Efisiensi": "80 PLUS Bronze",
+            "Garansi Resmi": "6 Tahun Garansi Resmi ASUS"
+        },
+        "badge": null,
+        "image": null,
+        "gallery": [
+            { "label": "Unit TUF 650B" }
+        ]
+    },
+    {
+        "id": "casing-1",
+        "name": "NZXT H5 Flow Compact ATX Mid-Tower Black",
+        "slug": "nzxt-h5-flow-black",
+        "category": "casing",
+        "categoryName": "Casing",
+        "brand": "NZXT",
+        "price": 1350000,
+        "originalPrice": 1490000,
+        "stock": "Tersedia",
+        "inStock": true,
+        "cpuSocket": null,
+        "powerDraw": 0,
+        "tdp": "Maksimal Panjang GPU 365mm",
+        "chipset": "Dukungan ATX, Micro-ATX, Mini-ITX",
+        "warranty": "2 Tahun Garansi Resmi Distributor",
+        "ramFormFactor": null,
+        "description": "Casing Mid-Tower dengan panel depan berlubang perforasi udara maksimal dan kipas sudut bawah khusus untuk mendinginkan kartu grafis secara langsung.",
+        "specs": ["Mid-Tower ATX", "Perforated Front Panel", "Kipas Khusus GPU Airflow", "Tempered Glass Panel", "Cable Routing Channels"],
+        "technicalSpecs": {
+            "Form Factor": "Mid-Tower",
+            "Dukungan Motherboard": "ATX, Micro-ATX, Mini-ITX",
+            "Maks. Panjang GPU": "365 mm",
+            "Maks. Tinggi Cooler CPU": "165 mm",
+            "Garansi Resmi": "2 Tahun Garansi Resmi"
+        },
+        "badge": "Best Airflow",
+        "image": null,
+        "gallery": [
+            { "label": "Tampak Samping Tempered Glass" }
+        ]
+    },
+    {
+        "id": "casing-2",
+        "name": "Corsair 4000D AIRFLOW Tempered Glass Mid-Tower White",
+        "slug": "corsair-4000d-airflow-white",
+        "category": "casing",
+        "categoryName": "Casing",
+        "brand": "Corsair",
+        "price": 1450000,
+        "originalPrice": null,
+        "stock": "Tersedia",
+        "inStock": true,
+        "cpuSocket": null,
+        "powerDraw": 0,
+        "tdp": "Maksimal Radiator Depan 360mm",
+        "chipset": "Dukungan ATX, Micro-ATX, Mini-ITX",
+        "warranty": "2 Tahun Garansi Resmi Distributor DTG",
+        "ramFormFactor": null,
+        "description": "Casing pilihan favorit perakit PC di seluruh dunia dengan ventilasi depan berkecepatan tinggi dan sistem manajemen kabel Corsair RapidRoute.",
+        "specs": ["High-Airflow Steel Front", "2x 120mm AirGuide Fans", "RapidRoute Cable Management", "Maks. GPU 360mm"],
+        "technicalSpecs": {
+            "Form Factor": "Mid-Tower ATX",
+            "Dukungan Motherboard": "ATX, Micro-ATX, Mini-ITX",
+            "Maks. Panjang GPU": "360 mm",
+            "Garansi Resmi": "2 Tahun Garansi Resmi"
+        },
+        "badge": null,
+        "image": null,
+        "gallery": [
+            { "label": "Tampak Depan Airflow Mesh" }
+        ]
+    },
+    {
+        "id": "casing-3",
+        "name": "Montech AIR 903 BASE High Airflow E-ATX Black",
+        "slug": "montech-air-903-base-black",
+        "category": "casing",
+        "categoryName": "Casing",
+        "brand": "Montech",
+        "price": 920000,
+        "originalPrice": 1050000,
+        "stock": "Tersedia",
+        "inStock": true,
+        "cpuSocket": null,
+        "powerDraw": 0,
+        "tdp": "Maksimal GPU 400mm & Dual 360mm AIO",
+        "chipset": "Dukungan E-ATX, ATX, Micro-ATX",
+        "warranty": "1 Tahun Garansi Resmi",
+        "ramFormFactor": null,
+        "description": "Casing dengan volume internal ekstra luas, sudah dilengkapi 3 kipas 140mm PWM bertenaga tinggi tanpa perlu membeli kipas tambahan.",
+        "specs": ["E-ATX Support", "3x 140mm PWM Fans Pre-installed", "Maks. GPU 400mm", "Dual 360mm Radiator"],
+        "technicalSpecs": {
+            "Form Factor": "Mid-Tower E-ATX",
+            "Kipas Bawaan": "3x 140mm PWM HP140",
+            "Maks. Panjang GPU": "400 mm",
+            "Garansi Resmi": "1 Tahun Garansi Resmi"
+        },
+        "badge": "Value Champion",
+        "image": null,
+        "gallery": [
+            { "label": "Tampak Depan Mesh 140mm" }
+        ]
     }
 ]

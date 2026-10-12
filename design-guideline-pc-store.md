@@ -257,6 +257,8 @@ Uji token pada komponen nyata, termasuk kontras serta state hover dan focus.
 
 - **Desktop:** wordmark, search yang menonjol, kategori, wishlist, cart, akun, dan theme toggle. Hindari header yang terlalu padat.
 - **Mobile:** tampilkan wordmark dan aksi utama pada baris atas. Search dapat memenuhi baris berikutnya; kategori dapat memakai horizontal scroll atau menu.
+- Semua tautan kategori pada dropdown, menu mobile, dan navigasi cepat menuju `/katalog?category=<id>`; tautan Rakit PC tetap menuju `/pc-builder`.
+- Ikon wishlist membuka daftar produk favorit dengan jumlah yang sama seperti counter header. Aksi simpan/hapus pada kartu produk, detail, dan Quick View harus mencerminkan state yang sama.
 
 ### Footer
 
@@ -334,9 +336,15 @@ Halaman login, register, dan profil dibuat bila termasuk cakupan fitur. Form har
 
 Validasi client tidak menggantikan validasi backend. Ikuti metode autentikasi yang disepakati; jangan membuat penyimpanan token atau password sendiri.
 
+Registrasi menyediakan pilihan peran Customer/Pembeli atau Vendor/Penjual. Hak akses peran tetap divalidasi di backend; pilihan UI bukan mekanisme otorisasi.
+
+Pengaturan akun menyesuaikan status dan peran: guest diarahkan untuk masuk/daftar; Customer mendapat profil, alamat pengiriman, kata sandi, dan riwayat transaksi; Vendor mendapat profil toko, alamat gudang, rekening/pencairan, dan keamanan.
+
 ### 11.2 Pengelolaan produk
 
 Dukung katalog, detail, search/filter/sort, serta form tambah/edit produk bagi role yang berhak. Halaman detail memprioritaskan gambar, nama, harga, stok, spesifikasi, dan CTA.
+
+Form tambah produk vendor memuat nama, kategori, SKU, harga, stok, deskripsi, dan foto. Pada layar kecil, field disusun satu kolom, tombol aksi mudah disentuh, dan daftar produk berubah menjadi baris/kartu yang membungkus konten tanpa horizontal overflow.
 
 Kelompokkan form menjadi informasi dasar, kategori, harga/stok, gambar, dan spesifikasi. Minta konfirmasi sebelum menghapus produk. Authorization tetap menjadi tanggung jawab backend.
 
@@ -356,6 +364,8 @@ Keranjang menampilkan gambar, nama, spesifikasi relevan, harga satuan, kuantitas
 
 Validasi kuantitas dan stok berdasarkan data yang tersedia. Wishlist menampilkan produk favorit, aksi ke keranjang bila didukung, serta empty state yang mengarahkan pengguna ke katalog. Ringkasan yang sticky di mobile tidak boleh menutupi konten.
 
+Wishlist harus mendukung tambah/hapus dari kartu produk, halaman detail, dan Quick View. Counter header menunjukkan jumlah produk unik; daftar wishlist menyediakan aksi hapus dan tautan kembali ke detail produk.
+
 ### 11.5 Pesanan
 
 Dukung checkout, ringkasan biaya, riwayat, detail, dan status pesanan sesuai fitur yang tersedia. Semua biaya harus berasal dari data yang benar. Tampilkan timeline hanya bila status backend mendukungnya.
@@ -364,9 +374,9 @@ Sediakan empty state untuk pengguna yang belum memiliki pesanan dan pesan error 
 
 ### 11.6 Sistem vendor
 
-Dashboard vendor dapat mencakup daftar produk, form tambah/edit, pesanan, dan metrik penjualan hanya jika datanya tersedia. Prioritaskan tugas yang perlu ditindaklanjuti, dan sediakan search/filter pada tabel bila diperlukan.
+Sediakan dashboard vendor khusus dengan navigasi Overview, Kelola Produk, Pesanan Masuk, Laporan Penjualan, dan Pengaturan Toko. Dashboard dapat menampilkan widget penjualan, grafik performa, pesanan baru, dan pengelolaan stok cepat.
 
-Aksi hapus memerlukan konfirmasi. Jangan mengarang angka dashboard. Pastikan tugas utama tetap dapat dilakukan melalui perangkat mobile.
+Aksi hapus memerlukan konfirmasi. Jangan mengarang angka dashboard; nyatakan dengan jelas bila data, grafik, atau perubahan stok masih berupa mock dan belum tersimpan. Pastikan tugas utama tetap dapat dilakukan melalui perangkat mobile.
 
 ## 12. Homepage dan halaman penting
 
@@ -393,11 +403,23 @@ Tampilkan galeri, nama, harga, stok, spesifikasi, deskripsi, kuantitas, wishlist
 
 ### Cart dan checkout
 
-Tampilkan ringkasan barang dan biaya dengan jelas. Sediakan form seperlunya, validasi, dan konfirmasi sebelum tindakan penting.
+Sediakan halaman keranjang dan checkout yang dapat dibuka langsung melalui URL. Keranjang menampilkan gambar, nama, harga satuan, kuantitas yang dapat diubah, subtotal per produk, total, aksi hapus, empty state, dan CTA menuju checkout.
+
+Checkout menampilkan ringkasan pesanan dan estimasi biaya, serta form data penerima dan alamat pengiriman dengan validasi. Sediakan pilihan metode pengiriman dan pembayaran yang tersedia. Minta konfirmasi pengiriman pesanan dan tampilkan nomor pesanan serta total pada konfirmasi berhasil.
+
+Jika biaya pengiriman atau pembayaran belum terhubung ke backend, tandai dengan jelas sebagai simulasi/estimasi. Jangan mengklaim transaksi, pembayaran, atau pengiriman nyata telah diproses.
+
+### Pengaturan akun dan dashboard vendor
+
+Sediakan halaman `/akun` yang menampilkan prompt login/registrasi bagi guest, lalu mengubah tab sesuai role customer atau vendor. Halaman `/vendor/dashboard` menggunakan layout terpisah dengan sidebar responsif dan pintasan menuju fitur vendor.
+
+Mode Vendor di header harus mengarahkan hanya ke pengalaman vendor; kontrol navigasi tidak menggantikan pemeriksaan role di server. Tampilkan metrik kosong dan status belum tersedia jika API analitik, pesanan, atau inventori belum terhubung.
 
 ### Dashboard vendor
 
 Sediakan sidebar/topbar, judul halaman, ringkasan hanya dari data yang tersedia, tabel atau list produk dan pesanan, form terstruktur, serta feedback state.
+
+UI Kelola Produk menyediakan form tambah barang dan daftar stok responsif. Implementasi saat ini hanya pratinjau dalam state halaman: produk, perubahan stok, dan pilihan foto belum disimpan ke server atau katalog publik.
 
 ## 13. Perilaku responsif
 

@@ -17,7 +17,7 @@ class ProductController extends Controller
     {
         $validated = $request->validated();
 
-        $query = Product::active()->with('category');
+        $query = Product::active()->with(['category', 'vendor']);
 
         // Filter by search query
         if (! empty($validated['search'])) {
@@ -75,7 +75,7 @@ class ProductController extends Controller
     public function show(string $slug): ProductResource
     {
         $product = Product::active()
-            ->with('category')
+            ->with(['category', 'vendor'])
             ->where(function ($q) use ($slug): void {
                 $q->where('slug', $slug)
                     ->orWhere('id', $slug);

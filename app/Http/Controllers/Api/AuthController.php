@@ -9,7 +9,9 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -21,15 +23,30 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'],
-            'role' => 'customer',
-            'phone' => $validated['phone'] ?? null,
-            'address' => $validated['address'] ?? null,
-        ]);
+        $user = DB::transaction(function () use ($validated): User {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => $validated['password'],
+                'role' => $validated['role'] ?? 'customer',
+                'phone' => $validated['phone'] ?? null,
+                'address' => $validated['address'] ?? null,
+            ]);
 
+            if ($user->isVendor()) {
+                $baseSlug = Str::slug($user->name) ?: 'store';
+                $user->vendor()->create([
+                    'store_name' => $user->name.' Store',
+                    'store_slug' => $baseSlug.'-'.$user->id,
+                    'store_phone' => $user->phone,
+                    'store_address' => $user->address,
+                ]);
+            }
+
+            return $user;
+        });
+
+        $user->load('vendor');
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -56,6 +73,7 @@ class AuthController extends Controller
             ]);
         }
 
+        $user->load('vendor');
         $deviceName = $validated['device_name'] ?? 'auth_token';
         $token = $user->createToken($deviceName)->plainTextToken;
 
@@ -83,6 +101,6 @@ class AuthController extends Controller
      */
     public function user(Request $request): UserResource
     {
-        return new UserResource($request->user());
+        return new UserResource($request->user()->load('vendor'));
     }
 }
