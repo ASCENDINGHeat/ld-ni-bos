@@ -266,6 +266,24 @@ export async function addToCart(productId, quantity = 1) {
     };
 }
 
+export async function addMultipleToCart(items) {
+    const formattedItems = (items || []).map((item) => ({
+        product_id: item.productId || item.product_id || item.id || item.slug,
+        quantity: Math.max(1, Number(item.quantity) || 1),
+    }));
+
+    const result = await apiFetch('/api/cart/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ items: formattedItems }),
+    });
+
+    return {
+        message: result.message,
+        items: (result.items || []).map(normalizeCartItem),
+        summary: result.summary,
+    };
+}
+
 export async function updateCartItemQuantity(cartItemId, quantity) {
     const result = await apiFetch(`/api/cart/${cartItemId}`, {
         method: 'PATCH',

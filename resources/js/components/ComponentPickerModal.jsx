@@ -51,7 +51,13 @@ export default function ComponentPickerModal({
 
     // Filter available products by active slot category and search query
     const availableProducts = useMemo(() => {
-        let list = products.filter((p) => p.category === category);
+        const matchesCategory = (p) => {
+            if (p.category === category) return true;
+            if (category === 'vga' && (p.category === 'kartu-grafis' || p.category === 'vga')) return true;
+            if (category === 'psu' && (p.category === 'power-supply' || p.category === 'psu')) return true;
+            return false;
+        };
+        let list = products.filter(matchesCategory);
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
             list = list.filter(
