@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -54,4 +55,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::patch('/cart/{cartItemId}', [CartController::class, 'update']);
     Route::delete('/cart/{cartItemId}', [CartController::class, 'destroy']);
     Route::delete('/cart', [CartController::class, 'clear']);
+
+    // Order Endpoints
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::post('/checkout', [OrderController::class, 'checkout']);
+    Route::patch('/orders/{id}/cancel', [OrderController::class, 'cancel']);
 });
