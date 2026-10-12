@@ -1,31 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CartDrawer from './CartDrawer';
 import WishlistModal from './WishlistModal';
 import AuthModal from './AuthModal';
 import { CheckCircleIcon } from './Icons';
+import {
+    getCart,
+    addToCart as apiAddToCart,
+    updateCartItemQuantity as apiUpdateCartItem,
+    removeCartItem as apiRemoveCartItem,
+    clearCart as apiClearCart,
+    getWishlist,
+    toggleWishlist as apiToggleWishlist,
+    getStoredToken,
+} from '../services/api';
 
 export default function Layout({
     children,
-    initialCartItems = [
-        {
-            id: 'item-1',
-            name: 'Intel Core i5-14600K 14-Core Up to 5.3GHz LGA1700',
-            category: 'Processor',
-            price: 5250000,
-            quantity: 1,
-            image: null,
-        },
-        {
-            id: 'item-2',
-            name: 'ASUS Dual GeForce RTX 4070 SUPER OC Edition 12GB GDDR6X',
-            category: 'VGA Card',
-            price: 11200000,
-            quantity: 1,
-            image: null,
-        },
-    ],
+    initialCartItems = [],
     onSelectProduct,
     onOpenCatalog,
     onNavigateCategory,
@@ -55,22 +48,95 @@ export default function Layout({
         }, 3000);
     };
 
-    const handleUpdateQuantity = (itemId, newQuantity) => {
+    // Synchronize Cart and Wishlist from Backend API when user is logged in
+    useEffect(() => {
+        const token = getStoredToken();
+        if (currentUser || token) {
+            getCart()
+                .then((cartData) => {
+                    if (cartData && Array.isArray(cartData.items)) {
+                        setCartItems(cartData.items);
+                    }
+                })
+                .catch(() => {
+                    // Graceful fallback to local cart if network error
+                });
+
+            getWishlist()
+                .then((wishlistData) => {
+                    if (Array.isArray(wishlistData)) {
+                        setWishlistItems(wishlistData);
+                    }
+                })
+                .catch(() => {
+                    // Graceful fallback
+                });
+        }
+    }, [currentUser]);
+
+    const handleUpdateQuantity = async (itemId, newQuantity) => {
+        const token = getStoredToken();
+        const targetItem = cartItems.find((item) => item.id === itemId);
+
+        if (token && targetItem) {
+            const cid = targetItem.cartItemId || targetItem.id;
+            try {
+                await apiUpdateCartItem(cid, newQuantity);
+                const refreshed = await getCart();
+                setCartItems(refreshed.items);
+                return;
+            } catch (err) {
+                showToast(err.message || 'Gagal mengubah jumlah barang.');
+                return;
+            }
+        }
+
         setCartItems((prev) =>
             prev.map((item) => (item.id === itemId ? { ...item, quantity: newQuantity } : item))
         );
     };
 
-    const handleRemoveItem = (itemId) => {
+    const handleRemoveItem = async (itemId) => {
         const item = cartItems.find((cartItem) => cartItem.id === itemId);
         if (!item || !window.confirm(`Hapus "${item.name}" dari keranjang?`)) return;
 
-        setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+        const token = getStoredToken();
+        if (token && item) {
+            const cid = item.cartItemId || item.id;
+            try {
+                await apiRemoveCartItem(cid);
+                const refreshed = await getCart();
+                setCartItems(refreshed.items);
+                showToast('Barang berhasil dihapus dari keranjang.');
+                return;
+            } catch (err) {
+                showToast(err.message || 'Gagal menghapus barang dari keranjang.');
+                return;
+            }
+        }
+
+        setCartItems((prev) => prev.filter((cartItem) => cartItem.id !== itemId));
         showToast('Barang berhasil dihapus dari keranjang.');
     };
 
-    const handleAddToCart = (product) => {
+    const handleAddToCart = async (product) => {
         const quantity = Math.max(1, Number(product.quantity) || 1);
+        const token = getStoredToken();
+
+        if (token && product.id) {
+            try {
+                const res = await apiAddToCart(product.id, quantity);
+                const refreshed = await getCart();
+                setCartItems(refreshed.items);
+                showToast(res.message || `"${product.name}" ditambahkan ke keranjang.`);
+                return;
+            } catch (err) {
+                showToast(err.message || 'Gagal menambahkan produk ke keranjang.');
+                return;
+            }
+        }
+
+        // Guest fallback
         setCartItems((prev) => {
             const existing = prev.find((item) => item.id === product.id);
             if (existing) {
@@ -85,7 +151,27 @@ export default function Layout({
         showToast(`"${product.name}" ditambahkan ke keranjang.`);
     };
 
-    const handleAddMultipleToCart = (products) => {
+    const handleAddMultipleToCart = async (products) => {
+        const token = getStoredToken();
+
+        if (token) {
+            try {
+                for (const p of products) {
+                    if (p.id) {
+                        await apiAddToCart(p.id, 1);
+                    }
+                }
+                const refreshed = await getCart();
+                setCartItems(refreshed.items);
+                showToast(`${products.length} komponen rakitan berhasil ditambahkan ke keranjang!`);
+                return;
+            } catch (err) {
+                showToast(err.message || 'Gagal menambahkan komponen ke keranjang.');
+                return;
+            }
+        }
+
+        // Guest fallback
         setCartItems((prev) => {
             let updated = [...prev];
             products.forEach((product) => {
@@ -103,20 +189,29 @@ export default function Layout({
         showToast(`${products.length} komponen rakitan berhasil ditambahkan ke keranjang!`);
     };
 
-    const handleToggleWishlist = (product) => {
+    const handleToggleWishlist = async (product) => {
         if (!product) return;
+        const token = getStoredToken();
 
-        const isWishlisted = wishlistItems.some((item) => item.id === product.id);
-        setWishlistItems((prev) =>
-            isWishlisted
-                ? prev.filter((item) => item.id !== product.id)
-                : [...prev, product]
-        );
-        showToast(
-            isWishlisted
-                ? `"${product.name}" dihapus dari wishlist.`
-                : `"${product.name}" ditambahkan ke wishlist.`
-        );
+        if (!token) {
+            showToast('Silakan masuk ke akun Anda untuk menyimpan ke Wishlist.');
+            openAuth('login');
+            return;
+        }
+
+        try {
+            const res = await apiToggleWishlist(product.id);
+            const refreshed = await getWishlist();
+            setWishlistItems(refreshed);
+            showToast(
+                res.message ||
+                    (res.wishlisted
+                        ? `"${product.name}" ditambahkan ke wishlist.`
+                        : `"${product.name}" dihapus dari wishlist.`)
+            );
+        } catch (err) {
+            showToast(err.message || 'Gagal memperbarui wishlist.');
+        }
     };
 
     const handleSearchSubmit = (query) => {
@@ -138,18 +233,28 @@ export default function Layout({
     const handleLogout = async () => {
         try {
             await onLogout?.();
+            setCartItems([]);
+            setWishlistItems([]);
             showToast('Anda berhasil keluar dari akun.');
         } catch (error) {
             showToast(error.message || 'Gagal keluar dari akun. Silakan coba lagi.');
         }
     };
 
-    const handleCompleteOrder = (order) => {
+    const handleCompleteOrder = async (order) => {
+        const token = getStoredToken();
+        if (token) {
+            try {
+                await apiClearCart();
+            } catch {
+                // Ignore
+            }
+        }
         setCartItems([]);
         showToast(`Pesanan simulasi ${order.orderNumber} berhasil dibuat.`);
     };
 
-    const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+    const totalCartCount = cartItems.reduce((acc, item) => acc + (Number(item.quantity) || 1), 0);
 
     return (
         <div className="min-h-screen flex flex-col overflow-x-clip bg-[var(--background)] text-[var(--text-primary)] antialiased transition-colors selection:bg-[var(--brand-500)] selection:text-white">
@@ -232,7 +337,6 @@ export default function Layout({
                       })
                     : children}
             </main>
-
 
             {activeView !== 'vendor-dashboard' && <Footer />}
         </div>
