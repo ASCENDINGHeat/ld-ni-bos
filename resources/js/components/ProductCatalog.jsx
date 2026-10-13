@@ -18,7 +18,7 @@ export default function ProductCatalog({
     onQuickView,
     onSelectProduct,
     initialCategory = 'all',
-    products = mockProductsData,
+    products = productsData,
 }) {
     // API States
     const [apiProducts, setApiProducts] = useState([]);
@@ -527,13 +527,11 @@ export default function ProductCatalog({
                     <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-4 px-1">
                         <span>
                             Menampilkan <strong className="text-[var(--text-primary)]">{sortedProducts.length}</strong> dari{' '}
-                            <strong>{products.length}</strong> total komponen
+                            <strong>{(products || baseProducts || []).length}</strong> total komponen
                         </span>
                     </div>
 
                     {/* Responsive Product Grid */}
-                    {sortedProducts.length === 0 ? (
-                    {/* Loading State or Products Grid */}
                     {isLoading ? (
                         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] p-12 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
                             <div className="w-8 h-8 border-3 border-[var(--brand-600)] border-t-transparent rounded-full animate-spin mb-3" />
@@ -541,7 +539,7 @@ export default function ProductCatalog({
                                 Memuat produk dari server database...
                             </p>
                         </div>
-                    ) : filteredProducts.length === 0 ? (
+                    ) : sortedProducts.length === 0 ? (
                         /* Empty State */
                         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] p-12 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
                             <div className="w-16 h-16 rounded-full bg-[var(--surface-muted)] flex items-center justify-center text-[var(--text-muted)] mb-4">
@@ -564,7 +562,7 @@ export default function ProductCatalog({
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                            {filteredProducts.map((product) => (
+                            {sortedProducts.map((product) => (
                                 <ProductCard
                                     key={product.id}
                                     product={product}
