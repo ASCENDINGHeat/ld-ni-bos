@@ -14,6 +14,8 @@ Key features utilized:
 - **Laravel Sanctum Integration**: Stateless API personal access token issuance and verification.
 - **Multi-Vendor Isolation**: Multi-vendor store profiles, isolated vendor product inventories, and vendor order fulfillment.
 - **Unified Checkout Pipeline**: Flexible checkout handling direct item payloads (frontend SPA) and atomic cart checkouts.
+- **Multi-Database Compatibility**: Default SQLite (`database/database.sqlite`) for development with automated `DATABASE_URL` fallback for PostgreSQL (`pgsql`) and MySQL (`mysql`) in containerized/Render production environments.
+- **Cloud Reverse Proxy & SSL**: Configured with `$middleware->trustProxies(at: '*')` in `bootstrap/app.php` and `URL::forceScheme('https')` in `AppServiceProvider.php` for seamless SSL offloading.
 
 ---
 

@@ -106,6 +106,17 @@ ld-ni-bos/
 │   └── console.php                             # Console commands
 ├── tests/
 │   └── Feature/                                # Feature tests (Auth, Cart, Orders, Vendors, Products)
+├── docker/
+│   ├── nginx.conf                              # Nginx server template with dynamic $PORT
+│   ├── supervisord.conf                        # Supervisord process manager (php-fpm + nginx)
+│   ├── php.ini                                 # Production OPcache & memory tuning
+│   └── entrypoint.sh                           # Startup script (migrations, caches, port binding)
+├── .github/
+│   └── workflows/
+│       └── docker-package.yml                  # GitHub Actions workflow for GHCR packaging
+├── Dockerfile                                  # Multi-stage production container definition
+├── docker-compose.yml                          # Local Docker Compose environment (PostgreSQL parity)
+├── render.yaml                                 # Render Blueprint infrastructure specification
 ├── artisan                                     # Artisan CLI executable
 ├── composer.json                               # Backend dependencies
 ├── package.json                                # Frontend dependencies
@@ -134,10 +145,40 @@ ld-ni-bos/
 
 ## 4. Database & Storage Architecture
 
-- **Default Driver**: SQLite (`DB_CONNECTION=sqlite`).
-- **Database File**: `database/database.sqlite`.
-- **Foreign Keys**: Enabled by default (`DB_FOREIGN_KEYS=true`).
-- **Personal Access Tokens**: Stored in `personal_access_tokens` table.
+- **Development Database**: SQLite (`DB_CONNECTION=sqlite`, `database/database.sqlite`) running zero-config out of the box with foreign keys enabled (`DB_FOREIGN_KEYS=true`).
+- **Production Database**: Managed PostgreSQL (`DB_CONNECTION=pgsql`) with automated `DATABASE_URL` discovery. Compatible with Render managed PostgreSQL and external PostgreSQL/MySQL instances.
+- **Personal Access Tokens**: Stored in `personal_access_tokens` table via Laravel Sanctum.
 - **Sessions**: Stored in database table `sessions` (`SESSION_DRIVER=database`).
 - **Queues**: Stored in database table `jobs` (`QUEUE_CONNECTION=database`).
 - **Cache**: Stored in database table `cache` (`CACHE_STORE=database`).
+
+---
+
+## 5. Container & Cloud Deployment Architecture
+
+The application is fully containerized using a multi-stage Docker setup optimized for cloud hosting (Render) and self-hosting:
+
+```mermaid
+graph LR
+    subgraph Build Phase
+        NodeStage[Stage 1: node:20-alpine] -->|npm run build| BuiltAssets[public/build Assets]
+    end
+
+    subgraph Runtime Phase
+        BuiltAssets --> PHPStage[Stage 2: php:8.4-fpm-alpine]
+        PHPStage --> Nginx[Nginx Web Server]
+        PHPStage --> FPM[PHP 8.4-FPM]
+        PHPStage --> Supervisor[Supervisord Process Manager]
+    end
+
+    Cloud[Render Edge / Reverse Proxy] -->|Port $PORT| Nginx
+    Nginx -->|FastCGI 127.0.0.1:9000| FPM
+    FPM -->|Pessimistic Queries| PostgreSQL[(Managed PostgreSQL)]
+```
+
+### Key Deployment Characteristics
+1. **Multi-Stage Separation**: Frontend Vite assets (React 19, Tailwind CSS v4) are compiled in a Node 20 builder stage and copied to Nginx web root. The production image runs strictly on Alpine Linux with PHP 8.4-FPM, eliminating Node runtime overhead (~130MB total image size).
+2. **Dynamic Port Binding**: Supports Render's dynamic `$PORT` environment variable (default `10000`) via `/usr/local/bin/entrypoint.sh` template substitution.
+3. **SSL Reverse Proxy Trust**: Configured with `$middleware->trustProxies(at: '*')` and `URL::forceScheme('https')` in production to accurately handle Cloudflare/Render SSL termination headers.
+4. **Automated Bootstrapping**: The container startup script automatically handles storage symlinks, configuration and route caching, and runs `php artisan migrate --force` against the connected database.
+5. **Continuous Packaging**: GitHub Actions workflow (`.github/workflows/docker-package.yml`) automatically builds and publishes OCI-compliant container images to GitHub Container Registry (`ghcr.io`).

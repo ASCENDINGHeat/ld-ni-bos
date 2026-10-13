@@ -18,9 +18,9 @@ The production container uses a **multi-stage Docker build**:
 └───────────────┬─────────────────┘
                 │ Copies /public/build
 ┌───────────────▼────────────────────────────────────────┐
-│ Stage 2: php:8.3-fpm-alpine (Production Runtime)       │
+│ Stage 2: php:8.4-fpm-alpine (Production Runtime)       │
 │ - Nginx (HTTP Reverse Proxy listening on $PORT)        │
-│ - PHP 8.3-FPM with OPcache & Database drivers (pgsql,  │
+│ - PHP 8.4-FPM with OPcache & Database drivers (pgsql,  │
 │   mysql, sqlite)                                       │
 │ - Composer production dependencies (--no-dev)          │
 │ - Supervisord managing both Nginx and PHP-FPM          │

@@ -114,3 +114,25 @@ Or build production assets:
 ```bash
 npm run build
 ```
+
+---
+
+## 4. Containerized & Docker Environment
+
+### Local Development Parity with Docker Compose
+
+To test the application inside the production container environment with a managed PostgreSQL database locally:
+
+```bash
+# Build and run containers in foreground:
+docker compose up --build
+
+# Run in background (detached):
+docker compose up -d
+```
+
+The application will be served at `http://localhost:8000`.
+
+### Cloud & Self-Hosting Documentation
+- For deploying to **Render (render.com)** using the 1-click Blueprint or Docker Web Service: see [docs/render-deployment.md](render-deployment.md).
+- For self-hosting on your own VPS or server using pre-built **GitHub Container Registry (GHCR)** images: see [docs/self-hosting.md](self-hosting.md).

@@ -31,7 +31,8 @@
 - **⚡ Modern PHP 8.4+ Syntax**: Declarative Eloquent attributes (`#[Fillable]`, `#[Hidden]`), typed properties, and constructor property promotion.
 - **🎨 React 19 & Tailwind CSS v4**: Fast Refresh Blade mounting shell (`app.blade.php`), CSS-first `@theme` configuration, and Vite 8 bundling.
 - **💳 Unified Checkout Pipeline**: Handles both direct itemized checkouts (React SPA) and atomic cart checkouts with pessimistic inventory locks.
-- **📦 Zero-Config SQLite**: File-backed database (`database/database.sqlite`) running out-of-the-box with foreign keys and database-backed sessions, cache, and queues.
+- **📦 Zero-Config SQLite & Cloud Postgres**: File-backed database (`database/database.sqlite`) for local dev, with automated `DATABASE_URL` discovery for managed PostgreSQL on cloud providers.
+- **🐳 Multi-Stage Docker & Cloud Ready**: Production-grade Dockerfile (PHP 8.3-FPM + Nginx on Alpine Linux), Render 1-click Blueprint (`render.yaml`), and GitHub Actions packaging to GHCR.
 - **🧪 Comprehensive Test Suite**: 100% passing automated feature and unit tests with PHPUnit 12 (80 tests, 424 assertions).
 
 ---
@@ -41,12 +42,14 @@
 | Layer | Technology | Version | Purpose |
 |---|---|---|---|
 | **Backend Core** | [Laravel Framework](https://laravel.com/) | `13.35.x` | Application framework, routing, and HTTP kernel |
-| **Language Runtime**| [PHP](https://www.php.net/) | `8.5.x` | Backend programming language |
+| **Language Runtime**| [PHP](https://www.php.net/) | `8.5.x` / `8.3.x` | Backend programming language |
 | **Authentication** | [Laravel Sanctum](https://laravel.com/docs/sanctum) | `4.3.x` | Personal access tokens & API authentication |
 | **Frontend UI** | [React](https://react.dev/) | `19.3.x` | Dynamic client-side components |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/) | `4.0.x` | Utility-first styling via `@tailwindcss/vite` |
 | **Asset Bundler** | [Vite](https://vitejs.dev/) | `8.0.x` | High-speed frontend dev server and production builder |
-| **Database** | [SQLite](https://www.sqlite.org/) | `3.54.x` | Zero-dependency relational storage |
+| **Database** | [SQLite](https://www.sqlite.org/) / [PostgreSQL](https://www.postgresql.org/) | `3.54` / `16.x` | Relational storage (SQLite for local dev, PostgreSQL for cloud) |
+| **Containerization** | [Docker](https://www.docker.com/) | Multi-Stage | Node 20 Vite builder + PHP 8.3 FPM + Nginx on Alpine |
+| **Container Registry**| [GHCR](https://ghcr.io/) | OCI Compliant | Automated image packaging via GitHub Actions |
 | **Code Style** | [Laravel Pint](https://laravel.com/docs/pint) | `1.27.x` | Automated code formatting |
 | **Testing** | [PHPUnit](https://phpunit.de/) | `12.5.x` | Unit and feature test runner |
 
@@ -96,6 +99,16 @@ npm run dev
 ```
 
 Visit `http://127.0.0.1:8000` in your web browser.
+
+### 4. Running via Docker (Local Parity)
+
+Launch the complete containerized application with PostgreSQL:
+
+```bash
+docker compose up --build
+```
+
+Access the application at `http://localhost:8000`.
 
 ---
 
@@ -174,6 +187,8 @@ Detailed technical guides and architectural specifications are located in the [d
 - [docs/development-workflow.md](docs/development-workflow.md) — Laravel Boost guidelines, testing standards, and Git flow
 - [docs/PRD & SRS Specification.md](docs/PRD%20&%20SRS%20Specification.md) — Original product requirements and software specification
 - [docs/gap-analysis-and-progress-tracker.md](docs/gap-analysis-and-progress-tracker.md) — Baseline comparison, unimplemented feature catalog, and milestone progress tracker
+- [docs/render-deployment.md](docs/render-deployment.md) — Docker container deployment on Render cloud with PostgreSQL blueprint
+- [docs/self-hosting.md](docs/self-hosting.md) — Self-hosting guide using pre-built GHCR Docker containers and Docker Compose
 
 ---
 

@@ -30,7 +30,8 @@ The evaluation benchmarks the current codebase implementation against three foun
 | **Platform Administration (Super Admin)** | 10% | 🔴 Backlog / Unimplemented | 0% (Role seeded only) |
 | **Product Reviews & Ratings** | 0% | 🔴 Backlog / Unimplemented | 0% (Not Started) |
 | **Media & Direct File Uploads** | 20% | 🟡 URL-based only | N/A |
-| **Overall Platform Progress** | **78%** | 🟢 **Core MVP Complete** | **80 Tests / 424 Assertions Passing** |
+| **DevOps & Containerization** | 100% | 🟢 Complete | Multi-Stage Docker, GHCR CI, Render Blueprint |
+| **Overall Platform Progress** | **82%** | 🟢 **Core MVP & Deployment Ready** | **80 Tests / 424 Assertions Passing** |
 
 ---
 
@@ -202,10 +203,11 @@ Phase 1: Foundation & Auth           [██████████████
 Phase 2: Product Catalog & Cart      [████████████████████] 100% (Completed)
 Phase 3: PC Builder & Bulk Cart      [██████████████████░░]  90% (Active)
 Phase 4: Multi-Vendor & Checkout     [██████████████████░░]  90% (Active)
-Phase 5: User Settings & Profile     [████████░░░░░░░░░░░░]  40% (In Progress)
-Phase 6: Public Vendor Storefront    [████░░░░░░░░░░░░░░░░]  20% (Planned)
-Phase 7: Platform Admin Portal       [██░░░░░░░░░░░░░░░░░░]  10% (Backlog)
-Phase 8: Reviews, Media & Social     [░░░░░░░░░░░░░░░░░░░░]   0% (Backlog)
+Phase 5: Containerization & DevOps   [████████████████████] 100% (Completed)
+Phase 6: User Settings & Profile     [████████░░░░░░░░░░░░]  40% (In Progress)
+Phase 7: Public Vendor Storefront    [████░░░░░░░░░░░░░░░░]  20% (Planned)
+Phase 8: Platform Admin Portal       [██░░░░░░░░░░░░░░░░░░]  10% (Backlog)
+Phase 9: Reviews, Media & Social     [░░░░░░░░░░░░░░░░░░░░]   0% (Backlog)
 ```
 
 ### Milestone Breakdown
@@ -244,7 +246,17 @@ Phase 8: Reviews, Media & Social     [░░░░░░░░░░░░░░
 - [x] Order cancellation (`PATCH /api/orders/{id}/cancel`) with automatic inventory restoration.
 - [ ] Public vendor storefront page (`/toko/{slug}`).
 
-#### Milestone 5: Account Profile & Preferences 🟡 (IN PROGRESS)
+#### Milestone 5: Containerization & Cloud Deployment Pipeline 🟢 (COMPLETE)
+- [x] Multi-stage production Dockerfile (`node:20-alpine` Vite builder + `php:8.4-fpm-alpine` runtime).
+- [x] Supervisord process manager orchestrating both PHP-FPM and Nginx in a unified container.
+- [x] Dynamic port binding (`PORT` default `10000`) for Render web service compatibility.
+- [x] Render Blueprint infrastructure-as-code specification (`render.yaml`) with auto-managed PostgreSQL.
+- [x] Local Docker Compose environment with PostgreSQL database parity (`docker-compose.yml`).
+- [x] GitHub Actions automated CI packaging workflow (`.github/workflows/docker-package.yml`) publishing to GHCR (`ghcr.io`).
+- [x] Reverse proxy SSL trust (`trustProxies('*')`) and automated production HTTPS scheme enforcement.
+- [x] Automated container startup entrypoint with migrations, storage symlinking, and config caching.
+
+#### Milestone 6: Account Profile & Preferences 🟡 (IN PROGRESS)
 - [x] Responsive account settings UI tab layout ([`AccountSettingsPage.jsx`](../resources/js/components/AccountSettingsPage.jsx)).
 - [ ] Profile update endpoint (`PATCH /api/user`) for customer name, phone, and address.
 - [ ] Password update endpoint (`PUT /api/user/password`) with current password verification.

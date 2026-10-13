@@ -18,43 +18,44 @@ COPY public/ ./public/
 RUN npm run build
 
 # =============================================================================
-# Stage 2: Production PHP 8.3-FPM + Nginx Runtime (Alpine Linux)
+# Stage 2: Production PHP 8.4-FPM + Nginx Runtime (Alpine Linux)
 # =============================================================================
-FROM php:8.3-fpm-alpine AS runtime
+FROM php:8.4-fpm-alpine AS runtime
 
 WORKDIR /var/www/html
 
-# Install Nginx, Supervisor, bash, and native database/PHP library dependencies
+# Environment settings for container runtime and Composer
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    APP_ENV=production \
+    APP_DEBUG=false \
+    LOG_CHANNEL=stderr \
+    PORT=10000
+
+# Install Nginx, Supervisor, git, curl, and native database/system tools
 RUN apk add --no-cache \
     nginx \
     supervisor \
     curl \
+    git \
     bash \
-    libpng-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    postgresql-dev \
     postgresql-client \
-    sqlite-dev \
-    sqlite \
-    oniguruma-dev \
-    icu-dev \
-    linux-headers
+    sqlite
 
-# Install required PHP extensions for Laravel, PostgreSQL, MySQL, and SQLite
-RUN docker-php-ext-configure intl && \
-    docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_pgsql \
-        pdo_mysql \
-        pdo_sqlite \
-        mbstring \
-        zip \
-        bcmath \
-        opcache \
-        intl \
-        pcntl
+# Install official extension installer helper
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
+
+# Install required PHP extensions for Laravel and database drivers
+RUN install-php-extensions \
+    pdo \
+    pdo_pgsql \
+    pdo_mysql \
+    pdo_sqlite \
+    mbstring \
+    zip \
+    bcmath \
+    opcache \
+    intl \
+    pcntl
 
 # Install Composer binary from official image
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -89,12 +90,6 @@ RUN mkdir -p storage/framework/cache \
              bootstrap/cache && \
     chown -R www-data:www-data storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache
-
-# Environment defaults for Render
-ENV APP_ENV=production \
-    APP_DEBUG=false \
-    LOG_CHANNEL=stderr \
-    PORT=10000
 
 # Render Web Service communicates on dynamic $PORT (default 10000)
 EXPOSE 10000
