@@ -1,7 +1,7 @@
-# LD-NI-BOS
+# PC-NI-BOS
 
 <p align="center">
-  <strong>pc.ni.bos — Modern Full-Stack E-Commerce Platform</strong><br>
+  <strong>PC-NI-BOS — Modern Full-Stack E-Commerce Platform</strong><br>
   Built with <strong>Laravel 12 (Framework 13)</strong>, <strong>React 19</strong>, <strong>Tailwind CSS v4</strong>, and <strong>Laravel Sanctum</strong>.
 </p>
 
@@ -19,7 +19,7 @@
 
 ## 📖 Overview
 
-**pc.ni.bos** is a next-generation e-commerce platform built for modern digital commerce, empowering businesses to launch faster, sell smarter, and scale with confidence. Blends of powerful Laravel backend with a responsive React frontend to deliver a seamless shopping experience, streamlined vendor management, and a developer-friendly foundation for innovation—without the complexity of third-party payment dependencies.
+**PC-NI-BOS** is a next-generation e-commerce platform built for modern digital commerce, empowering businesses to launch faster, sell smarter, and scale with confidence. Blends a powerful Laravel backend with a responsive React frontend to deliver a seamless shopping experience, streamlined vendor management, and a developer-friendly foundation for innovation—without the complexity of third-party payment dependencies.
 
 ---
 
