@@ -1,0 +1,48 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+.github
+
+# Dependencies
+/node_modules
+/vendor
+
+# Environment & local secrets
+.env
+.env.backup
+.env.production
+.env.staging
+storage/*.key
+
+# Laravel caches and logs
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+!storage/framework/cache/.gitignore
+!storage/framework/sessions/.gitignore
+!storage/framework/views/.gitignore
+!storage/logs/.gitignore
+
+# Vite & Frontend build temp
+public/hot
+public/storage
+public/build
+
+# Testing & Dev tools
+tests
+.phpunit.result.cache
+phpunit.xml
+.ai
+.agents
+
+# Documentation & Guides
+docs/
+PRD & SRS Specification.md
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

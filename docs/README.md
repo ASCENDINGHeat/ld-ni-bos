@@ -19,6 +19,7 @@ This project runs natively on Linux environments, including native Android via t
 | **07. Development Workflow** | [development-workflow.md](development-workflow.md) | Coding standards, 14 test suites (80 tests, 424 assertions), and Pint formatting. |
 | **08. PRD & SRS Specification** | [PRD & SRS Specification.md](PRD%20&%20SRS%20Specification.md) | Original product requirements and functional specifications. |
 | **09. Gap Analysis & Roadmap** | [gap-analysis-and-progress-tracker.md](gap-analysis-and-progress-tracker.md) | Baseline comparison, unimplemented feature catalog, and milestone progress tracker. |
+| **10. Docker & Render Deployment** | [render-deployment.md](render-deployment.md) | Multi-stage Docker setup, Nginx + PHP-FPM, Render Blueprint (render.yaml), and local parity. |
 
 ---
 
