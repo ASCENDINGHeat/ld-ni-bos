@@ -1,6 +1,6 @@
 # REST API Reference
 
-Complete reference of all REST API endpoints for **LD-NI-BOS**.
+Complete reference of all REST API endpoints for **PC-NI-BOS**.
 
 ---
 

@@ -1,6 +1,6 @@
 # API Authentication (Laravel Sanctum)
 
-This guide documents the API authentication system in **LD-NI-BOS**, powered by **Laravel Sanctum** (`laravel/sanctum` v4.x). It provides secure token-based authentication for external clients, mobile applications, and Single Page Application (SPA) frontends.
+This guide documents the API authentication system in **PC-NI-BOS**, powered by **Laravel Sanctum** (`laravel/sanctum` v4.x). It provides secure token-based authentication for external clients, mobile applications, and Single Page Application (SPA) frontends.
 
 ---
 

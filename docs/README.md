@@ -1,6 +1,6 @@
-# LD-NI-BOS Documentation
+# PC-NI-BOS Documentation
 
-Welcome to the internal documentation for **LD-NI-BOS**, a modern web application built on **Laravel 12 (Framework v13)**, **React 19**, and **Tailwind CSS v4** bundled via **Vite**, featuring **Laravel Sanctum** API token authentication.
+Welcome to the internal documentation for **PC-NI-BOS**, a modern web application built on **Laravel 12 (Framework v13)**, **React 19**, and **Tailwind CSS v4** bundled via **Vite**, featuring **Laravel Sanctum** API token authentication.
 
 This project runs natively on Linux environments, including native Android via the Antigravity (AGY v2) ARM64 userspace sandbox.
 
@@ -18,6 +18,7 @@ This project runs natively on Linux environments, including native Android via t
 | **06. Backend & Database** | [backend.md](backend.md) | Models, multi-vendor schema, order lifecycle, unified checkout, and migrations. |
 | **07. Development Workflow** | [development-workflow.md](development-workflow.md) | Coding standards, 14 test suites (80 tests, 424 assertions), and Pint formatting. |
 | **08. PRD & SRS Specification** | [PRD & SRS Specification.md](PRD%20&%20SRS%20Specification.md) | Original product requirements and functional specifications. |
+| **09. Gap Analysis & Roadmap** | [gap-analysis-and-progress-tracker.md](gap-analysis-and-progress-tracker.md) | Baseline comparison, unimplemented feature catalog, and milestone progress tracker. |
 
 ---
 
