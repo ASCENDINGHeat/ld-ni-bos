@@ -78,10 +78,15 @@ npm install
 cp .env.example .env
 php artisan key:generate
 
-# 5. Run database migrations & seed catalog:
-php artisan migrate
-php artisan db:seed --class=ProductSeeder
+# 5. Run database migrations & seed catalog & demo accounts:
+php artisan migrate --seed
 ```
+
+#### Pre-seeded Demo Credentials
+
+When running `php artisan db:seed`, default accounts are generated for instant authentication:
+- **Admin**: `admin@example.com` / `password123` (`role: admin`)
+- **Customer**: `customer@example.com` / `password123` (`role: customer`)
 
 ---
 

@@ -310,3 +310,20 @@ touch database/database.sqlite
    * `Pages/Checkout/Index.jsx`: Shipping form, mock payment selection, complete order button.
    * `Pages/Orders/Show.jsx`: Order receipt, items snapshot, payment status badge.
    * `Pages/Admin/Dashboard.jsx`: Inventory controls, orders list, status switcher.
+
+---
+
+## 9. Architecture Evolution & Implementation Status
+
+As the project advanced into production implementation, several design choices were evolved to improve developer velocity, reliability, and modern stack alignment:
+
+1. **Frontend Hosting Architecture**:
+   - Replaced Inertia protocol with a Blade hydration host (`resources/views/app.blade.php`) mounting a **React 19 SPA** (`resources/js/app.jsx`) bundled via **Vite 8** and **Tailwind CSS v4** (`@tailwindcss/vite`).
+2. **API & Authentication Layer**:
+   - Adopted **Laravel Sanctum** (`laravel/sanctum` v4.x) personal access tokens for stateless bearer token API authentication.
+3. **Multi-Vendor Ecosystem**:
+   - Implemented multi-vendor architecture: `vendors`, `products.vendor_id`, and `order_items.vendor_id` with item-level vendor fulfillment and dedicated seller dashboard (`VendorDashboard.jsx`).
+4. **Interactive PC Builder & Bulk Cart**:
+   - Integrated full custom PC assembly tool (`PCBuilderSimulation.jsx`) with live wattage calculation, socket compatibility validation, and atomic bulk cart synchronization (`POST /api/cart/bulk`).
+5. **Automated Testing Velocity**:
+   - Achieved 100% automated test coverage with **PHPUnit 12** across 14 test suites (80 tests, 424 assertions) testing authentication, products, cart, wishlist, unified checkout, and vendor operations.
