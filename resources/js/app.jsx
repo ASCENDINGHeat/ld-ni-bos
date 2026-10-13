@@ -47,6 +47,7 @@ function App() {
     );
     const [currentUser, setCurrentUser] = useState(() => getStoredUser());
     const [accessToken, setAccessToken] = useState(() => getStoredToken());
+    const [catalogProducts, setCatalogProducts] = useState(productsData);
     const [selectedProduct, setSelectedProduct] = useState(() => {
         const slug = rootElement?.dataset.productSlug;
         if (!slug) return null;

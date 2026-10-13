@@ -18,7 +18,7 @@ export default function ProductCatalog({
     onQuickView,
     onSelectProduct,
     initialCategory = 'all',
-    products = mockProductsData,
+    products = productsData,
 }) {
     // API States
     const [apiProducts, setApiProducts] = useState([]);
@@ -527,7 +527,7 @@ export default function ProductCatalog({
                     <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-4 px-1">
                         <span>
                             Menampilkan <strong className="text-[var(--text-primary)]">{sortedProducts.length}</strong> dari{' '}
-                            <strong>{products.length}</strong> total komponen
+                            <strong>{(products || baseProducts || []).length}</strong> total komponen
                         </span>
                     </div>
 
