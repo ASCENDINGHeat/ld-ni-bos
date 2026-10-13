@@ -20,6 +20,7 @@ This project runs natively on Linux environments, including native Android via t
 | **08. PRD & SRS Specification** | [PRD & SRS Specification.md](PRD%20&%20SRS%20Specification.md) | Original product requirements and functional specifications. |
 | **09. Gap Analysis & Roadmap** | [gap-analysis-and-progress-tracker.md](gap-analysis-and-progress-tracker.md) | Baseline comparison, unimplemented feature catalog, and milestone progress tracker. |
 | **10. Docker & Render Deployment** | [render-deployment.md](render-deployment.md) | Multi-stage Docker setup, Nginx + PHP-FPM, Render Blueprint (render.yaml), and local parity. |
+| **11. Self-Hosting with Docker** | [self-hosting.md](self-hosting.md) | Self-hosting with pre-built GHCR images, single-container SQLite, and Docker Compose with PostgreSQL. |
 
 ---
 

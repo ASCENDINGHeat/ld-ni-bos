@@ -57,6 +57,7 @@ The React application entry point initializes the DOM root inside `#root` and co
 App State
 ├── activeView ('beranda' | 'katalog' | 'pc-builder' | 'cart' | 'checkout' | 'account' | 'vendor-dashboard' | 'detail')
 ├── currentUser & accessToken (synced via localStorage)
+├── catalogProducts (synced with /api/products?per_page=100 with fallback to products.json)
 ├── cartItems (synced with /api/cart)
 ├── wishlistItems (synced with /api/wishlist)
 └── activeModals (AuthModal, WishlistModal, CartDrawer, QuickViewModal, SuccessModal)
@@ -212,3 +213,9 @@ npm run dev
 # Compile production bundle to public/build:
 npm run build
 ```
+
+### Production Bundling in Docker
+In production deployments (such as Render or self-hosted containers):
+1. The **`node:20-alpine`** stage in `Dockerfile` automatically executes `npm ci` and `npm run build`.
+2. The generated `public/build/` directory (manifest, chunked CSS, and JS modules) is copied into the runtime Alpine image.
+3. Nginx is configured with long-lived immutable cache headers (`expires 1y; add_header Cache-Control "public, max-age=31536000, immutable";`) for all `/build/assets/*` files, ensuring optimal performance and HTTP/2 delivery.
