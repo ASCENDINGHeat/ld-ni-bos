@@ -1,7 +1,7 @@
 # LD-NI-BOS
 
 <p align="center">
-  <strong>PBP Platform Commerce — Modern Full-Stack E-Commerce Platform</strong><br>
+  <strong>pc.ni.bos — Modern Full-Stack E-Commerce Platform</strong><br>
   Built with <strong>Laravel 12 (Framework 13)</strong>, <strong>React 19</strong>, <strong>Tailwind CSS v4</strong>, and <strong>Laravel Sanctum</strong>.
 </p>
 
@@ -19,7 +19,7 @@
 
 ## 📖 Overview
 
-**LD-NI-BOS** is a modernized, autonomous-ready platform commerce application originally derived from the university platform-based programming (`project-pbp-uas`) curriculum. It combines a robust Laravel backend with an agile React frontend, designed for zero-friction development and high test velocity without external payment gateway dependencies.
+**pc.ni.bos** is a next-generation e-commerce platform built for modern digital commerce, empowering businesses to launch faster, sell smarter, and scale with confidence. Blends of powerful Laravel backend with a responsive React frontend to deliver a seamless shopping experience, streamlined vendor management, and a developer-friendly foundation for innovation—without the complexity of third-party payment dependencies.
 
 ---
 
@@ -173,6 +173,7 @@ Detailed technical guides and architectural specifications are located in the [d
 - [docs/environment-setup.md](docs/environment-setup.md) — Native Android (AGY v2 ARM64) and Linux installation guide
 - [docs/development-workflow.md](docs/development-workflow.md) — Laravel Boost guidelines, testing standards, and Git flow
 - [docs/PRD & SRS Specification.md](docs/PRD%20&%20SRS%20Specification.md) — Original product requirements and software specification
+- [docs/gap-analysis-and-progress-tracker.md](docs/gap-analysis-and-progress-tracker.md) — Baseline comparison, unimplemented feature catalog, and milestone progress tracker
 
 ---
 
