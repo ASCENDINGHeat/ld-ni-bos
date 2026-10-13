@@ -165,9 +165,9 @@ graph LR
     end
 
     subgraph Runtime Phase
-        BuiltAssets --> PHPStage[Stage 2: php:8.3-fpm-alpine]
+        BuiltAssets --> PHPStage[Stage 2: php:8.4-fpm-alpine]
         PHPStage --> Nginx[Nginx Web Server]
-        PHPStage --> FPM[PHP 8.3-FPM]
+        PHPStage --> FPM[PHP 8.4-FPM]
         PHPStage --> Supervisor[Supervisord Process Manager]
     end
 
@@ -177,7 +177,7 @@ graph LR
 ```
 
 ### Key Deployment Characteristics
-1. **Multi-Stage Separation**: Frontend Vite assets (React 19, Tailwind CSS v4) are compiled in a Node 20 builder stage and copied to Nginx web root. The production image runs strictly on Alpine Linux with PHP 8.3-FPM, eliminating Node runtime overhead (~130MB total image size).
+1. **Multi-Stage Separation**: Frontend Vite assets (React 19, Tailwind CSS v4) are compiled in a Node 20 builder stage and copied to Nginx web root. The production image runs strictly on Alpine Linux with PHP 8.4-FPM, eliminating Node runtime overhead (~130MB total image size).
 2. **Dynamic Port Binding**: Supports Render's dynamic `$PORT` environment variable (default `10000`) via `/usr/local/bin/entrypoint.sh` template substitution.
 3. **SSL Reverse Proxy Trust**: Configured with `$middleware->trustProxies(at: '*')` and `URL::forceScheme('https')` in production to accurately handle Cloudflare/Render SSL termination headers.
 4. **Automated Bootstrapping**: The container startup script automatically handles storage symlinks, configuration and route caching, and runs `php artisan migrate --force` against the connected database.

@@ -247,7 +247,7 @@ Phase 9: Reviews, Media & Social     [░░░░░░░░░░░░░░
 - [ ] Public vendor storefront page (`/toko/{slug}`).
 
 #### Milestone 5: Containerization & Cloud Deployment Pipeline 🟢 (COMPLETE)
-- [x] Multi-stage production Dockerfile (`node:20-alpine` Vite builder + `php:8.3-fpm-alpine` runtime).
+- [x] Multi-stage production Dockerfile (`node:20-alpine` Vite builder + `php:8.4-fpm-alpine` runtime).
 - [x] Supervisord process manager orchestrating both PHP-FPM and Nginx in a unified container.
 - [x] Dynamic port binding (`PORT` default `10000`) for Render web service compatibility.
 - [x] Render Blueprint infrastructure-as-code specification (`render.yaml`) with auto-managed PostgreSQL.
