@@ -60,6 +60,11 @@ Active customer shopping cart items.
 - Relations:
   - `user()`: `BelongsTo` `User`
   - `product()`: `BelongsTo` `Product`
+- Controller Integration (`CartController.php`):
+  - `index()`: Returns items with computed line item subtotals, item count, total quantity, and formatted Rupiah totals.
+  - `store()` & `storeBulk()`: Supports single item or array of items with transactional verification. Includes `resolveProduct()` which resolves hardware by numeric ID, slug, or PC builder mock code alias (`cpu-1` -> Intel Core i9-14900K, `vga-1` -> RTX 4070 SUPER, etc.).
+  - `update()`: Modifies line item quantity with real-time inventory limits.
+  - `destroy()` & `clear()`: Removes individual items or flushes the user's cart.
 
 ### Wishlist Model (`app/Models/Wishlist.php`)
 Saved customer product bookmarks.
@@ -128,6 +133,16 @@ erDiagram
 14. **`2026_10_12_163240_add_sku_to_products_table.php`**: Adds `sku` and unique `['vendor_id', 'sku']` constraint to products.
 15. **`2026_10_12_164125_add_unique_user_constraint_to_vendors_table.php`**: Enforces one vendor store per user account.
 16. **`2026_10_12_164305_add_status_to_order_items_table.php`**: Adds granular item fulfillment status (`pending`, `processing`, `shipped`, `completed`, `cancelled`).
+
+### Database Seeders (`database/seeders/`)
+
+The application provides out-of-the-box realistic seeders:
+- **`DatabaseSeeder.php`**: Primary entry point. Seeds baseline demo users:
+  - Administrator: `admin@example.com` / `password123` (`role: admin`)
+  - Customer: `customer@example.com` / `password123` (`role: customer`)
+  - Calls `CategorySeeder` and `ProductSeeder`.
+- **`CategorySeeder.php`**: Populates hardware categories (`pc-siap-pakai`, `processor`, `motherboard`, `kartu-grafis`, `ram`, `storage`, `power-supply`, `casing`, `aksesoris`).
+- **`ProductSeeder.php`**: Populates pre-built gaming rigs and individual PC parts with authentic specs (sockets, wattage, memory standards, warranty), high-resolution imagery, and stock levels.
 
 ---
 

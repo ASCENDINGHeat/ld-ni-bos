@@ -16,7 +16,7 @@ This project runs natively on Linux environments, including native Android via t
 | **04. Environment Setup** | [environment-setup.md](environment-setup.md) | Prerequisites, package installation, environment variables, and Android specifics. |
 | **05. Frontend Guide** | [frontend.md](frontend.md) | React 19 storefront, PC Builder simulation, Tailwind CSS v4 setup, and Vite. |
 | **06. Backend & Database** | [backend.md](backend.md) | Models, multi-vendor schema, order lifecycle, unified checkout, and migrations. |
-| **07. Development Workflow** | [development-workflow.md](development-workflow.md) | Coding standards, 11 test suites (80 tests), and Pint formatting. |
+| **07. Development Workflow** | [development-workflow.md](development-workflow.md) | Coding standards, 14 test suites (80 tests, 424 assertions), and Pint formatting. |
 | **08. PRD & SRS Specification** | [PRD & SRS Specification.md](PRD%20&%20SRS%20Specification.md) | Original product requirements and functional specifications. |
 
 ---
@@ -41,11 +41,11 @@ php artisan key:generate
 
 ### 3. Database Migration & Seeding
 
-Run database migrations and populate the initial product catalog:
+Run database migrations and populate default accounts (admin & demo customer), categories, and product catalog:
 
 ```bash
 php artisan migrate --force
-php artisan db:seed --class=ProductSeeder
+php artisan db:seed
 ```
 
 ### 4. Running the Application

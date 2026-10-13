@@ -138,46 +138,49 @@ Dedicated vendor management interface for sellers:
 Centralized asynchronous client connecting React components to the Laravel backend:
 
 ```javascript
-// Authentication
-loginApi(credentials)
-registerApi(userData)
-logoutApi()
-fetchUserProfile()
+// Local Storage & Auth State Management
+getStoredToken()
+setStoredToken(token)
+getStoredUser()
+setStoredUser(user)
+clearAuthStorage()
 
-// Products & Catalog
+// Core Fetch Client with Bearer Token Injection
+apiFetch(endpoint, options)
+
+// Data Normalizers
+normalizeProduct(apiProduct)
+normalizeCartItem(apiCartItem)
+
+// Categories & Product Catalog
+getCategories(params)
 getProducts(params)
 getProductDetail(slug)
-getCategories()
+getRelatedProducts(slug)
 
-// Shopping Cart
-getCart()
-addToCartApi(productId, quantity)
-bulkAddToCartApi(items)
-updateCartItemApi(cartItemId, quantity)
-removeCartItemApi(cartItemId)
-clearCartApi()
-
-// Wishlist
+// Wishlist Management
 getWishlist()
-toggleWishlistApi(productId)
+addToWishlist(productId)
+toggleWishlist(productId)
+removeFromWishlist(productId)
 
-// Orders & Checkout
-createOrder(orderPayload)
-fetchCustomerOrders()
-cancelCustomerOrder(orderId)
+// Shopping Cart Management (Single & Bulk)
+getCart()
+addToCart(productId, quantity)
+addMultipleToCart(items) // Dispatches to POST /api/cart/bulk (used by PC Builder)
+updateCartItemQuantity(cartItemId, quantity)
+removeCartItem(cartItemId)
+clearCart()
 
-// Vendor Portal
-fetchVendorStore()
-createVendorStore(payload)
-updateVendorStore(payload)
-fetchVendorProducts(params)
-createVendorProduct(payload)
-updateVendorProduct(productId, payload)
-deleteVendorProduct(productId)
-fetchVendorDashboard()
-fetchVendorOrders()
-updateVendorOrderStatus(orderId, status)
+// Authentication & User Profile
+getCurrentUserProfile()
+logoutUser()
 ```
+
+### Component-Level Direct API Integration
+Specialized complex views interface directly with Sanctum API endpoints using authenticated requests:
+- **`CheckoutPage.jsx`**: Posts recipient and line items payload directly to `POST /api/checkout`.
+- **`VendorDashboard.jsx`**: Communicates with the multi-vendor subsystem (`/api/vendor/dashboard`, `/api/vendor/products`, `/api/vendor/orders`, `/api/vendor/store`).
 
 ---
 

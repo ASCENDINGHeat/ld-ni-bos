@@ -105,7 +105,7 @@ php artisan test --filter=test_user_can_login_with_valid_credentials
 
 ### Current Test Coverage (80 Tests, 424 Assertions)
 
-The test suite provides 100% green coverage across 11 test files:
+The test suite provides 100% green coverage across 14 test files:
 - **`tests/Feature/Auth/RegisterTest.php`**: User registration, required field validation, duplicate email protection, password confirmation checks, and auth route aliases.
 - **`tests/Feature/Auth/LoginTest.php`**: Login authentication, credential checking, profile retrieval, unauthenticated 401 rejections, token revocation on logout.
 - **`tests/Feature/CartTest.php`**: Shopping cart retrieval with subtotal calculations, adding items, updating quantities, deleting items, and bulk cart additions.

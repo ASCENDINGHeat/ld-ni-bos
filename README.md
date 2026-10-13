@@ -77,8 +77,8 @@ npm install
 cp .env.example .env
 php artisan key:generate
 
-# Run database migrations
-php artisan migrate
+# Run database migrations and seed catalog & demo accounts
+php artisan migrate --seed
 ```
 
 ### 3. Launch Development Servers
@@ -99,9 +99,11 @@ Visit `http://127.0.0.1:8000` in your web browser.
 
 ---
 
-## 📡 API Authentication Reference
+## 📡 API Overview
 
-All endpoints return standard JSON responses and support JSON payloads (`Content-Type: application/json`, `Accept: application/json`):
+The platform exposes a comprehensive JSON REST API powered by Laravel Sanctum. See the complete [REST API Reference](docs/api-reference.md) for full request/response schemas.
+
+### Authentication Endpoints
 
 | Method | Endpoint | Auth Required | Rate Limit | Description |
 |---|---|:---:|:---:|---|
@@ -113,16 +115,33 @@ All endpoints return standard JSON responses and support JSON payloads (`Content
 > [!NOTE]
 > All authentication routes are also aliased under the `/api/auth/*` prefix (e.g., `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`).
 
+### Key Platform Endpoints
+
+| Module | Methods | Endpoints | Description |
+|---|---|---|---|
+| **Catalog** | `GET` | `/api/categories`, `/api/products`, `/api/products/{slug}` | Browse and search categories and hardware parts |
+| **Wishlist** | `GET`, `POST`, `DELETE` | `/api/wishlist`, `/api/wishlist/toggle` | Manage bookmarked products |
+| **Cart** | `GET`, `POST`, `PATCH`, `DELETE` | `/api/cart`, `/api/cart/bulk`, `/api/cart/{id}` | Single & bulk items addition (with PC builder mock resolution) |
+| **Checkout** | `POST` | `/api/checkout`, `/api/orders/checkout` | Unified itemized direct checkout and cart conversion |
+| **Orders** | `GET`, `PATCH` | `/api/orders`, `/api/orders/{id}/cancel` | Customer order history, inspection, and cancellation |
+| **Vendor** | `GET`, `POST`, `PATCH`, `DELETE` | `/api/vendor/store`, `/api/vendor/products`, `/api/vendor/orders` | Multi-vendor store profile, catalog, metrics & fulfillment |
+
 ---
 
 ## 🧪 Testing & Code Standards
 
 ### Running Automated Tests
 
-Run the complete feature and unit test suite:
+Run the complete 14-suite feature and unit test suite (80 tests, 424 assertions, 100% pass):
 
 ```bash
 php artisan test --compact
+```
+
+Or execute directly via the PHPUnit runner:
+
+```bash
+php vendor/bin/phpunit
 ```
 
 Run only authentication feature tests:
@@ -133,7 +152,7 @@ php artisan test --compact tests/Feature/Auth/
 
 ### Code Formatting
 
-Format PHP code according to project conventions:
+Format PHP code according to project conventions using Laravel Pint:
 
 ```bash
 php vendor/bin/pint --dirty --format agent
@@ -146,6 +165,7 @@ php vendor/bin/pint --dirty --format agent
 Detailed technical guides and architectural specifications are located in the [docs/](docs/) directory:
 
 - [docs/README.md](docs/README.md) — Documentation index and quick overview
+- [docs/api-reference.md](docs/api-reference.md) — Complete REST API endpoint reference for catalog, cart, orders, and vendors
 - [docs/api-authentication.md](docs/api-authentication.md) — API bearer token authentication, request formats, and cURL examples
 - [docs/architecture.md](docs/architecture.md) — System architecture, request lifecycle, and data flow
 - [docs/frontend.md](docs/frontend.md) — React 19 mounting, Tailwind v4 theme, and Vite setup

@@ -419,7 +419,7 @@ Mode Vendor di header harus mengarahkan hanya ke pengalaman vendor; kontrol navi
 
 Sediakan sidebar/topbar, judul halaman, ringkasan hanya dari data yang tersedia, tabel atau list produk dan pesanan, form terstruktur, serta feedback state.
 
-UI Kelola Produk menyediakan form tambah barang dan daftar stok responsif. Implementasi saat ini hanya pratinjau dalam state halaman: produk, perubahan stok, dan pilihan foto belum disimpan ke server atau katalog publik.
+UI Kelola Produk menyediakan form tambah barang dan daftar stok responsif. Seluruh aksi vendor (tambah/edit/hapus produk, metrik penjualan, serta perubahan status pesanan) kini terhubung langsung ke REST API backend (`/api/vendor/*`) dengan persistensi database SQLite dan kontrol otorisasi Sanctum.
 
 ## 13. Perilaku responsif
 
